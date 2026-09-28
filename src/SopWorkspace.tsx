@@ -1,4 +1,5 @@
 import {useEffect,useMemo,useRef,useState,type ReactNode,type CSSProperties} from 'react'
+import { uid } from './lib/uid'
 import {jsPDF} from 'jspdf'
 import {initialValve,sopState,sopSentence,sopProblems,type SopNode,type SopDocument,type SopAction} from './sopModel'
 import './sop.css'
@@ -29,17 +30,17 @@ export default function SopWorkspace<T extends SopNode>({nodes,document:storedDo
  useEffect(()=>{if(!playing)return;const errors=actuationErrors(live,step?.actions??[]);if(errors.length){setRunErrors(errors);setPlaying(false);return}setRunErrors([]);const timer=setTimeout(()=>{if(index>=doc.steps.length-1)setPlaying(false);else setIndex(i=>i+1)},1000*speed);return()=>clearTimeout(timer)},[playing,index,doc.steps.length,speed])
  useEffect(()=>{if(!playing||!venting.size)return;const starts=new Map([...venting].map(id=>{const node=visualLive.find(n=>n.id===id);return[id,tankPressures[id]??node?.pressure??0]})),ticks=Math.max(4,speed*4),drops=new Map([...venting].map(id=>[id,Math.max(1,(nodes.find(n=>n.id===id)?.pressure??starts.get(id)??0)/ticks)])),timer=setInterval(()=>setTankPressures(current=>{const next={...current};for(const [id,start] of starts)next[id]=Math.max(0,(next[id]??start)-(drops.get(id)??1));return next}),200);return()=>clearInterval(timer)},[playing,index,venting,speed])
  const select=(i:number)=>{setRunErrors([]);setHighlightStep(i>=0);if(i!==index)setEditorOpen(false);setPlaying(false);setIndex(i);setPicked('');if(i<0)setTankPressures({});if(doc.steps[i]?.sectionId)setSelectedSection(doc.steps[i].sectionId!)}
- const addStep=()=>{const id=crypto.randomUUID(),steps=[...doc.steps],last=steps.map(s=>s.sectionId).lastIndexOf(activeSection),sectionIndex=doc.sections!.findIndex(s=>s.id===activeSection),nextSectionIds=new Set(doc.sections!.slice(sectionIndex+1).map(s=>s.id)),following=steps.findIndex(s=>nextSectionIds.has(s.sectionId!)),at=step?.sectionId===activeSection?index+1:last>=0?last+1:following>=0?following:steps.length;steps.splice(at,0,{id,title:'New step',role:'SO',actions:[],sectionId:activeSection});edit({...doc,steps});setIndex(at);setEditorOpen(true)};
+ const addStep=()=>{const id=uid(),steps=[...doc.steps],last=steps.map(s=>s.sectionId).lastIndexOf(activeSection),sectionIndex=doc.sections!.findIndex(s=>s.id===activeSection),nextSectionIds=new Set(doc.sections!.slice(sectionIndex+1).map(s=>s.id)),following=steps.findIndex(s=>nextSectionIds.has(s.sectionId!)),at=step?.sectionId===activeSection?index+1:last>=0?last+1:following>=0?following:steps.length;steps.splice(at,0,{id,title:'New step',role:'SO',actions:[],sectionId:activeSection});edit({...doc,steps});setIndex(at);setEditorOpen(true)};
  const updateStep=(patch:Partial<NonNullable<typeof step>>)=>{if(step)edit({...doc,steps:doc.steps.map(s=>s.id===step.id?{...s,...patch}:s)})}
  const action=(a:SopAction)=>updateStep({actions:step.actions.map(x=>x.id===a.id?a:x)})
- const addAction=(type:SopAction['type'],target=picked)=>{if(!step)return;updateStep({actions:[...step.actions,{id:crypto.randomUUID(),type,target,name:'',value:0,text:''}]})}
+ const addAction=(type:SopAction['type'],target=picked)=>{if(!step)return;updateStep({actions:[...step.actions,{id:uid(),type,target,name:'',value:0,text:''}]})}
  const selectedNode=live.find(n=>n.id===picked)
  const setComponent=(node:T,type:'open'|'close'|'regulator',value=0)=>{
   if(index<0){edit(type==='regulator'?{...doc,regulators:{...doc.regulators,[node.id]:value}}:{...doc,initial:{...doc.initial,[node.id]:type==='open'?'open':'closed'}});return}
   if(!step)return;
   const matches=(a:SopAction)=>a.target===node.id&&(type==='regulator'?a.type==='regulator':a.type==='open'||a.type==='close');
   const existing=step.actions.find(matches);
-  const updated:SopAction={id:existing?.id??crypto.randomUUID(),type,target:node.id,name:existing?.name??'',value,text:''};
+  const updated:SopAction={id:existing?.id??uid(),type,target:node.id,name:existing?.name??'',value,text:''};
   updateStep({actions:[...step.actions.filter(a=>!matches(a)),updated]});
  }
  const exportPdf=()=>{const pdf=new jsPDF();let y=20;const line=(text:string,bold=false)=>{pdf.setFont('helvetica',bold?'bold':'normal');pdf.setFontSize(bold?13:10);for(const row of pdf.splitTextToSize(text,175)){if(y>276){pdf.addPage();y=20}pdf.text(row,18,y);y+=6}y+=3};line(doc.title,true);line(`${project.toUpperCase()} - Procedure draft`);line('Initial valve states',true);valves.forEach(n=>line(`${n.tag}: ${initialValve(n,doc).toUpperCase()}`));regs.forEach(n=>line(`${n.tag}: ${doc.regulators[n.id]??0} psi setpoint`));line('Procedure',true);doc.steps.forEach((s,i)=>line(`${i+1}. ${s.role}: ${s.actions.map(a=>sopSentence(a,nodes)).join(' ')}`));for(let i=1;i<=pdf.getNumberOfPages();i++){pdf.setPage(i);pdf.setFontSize(8);pdf.text(`Draft | ${i} / ${pdf.getNumberOfPages()}`,18,289)}pdf.save(`${project}-sop.pdf`)}
