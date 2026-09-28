@@ -220,7 +220,7 @@ export function setLocalPresence(
   cursor: { x: number; y: number } | null,
   selection: string[]
 ): void {
-  c.awareness.setLocalState({ user: identity, cursor, selection });
+  c.awareness.setLocalState({ user: identity, cursor, selection, lastActive: Date.now() });
 }
 
 export function readPeers(c: CollabDoc): PeerPresence[] {
@@ -231,7 +231,10 @@ export function readPeers(c: CollabDoc): PeerPresence[] {
       user?: { name?: string; color?: string };
       cursor?: { x: number; y: number } | null;
       selection?: string[];
+      lastActive?: number;
     };
+    // Drop stale presence: client hasn't announced in 30s (crashed, closed laptop, etc.)
+    if (Date.now() - (s.lastActive ?? 0) > 30000) continue;
     peers.push({
       clientId,
       name: s.user?.name ?? 'Anonymous',
@@ -470,4 +473,63 @@ export function attachRealtimeSync(
   };
 
   return { broadcastUpdate, setHydrated, leave };
+}
+
+export interface DbSyncHooks {
+  onRemoteDoc: (doc: ProjectDoc, updatedAt: string) => void;
+}
+
+/**
+ * Reliable cross-computer doc sync via Postgres Changes.
+ *
+ * The Yjs-over-Broadcast path is best-effort and can miss updates (handshake
+ * races, dropped messages). This subscription fires whenever ANY client
+ * persists the project to the DB, guaranteeing eventual consistency:
+ * the notified client fetches the latest doc and merges it into its Yjs doc.
+ * Typical latency is ~1.5s (1s persist debounce + notification + fetch).
+ */
+export function attachDbSync(
+  sb: SupabaseClient,
+  projectId: string,
+  hooks: DbSyncHooks
+): { leave: () => void } {
+  let left = false;
+  const channel = sb
+    .channel(`propflow:db:${projectId}`)
+    .on(
+      'postgres_changes',
+      {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'project_documents',
+        filter: `project_id=eq.${projectId}`,
+      },
+      (payload) => {
+        if (left) return;
+        const row = payload.new as { doc?: ProjectDoc; updated_at?: string } | undefined;
+        if (row?.doc && row?.updated_at) {
+          try {
+            hooks.onRemoteDoc(row.doc, row.updated_at);
+          } catch (e) {
+            console.error('onRemoteDoc failed', e);
+          }
+        }
+      }
+    )
+    .subscribe((status) => {
+      if (status === 'SUBSCRIBED') {
+        console.debug(`[db-sync] subscribed for ${projectId}`);
+      }
+    });
+
+  return {
+    leave: () => {
+      left = true;
+      try {
+        void sb.removeChannel(channel);
+      } catch {
+        /* ignore */
+      }
+    },
+  };
 }

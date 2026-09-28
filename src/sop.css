@@ -12,7 +12,7 @@
 .sop-section-heading input{min-width:0;flex:1;margin:0;padding:6px}
 .sop-section .sop-step{width:100%;margin:6px 0;text-align:left;cursor:grab}
 .sop-section small{color:#93a8b7;font-size:11px}
-.sop-step-flash{position:absolute;top:65px;left:316px;right:306px;padding:16px;background:#132a39f5;border:2px solid #ffe18c;border-radius:8px;color:#ffe18c;z-index:3;pointer-events:none;animation:sop-step-flash 1.2s ease-out}
+.sop-step-flash{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);max-width:min(720px,80vw);padding:16px;background:#132a39f5;border:2px solid #ffe18c;border-radius:8px;color:#ffe18c;z-index:3;pointer-events:none;animation:sop-step-flash 1.2s ease-out}
 .sop-step-flash p{margin:6px 0 0;font-size:13px;color:#dce7ef}
 @keyframes sop-step-flash{0%,50%{box-shadow:0 0 22px #ffe18c99}100%{box-shadow:none}}
 @media(prefers-reduced-motion:reduce){.sop-step-flash{animation:none}}
@@ -31,7 +31,7 @@
 .sop-close-editor{position:absolute;right:18px;bottom:calc(max(36%, 200px) - 34px);z-index:5;width:28px;height:28px;padding:0!important;font-size:20px!important}
 .sop-editor{padding-top:40px}
 .sop-navigation{min-height:54px}
-.sop-step-flash{top:119px}
+.sop-step-flash{top:50%}
 .sop-workspace{grid-template-columns:250px minmax(650px,1fr) 300px}
 .sop-middle{grid-template-rows:48px 54px minmax(200px,1fr) minmax(200px,36%)}
 .sop-middle.sop-playing{grid-template-rows:48px 54px minmax(200px,1fr)}

@@ -133,3 +133,14 @@ export async function resolveShareToken(token: string): Promise<{ projectId: str
   if (!data || !data.length) return null;
   return { projectId: (data[0] as { project_id: string }).project_id };
 }
+
+export async function loadProjectUpdatedAt(id: string): Promise<string | null> {
+  const sb = requireSupabase();
+  const { data, error } = await sb
+    .from('project_documents')
+    .select('updated_at')
+    .eq('project_id', id)
+    .maybeSingle();
+  if (error) throw error;
+  return (data?.updated_at as string | undefined) ?? null;
+}
