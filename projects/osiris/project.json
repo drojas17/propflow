@@ -1,0 +1,3298 @@
+{
+  "nodes": [
+    {
+      "id": "a94be19c-eb01-434e-9fa5-9d56415ab38e",
+      "kind": "tank",
+      "symbolType": "tank",
+      "tag": "NK-2",
+      "x": 188.34758194039762,
+      "y": 167.14411411497994,
+      "fluid": "GN2",
+      "volume": 56.2,
+      "meop": 2640,
+      "mawp": 2640,
+      "pressure": 2640,
+      "tankRole": "source",
+      "boundary": "supply",
+      "fluidLocked": true
+    },
+    {
+      "id": "fa640e93-6cda-467e-966d-5dbf0ef8a80a",
+      "kind": "regulator",
+      "symbolType": "regulator",
+      "tag": "NPR-1",
+      "x": 188.34758194039762,
+      "y": 429.3440613797713,
+      "fluid": "GN2",
+      "portRx": 22,
+      "portRy": 48,
+      "portOffsets": {
+        "left": 22,
+        "right": 22,
+        "top": 48,
+        "bottom": 12
+      },
+      "labelX": 0,
+      "labelY": 0,
+      "rotation": 270
+    },
+    {
+      "id": "c45940f8-8053-4c0b-9ae3-ddf471e026b7",
+      "kind": "valve",
+      "symbolType": "manual-ball",
+      "tag": "NKV-1",
+      "x": 188.34758194039762,
+      "y": 312.95692876648985,
+      "state": "closed",
+      "fluid": "GN2",
+      "portRx": 18,
+      "portRy": 25,
+      "portOffsets": {
+        "left": 18,
+        "right": 18,
+        "top": 25,
+        "bottom": 12
+      },
+      "rotation": 270
+    },
+    {
+      "id": "2e5565e8-3df1-4d1d-86ef-23ea84857e2d",
+      "kind": "fitting",
+      "symbolType": "tee",
+      "tag": "TEE-5",
+      "x": 188.34758194039762,
+      "y": 377.744117080311,
+      "fluid": "GN2",
+      "portRx": 16,
+      "portRy": 16,
+      "portOffsets": {
+        "left": 16,
+        "right": 16,
+        "top": 6,
+        "bottom": 16
+      },
+      "rotation": 270
+    },
+    {
+      "id": "9d36d33e-fd57-4582-a835-8a725e332602",
+      "kind": "fitting",
+      "symbolType": "tee",
+      "tag": "TEE-5",
+      "x": 188.34758194039762,
+      "y": 489.6420991974792,
+      "fluid": "GN2",
+      "portRx": 16,
+      "portRy": 16,
+      "portOffsets": {
+        "left": 16,
+        "right": 16,
+        "top": 6,
+        "bottom": 16
+      },
+      "rotation": 270
+    },
+    {
+      "id": "46d99447-7150-4ddd-a9ab-5557f7152997",
+      "kind": "valve",
+      "symbolType": "solenoid",
+      "tag": "NFV-1",
+      "x": 188.34758194039762,
+      "y": 558.4602618252328,
+      "state": "closed",
+      "fluid": "GN2",
+      "portRx": 24,
+      "portRy": 48,
+      "portOffsets": {
+        "left": 24,
+        "right": 24,
+        "top": 48,
+        "bottom": 12
+      },
+      "rotation": 270
+    },
+    {
+      "id": "1ddb2f14-1f9d-423d-b708-0d4a9d3443e7",
+      "kind": "fitting",
+      "symbolType": "tee",
+      "tag": "TEE-7",
+      "x": 188.34758194039762,
+      "y": 739.1792484270948,
+      "fluid": "GN2",
+      "portRx": 16,
+      "portRy": 16,
+      "portOffsets": {
+        "left": 16,
+        "right": 16,
+        "top": 6,
+        "bottom": 16
+      },
+      "rotation": 270
+    },
+    {
+      "id": "68ee2752-ef91-4d8e-87b0-4f0147f97e5b",
+      "kind": "valve",
+      "symbolType": "manual-ball",
+      "tag": "NMV-1",
+      "x": 328.6073790108093,
+      "y": 738.7136387387611,
+      "state": "closed",
+      "fluid": "GN2",
+      "portRx": 18,
+      "portRy": 25,
+      "portOffsets": {
+        "left": 18,
+        "right": 18,
+        "top": 25,
+        "bottom": 12
+      }
+    },
+    {
+      "id": "8edb6228-804b-48d1-bcce-70d100e8ad3b",
+      "kind": "tank",
+      "symbolType": "tank",
+      "tag": "NK-1",
+      "x": 507.1990097559523,
+      "y": 738.7136387387611,
+      "fluid": "GN2",
+      "volume": 13,
+      "meop": 2100,
+      "mawp": 2320,
+      "fluidLocked": true
+    },
+    {
+      "id": "25f6d17d-7a34-4cb4-b532-520e23e0dc6d",
+      "kind": "sensor",
+      "symbolType": "gauge",
+      "tag": "NPG-1",
+      "x": 236.30388109455254,
+      "y": 377.744117080311,
+      "fluid": "GN2",
+      "portRx": 18,
+      "portRy": 19,
+      "portOffsets": {
+        "left": 18,
+        "right": 18,
+        "top": 19,
+        "bottom": 17
+      }
+    },
+    {
+      "id": "9b8cbf83-80fe-4655-80ac-f675c47fbd1f",
+      "kind": "sensor",
+      "symbolType": "gauge",
+      "tag": "NPG-2",
+      "x": 238.8265351557614,
+      "y": 489.6420991974792,
+      "fluid": "GN2",
+      "portRx": 18,
+      "portRy": 19,
+      "portOffsets": {
+        "left": 18,
+        "right": 18,
+        "top": 19,
+        "bottom": 17
+      }
+    },
+    {
+      "id": "6b986898-f166-424a-a6e1-8de2be33281e",
+      "kind": "fitting",
+      "symbolType": "tee",
+      "tag": "TEE-12",
+      "x": 630.4541801008984,
+      "y": 738.7136387387611,
+      "fluid": "GN2",
+      "portRx": 16,
+      "portRy": 16,
+      "portOffsets": {
+        "left": 16,
+        "right": 16,
+        "top": 6,
+        "bottom": 16
+      },
+      "rotation": 180
+    },
+    {
+      "id": "fc760e8d-d9f2-4a8d-8643-7456e2a0299b",
+      "kind": "valve",
+      "symbolType": "manual-ball",
+      "tag": "NMV-2",
+      "x": 709.3350625201499,
+      "y": 738.7136387387611,
+      "state": "closed",
+      "fluid": "GN2",
+      "portRx": 18,
+      "portRy": 25,
+      "portOffsets": {
+        "left": 18,
+        "right": 18,
+        "top": 25,
+        "bottom": 12
+      }
+    },
+    {
+      "id": "33fa83a9-2d62-4d2e-bb6d-38232db55c40",
+      "kind": "ambient",
+      "symbolType": "ambient",
+      "tag": "",
+      "x": 781.2215818975762,
+      "y": 738.7136387387611,
+      "fluid": "GN2",
+      "boundary": "ambient",
+      "pressure": 0,
+      "portRx": 28,
+      "portRy": 6,
+      "portOffsets": {
+        "left": 28,
+        "right": 20,
+        "top": 6,
+        "bottom": 6
+      }
+    },
+    {
+      "id": "4af9f567-6c66-4599-b2c5-6f07f1a36b0e",
+      "kind": "sensor",
+      "symbolType": "transducer",
+      "tag": "NPT-1",
+      "x": 630.4541801008984,
+      "y": 693.072730690575,
+      "fluid": "GN2",
+      "portRx": 18,
+      "portRy": 18,
+      "portOffsets": {
+        "left": 18,
+        "right": 18,
+        "top": 18,
+        "bottom": 18
+      }
+    },
+    {
+      "id": "3305e59c-ebed-45dd-bc27-36278755b97e",
+      "kind": "fitting",
+      "symbolType": "tee",
+      "tag": "TEE-16",
+      "x": 507.1990097559523,
+      "y": 862.2942335000877,
+      "fluid": "GN2",
+      "portRx": 16,
+      "portRy": 16,
+      "portOffsets": {
+        "left": 16,
+        "right": 16,
+        "top": 6,
+        "bottom": 16
+      },
+      "rotation": 270
+    },
+    {
+      "id": "0699869b-1b1d-47ca-9ef2-34763a10e7b7",
+      "kind": "fitting",
+      "symbolType": "tee",
+      "tag": "TEE-17",
+      "x": 507.1990097559523,
+      "y": 521.7205467139738,
+      "fluid": "GN2",
+      "portRx": 16,
+      "portRy": 16,
+      "portOffsets": {
+        "left": 16,
+        "right": 16,
+        "top": 6,
+        "bottom": 16
+      },
+      "rotation": 270
+    },
+    {
+      "id": "20858a47-5e99-4962-a1e7-4e02eca13088",
+      "kind": "regulator",
+      "symbolType": "regulator",
+      "tag": "OPR-1",
+      "x": 507.1990097559523,
+      "y": 917.797923000977,
+      "fluid": "GN2",
+      "portRx": 22,
+      "portRy": 48,
+      "portOffsets": {
+        "left": 22,
+        "right": 22,
+        "top": 48,
+        "bottom": 12
+      },
+      "rotation": 270
+    },
+    {
+      "id": "e52449a6-4068-4414-863a-3c117a92d961",
+      "kind": "regulator",
+      "symbolType": "regulator",
+      "tag": "FPR-1",
+      "x": 507.1990097559523,
+      "y": 458.758289574787,
+      "fluid": "GN2",
+      "portRx": 22,
+      "portRy": 48,
+      "portOffsets": {
+        "left": 22,
+        "right": 22,
+        "top": 48,
+        "bottom": 12
+      },
+      "rotation": 270
+    },
+    {
+      "id": "e51b0e39-1289-4734-9e89-71731bb0a8ed",
+      "kind": "fitting",
+      "symbolType": "tee",
+      "tag": "TEE-20",
+      "x": 507.1990097559523,
+      "y": 976.5923996685199,
+      "fluid": "GN2",
+      "portRx": 16,
+      "portRy": 16,
+      "portOffsets": {
+        "left": 16,
+        "right": 16,
+        "top": 6,
+        "bottom": 16
+      },
+      "rotation": 270
+    },
+    {
+      "id": "4e9ccb6f-6cef-4b80-bab2-64eb29191e87",
+      "kind": "fitting",
+      "symbolType": "tee",
+      "tag": "TEE-21",
+      "x": 507.1990097559523,
+      "y": 399.5600014121085,
+      "fluid": "GN2",
+      "portRx": 16,
+      "portRy": 16,
+      "portOffsets": {
+        "left": 16,
+        "right": 16,
+        "top": 6,
+        "bottom": 16
+      },
+      "rotation": 270
+    },
+    {
+      "id": "30470c27-5507-4915-bedc-8d16e8c5cfbe",
+      "kind": "valve",
+      "symbolType": "pneumatic-ball",
+      "tag": "OPV-1",
+      "x": 630.8701559799642,
+      "y": 1018.9682659151752,
+      "state": "closed",
+      "fluid": "GN2",
+      "portRx": 18,
+      "portRy": 25,
+      "portOffsets": {
+        "left": 18,
+        "right": 18,
+        "top": 25,
+        "bottom": 12
+      },
+      "rotation": 180,
+      "labelY": 10,
+      "actuatorOffset": {
+        "x": 0,
+        "y": -25
+      },
+      "connectedSolenoidId": "773d1bdf-13d0-45d7-9d6d-5611a532932a"
+    },
+    {
+      "id": "773d1bdf-13d0-45d7-9d6d-5611a532932a",
+      "kind": "valve",
+      "symbolType": "solenoid",
+      "tag": "OIV-1",
+      "x": 630.8701559799642,
+      "y": 1217.2047664060735,
+      "state": "closed",
+      "fluid": "GN2",
+      "portRx": 24,
+      "portRy": 48,
+      "portOffsets": {
+        "left": 24,
+        "right": 24,
+        "top": 48,
+        "bottom": 12
+      },
+      "rotation": 270
+    },
+    {
+      "id": "fc42446f-e00b-482a-ace6-beaa32c92e36",
+      "kind": "regulator",
+      "symbolType": "regulator",
+      "tag": "NPR-2",
+      "x": 330.7832591374654,
+      "y": 1278.4912106819681,
+      "fluid": "GN2",
+      "portRx": 22,
+      "portRy": 48,
+      "portOffsets": {
+        "left": 22,
+        "right": 22,
+        "top": 48,
+        "bottom": 12
+      },
+      "labelX": 0,
+      "labelY": -35
+    },
+    {
+      "id": "ab6417e5-d480-4ba4-97b6-4c53da851235",
+      "kind": "fitting",
+      "symbolType": "tee",
+      "tag": "TEE-1",
+      "x": 188.34758194039762,
+      "y": 1005.3393972516742,
+      "fluid": "GN2",
+      "portRx": 16,
+      "portRy": 16,
+      "portOffsets": {
+        "left": 16,
+        "right": 16,
+        "top": 6,
+        "bottom": 16
+      },
+      "rotation": 90
+    },
+    {
+      "id": "babb4a0a-4c6d-4e1c-be6a-1d4bb1925619",
+      "kind": "fitting",
+      "symbolType": "tee",
+      "tag": "TEE-2",
+      "x": 188.34758194039762,
+      "y": 855.5090628266538,
+      "fluid": "GN2",
+      "portRx": 16,
+      "portRy": 16,
+      "portOffsets": {
+        "left": 16,
+        "right": 16,
+        "top": 6,
+        "bottom": 16
+      },
+      "rotation": 90
+    },
+    {
+      "id": "db54502d-d287-4d73-bde1-7f8f764e2067",
+      "kind": "control",
+      "symbolType": "burst-disk",
+      "tag": "NBD-1",
+      "x": 114.27589572759513,
+      "y": 1005.3393972516742,
+      "fluid": "GN2",
+      "portRx": 20,
+      "portRy": 12,
+      "portOffsets": {
+        "left": 8,
+        "right": 20,
+        "top": 12,
+        "bottom": 12
+      },
+      "rotation": 180
+    },
+    {
+      "id": "d3def867-de3c-4469-82d5-c6123b8774ac",
+      "kind": "valve",
+      "symbolType": "solenoid",
+      "tag": "SV-1",
+      "x": 112.38910323259182,
+      "y": 855.5090628266538,
+      "state": "closed",
+      "fluid": "GN2",
+      "portRx": 24,
+      "portRy": 48,
+      "portOffsets": {
+        "left": 24,
+        "right": 24,
+        "top": 48,
+        "bottom": 12
+      }
+    },
+    {
+      "id": "41354829-0c00-4ea2-8a2f-25eabc5a9390",
+      "kind": "ambient",
+      "symbolType": "ambient",
+      "tag": "",
+      "x": 60,
+      "y": 855.5090628266538,
+      "fluid": "GN2",
+      "boundary": "ambient",
+      "pressure": 0,
+      "portRx": 28,
+      "portRy": 6,
+      "portOffsets": {
+        "left": 28,
+        "right": 20,
+        "top": 6,
+        "bottom": 6
+      },
+      "rotation": 180
+    },
+    {
+      "id": "ab8bf572-abdd-4167-a934-1de663ed3b60",
+      "kind": "fitting",
+      "symbolType": "tee",
+      "tag": "TEE-3",
+      "x": 249.07670277080956,
+      "y": 1278.4912106819681,
+      "fluid": "GN2",
+      "portRx": 16,
+      "portRy": 16,
+      "portOffsets": {
+        "left": 16,
+        "right": 16,
+        "top": 6,
+        "bottom": 16
+      }
+    },
+    {
+      "id": "5657beca-3f99-473b-ba39-cb2c1985cca9",
+      "kind": "fitting",
+      "symbolType": "tee",
+      "tag": "TEE-4",
+      "x": 411.34759012990077,
+      "y": 1278.4912106819681,
+      "fluid": "GN2",
+      "portRx": 16,
+      "portRy": 16,
+      "portOffsets": {
+        "left": 16,
+        "right": 16,
+        "top": 6,
+        "bottom": 16
+      }
+    },
+    {
+      "id": "3ec433c4-5d5d-4612-aadb-46f40aa56ac8",
+      "kind": "fitting",
+      "symbolType": "cross",
+      "tag": "X-1",
+      "x": 630.8701559799642,
+      "y": 1278.4912106819681,
+      "fluid": "GN2",
+      "portRx": 16,
+      "portRy": 16,
+      "portOffsets": {
+        "left": 16,
+        "right": 16,
+        "top": 16,
+        "bottom": 16
+      }
+    },
+    {
+      "id": "44288768-d70e-420f-9d1f-a1eb242ea947",
+      "kind": "fitting",
+      "symbolType": "cross",
+      "tag": "X-2",
+      "x": 826.7475790942758,
+      "y": 1278.4912106819681,
+      "fluid": "GN2",
+      "portRx": 16,
+      "portRy": 16,
+      "portOffsets": {
+        "left": 16,
+        "right": 16,
+        "top": 16,
+        "bottom": 16
+      }
+    },
+    {
+      "id": "2a556c93-623d-4a76-8f78-8b879a282d9e",
+      "kind": "valve",
+      "symbolType": "solenoid",
+      "tag": "FIV-1",
+      "x": 630.8701559799642,
+      "y": 1357.1390447963897,
+      "state": "closed",
+      "fluid": "GN2",
+      "portRx": 24,
+      "portRy": 48,
+      "portOffsets": {
+        "left": 24,
+        "right": 24,
+        "top": 48,
+        "bottom": 12
+      },
+      "rotation": 270
+    },
+    {
+      "id": "a94dce5d-3ed3-4d57-ba20-13b8c07f1996",
+      "kind": "valve",
+      "symbolType": "pneumatic-ball",
+      "tag": "FPV-1",
+      "x": 630.1915926359477,
+      "y": 359.5009692623236,
+      "state": "closed",
+      "fluid": "GN2",
+      "portRx": 18,
+      "portRy": 25,
+      "portOffsets": {
+        "left": 18,
+        "right": 18,
+        "top": 25,
+        "bottom": 12
+      },
+      "labelY": -10,
+      "actuatorOffset": {
+        "x": 0,
+        "y": -25
+      },
+      "connectedSolenoidId": "2a556c93-623d-4a76-8f78-8b879a282d9e"
+    },
+    {
+      "id": "82c1a7a1-ef5f-48a8-b2f7-93c56331fd3d",
+      "kind": "control",
+      "symbolType": "check-valve",
+      "tag": "FCV-1",
+      "x": 708.746791331765,
+      "y": 359.5009692623236,
+      "fluid": "GN2",
+      "portRx": 30,
+      "portRy": 13,
+      "portOffsets": {
+        "left": 30,
+        "right": 30,
+        "top": 13,
+        "bottom": 13
+      },
+      "labelX": 0,
+      "labelY": 0
+    },
+    {
+      "id": "496b3e0f-9f96-4c56-82e9-8a2e9c31ff65",
+      "kind": "fitting",
+      "symbolType": "cross",
+      "tag": "X-3",
+      "x": 770.9898406414115,
+      "y": 359.5009692623236,
+      "fluid": "GN2",
+      "portRx": 16,
+      "portRy": 16,
+      "portOffsets": {
+        "left": 16,
+        "right": 16,
+        "top": 16,
+        "bottom": 16
+      }
+    },
+    {
+      "id": "088bc90c-5cbb-45c1-9113-78dbf0f345dc",
+      "kind": "fitting",
+      "symbolType": "tee",
+      "tag": "TEE-6",
+      "x": 770.9898406414115,
+      "y": 240.25376513149007,
+      "fluid": "GN2",
+      "portRx": 16,
+      "portRy": 16,
+      "portOffsets": {
+        "left": 16,
+        "right": 16,
+        "top": 6,
+        "bottom": 16
+      }
+    },
+    {
+      "id": "29af6fff-c774-41fa-92b7-cf3d85d22c23",
+      "kind": "fitting",
+      "symbolType": "cross",
+      "tag": "X-4",
+      "x": 770.9898406414115,
+      "y": 416.6758861083165,
+      "fluid": "GN2",
+      "portRx": 16,
+      "portRy": 16,
+      "portOffsets": {
+        "left": 16,
+        "right": 16,
+        "top": 16,
+        "bottom": 16
+      }
+    },
+    {
+      "id": "86a2f38f-504a-4a9a-891c-ed2b8ee0ec50",
+      "kind": "fitting",
+      "symbolType": "tee",
+      "tag": "TEE-8",
+      "x": 770.9898406414115,
+      "y": 480.0370050793125,
+      "fluid": "GN2",
+      "portRx": 16,
+      "portRy": 16,
+      "portOffsets": {
+        "left": 16,
+        "right": 16,
+        "top": 6,
+        "bottom": 16
+      },
+      "rotation": 90
+    },
+    {
+      "id": "3e760408-c332-4637-9ba6-6b608079d761",
+      "kind": "control",
+      "symbolType": "relief-valve",
+      "tag": "FRV-1",
+      "x": 770.9898406414115,
+      "y": 536.6594027434513,
+      "fluid": "GN2",
+      "portRx": 32,
+      "portRy": 16,
+      "portOffsets": {
+        "left": 16,
+        "right": 32,
+        "top": 8,
+        "bottom": 16
+      },
+      "rotation": 90,
+      "labelX": -25,
+      "labelY": 0
+    },
+    {
+      "id": "6c5e5e2a-b614-446d-9d56-2660b593b1c1",
+      "kind": "control",
+      "symbolType": "burst-disk",
+      "tag": "BD-1",
+      "x": 710.7664423015237,
+      "y": 480.0370050793125,
+      "fluid": "GN2",
+      "portRx": 20,
+      "portRy": 12,
+      "portOffsets": {
+        "left": 8,
+        "right": 20,
+        "top": 12,
+        "bottom": 12
+      },
+      "rotation": 90
+    },
+    {
+      "id": "fb1caf72-e22e-4675-bec7-bfff06eded33",
+      "kind": "sensor",
+      "symbolType": "gauge",
+      "tag": "FPG-1",
+      "x": 709.7880305853137,
+      "y": 416.6758861083165,
+      "fluid": "GN2",
+      "portRx": 18,
+      "portRy": 19,
+      "portOffsets": {
+        "left": 18,
+        "right": 18,
+        "top": 19,
+        "bottom": 17
+      }
+    },
+    {
+      "id": "f62ae606-ea16-4816-8e62-5667bdfe6581",
+      "kind": "valve",
+      "symbolType": "solenoid",
+      "tag": "FVV-1",
+      "x": 704.7475681419226,
+      "y": 240.25376513149007,
+      "state": "open",
+      "fluid": "GN2",
+      "portRx": 24,
+      "portRy": 48,
+      "portOffsets": {
+        "left": 24,
+        "right": 24,
+        "top": 48,
+        "bottom": 12
+      },
+      "labelX": 0,
+      "labelY": -25
+    },
+    {
+      "id": "32746209-91c4-4176-bbe7-113aeb257970",
+      "kind": "ambient",
+      "symbolType": "ambient",
+      "tag": "",
+      "x": 644.9475507224654,
+      "y": 240.25376513149007,
+      "fluid": "GN2",
+      "boundary": "ambient",
+      "pressure": 0,
+      "portRx": 28,
+      "portRy": 6,
+      "portOffsets": {
+        "left": 28,
+        "right": 20,
+        "top": 6,
+        "bottom": 6
+      },
+      "rotation": 180
+    },
+    {
+      "id": "c3fb7f22-b279-4532-8c67-f54b418e7f1a",
+      "kind": "valve",
+      "symbolType": "pneumatic-ball",
+      "tag": "FDV-1",
+      "x": 829.8896464837801,
+      "y": 240.25376513149007,
+      "state": "closed",
+      "fluid": "GN2",
+      "portRx": 18,
+      "portRy": 25,
+      "portOffsets": {
+        "left": 18,
+        "right": 18,
+        "top": 25,
+        "bottom": 12
+      },
+      "actuatorOffset": {
+        "x": 0,
+        "y": -25
+      },
+      "connectedSolenoidId": "56962340-54b2-4a0f-84cd-585cf422d832"
+    },
+    {
+      "id": "b1f35dd3-6b2c-4170-aca4-ca3dbd06ba75",
+      "kind": "control",
+      "symbolType": "check-valve",
+      "tag": "OCV-1",
+      "x": 708.0608431654991,
+      "y": 1018.9682659151752,
+      "fluid": "GN2",
+      "portRx": 30,
+      "portRy": 13,
+      "portOffsets": {
+        "left": 30,
+        "right": 30,
+        "top": 13,
+        "bottom": 13
+      },
+      "labelY": 0
+    },
+    {
+      "id": "aea13c73-4df3-4475-a78e-6f69621e97c1",
+      "kind": "fitting",
+      "symbolType": "cross",
+      "tag": "X-5",
+      "x": 771.1933512035378,
+      "y": 1018.9682659151752,
+      "fluid": "GN2",
+      "portRx": 16,
+      "portRy": 16,
+      "portOffsets": {
+        "left": 16,
+        "right": 16,
+        "top": 16,
+        "bottom": 16
+      }
+    },
+    {
+      "id": "b78ef9a8-c7c3-4fb2-a644-9d10d164cf6e",
+      "kind": "sensor",
+      "symbolType": "transducer",
+      "tag": "FPT-1",
+      "x": 830.1523387444788,
+      "y": 416.6758861083165,
+      "fluid": "GN2",
+      "portRx": 18,
+      "portRy": 18,
+      "portOffsets": {
+        "left": 18,
+        "right": 18,
+        "top": 18,
+        "bottom": 18
+      },
+      "labelX": 0,
+      "labelY": 0
+    },
+    {
+      "id": "5ebb1507-4b9a-4b72-bd97-3fd9da1c3606",
+      "kind": "fitting",
+      "symbolType": "cross",
+      "tag": "X-6",
+      "x": 771.1933512035378,
+      "y": 958.5185946425408,
+      "fluid": "GN2",
+      "portRx": 16,
+      "portRy": 16,
+      "portOffsets": {
+        "left": 16,
+        "right": 16,
+        "top": 16,
+        "bottom": 16
+      }
+    },
+    {
+      "id": "a08773f7-2a49-4b64-ac34-bc05ac740a21",
+      "kind": "sensor",
+      "symbolType": "gauge",
+      "tag": "OPG-1",
+      "x": 709.7880305853137,
+      "y": 958.5185946425408,
+      "fluid": "GN2",
+      "portRx": 18,
+      "portRy": 19,
+      "portOffsets": {
+        "left": 18,
+        "right": 18,
+        "top": 19,
+        "bottom": 17
+      }
+    },
+    {
+      "id": "8efbe1b2-4962-40fc-b707-a58d278aabd0",
+      "kind": "sensor",
+      "symbolType": "transducer",
+      "tag": "PT-1",
+      "x": 832.8010060074537,
+      "y": 958.5185946425408,
+      "fluid": "GN2",
+      "portRx": 18,
+      "portRy": 18,
+      "portOffsets": {
+        "left": 18,
+        "right": 18,
+        "top": 18,
+        "bottom": 18
+      }
+    },
+    {
+      "id": "6deb1e6d-3b09-42c4-a493-b39f5f0f267b",
+      "kind": "fitting",
+      "symbolType": "tee",
+      "tag": "TEE-9",
+      "x": 771.1933512035378,
+      "y": 898.2132986214317,
+      "fluid": "GN2",
+      "portRx": 16,
+      "portRy": 16,
+      "portOffsets": {
+        "left": 16,
+        "right": 16,
+        "top": 6,
+        "bottom": 16
+      },
+      "rotation": 90
+    },
+    {
+      "id": "bc5cbee4-5f32-4706-b8f7-44a43de44dfc",
+      "kind": "control",
+      "symbolType": "relief-valve",
+      "tag": "ORV-1",
+      "x": 771.1933512035378,
+      "y": 840.5033944539431,
+      "fluid": "GN2",
+      "portRx": 32,
+      "portRy": 16,
+      "portOffsets": {
+        "left": 16,
+        "right": 32,
+        "top": 8,
+        "bottom": 16
+      },
+      "rotation": 270,
+      "labelX": -100
+    },
+    {
+      "id": "c1e64156-11a5-480e-b3bf-f219e1c1a257",
+      "kind": "control",
+      "symbolType": "burst-disk",
+      "tag": "OBD-1",
+      "x": 710.5109454713565,
+      "y": 898.2132986214317,
+      "fluid": "GN2",
+      "portRx": 20,
+      "portRy": 12,
+      "portOffsets": {
+        "left": 8,
+        "right": 20,
+        "top": 12,
+        "bottom": 12
+      },
+      "rotation": 270,
+      "labelX": 10
+    },
+    {
+      "id": "c400de80-33c8-42fc-ab62-f23cf61a81ff",
+      "kind": "tank",
+      "symbolType": "tank",
+      "tag": "OK-1",
+      "x": 1066.7475790942758,
+      "y": 1018.9682659151752,
+      "fluid": "N2O",
+      "volume": 22.7,
+      "meop": 722,
+      "mawp": 900,
+      "tankRole": "receiver",
+      "fluidLocked": true
+    },
+    {
+      "id": "7e2f3e9c-c9e5-4234-b592-c82863992b5d",
+      "kind": "tank",
+      "symbolType": "tank",
+      "tag": "OK-2",
+      "x": 1459.189598368932,
+      "y": 1239.0677927280592,
+      "fluid": "N2O",
+      "volume": 1,
+      "meop": 900,
+      "mawp": 2000,
+      "tankRole": "source",
+      "fluidLocked": true,
+      "boundary": "supply",
+      "pressure": 800
+    },
+    {
+      "id": "4830d3da-2414-4d26-bb92-1ebbd37ffe18",
+      "kind": "sensor",
+      "symbolType": "gauge",
+      "tag": "NPG-7",
+      "x": 249.07670277080956,
+      "y": 1318.9642026945614,
+      "fluid": "GN2",
+      "portRx": 18,
+      "portRy": 19,
+      "portOffsets": {
+        "left": 18,
+        "right": 18,
+        "top": 19,
+        "bottom": 17
+      }
+    },
+    {
+      "id": "534d6185-1504-46ef-962c-60d84eccc27c",
+      "kind": "tank",
+      "symbolType": "tank",
+      "tag": "TK-1",
+      "x": 1093.7475790942758,
+      "y": 307.5009692623236,
+      "fluid": "IPA",
+      "volume": 1,
+      "meop": 100,
+      "mawp": 150,
+      "tankRole": "receiver",
+      "fluidLocked": true
+    },
+    {
+      "id": "4810962d-3d21-4055-9fc9-7ecb8ec58512",
+      "kind": "tank",
+      "symbolType": "tank",
+      "tag": "FK-2",
+      "x": 1191.0146976586288,
+      "y": 83,
+      "fluid": "IPA",
+      "volume": 1,
+      "meop": 100,
+      "mawp": 150,
+      "tankRole": "source",
+      "fluidLocked": true,
+      "boundary": "supply"
+    },
+    {
+      "id": "829b6987-a975-46f6-af29-c7bae4f1b9b6",
+      "kind": "custom",
+      "symbolType": "custom",
+      "customId": "01636a50-d910-4d3b-8078-03c05abece36",
+      "tag": "FP-1",
+      "x": 1191.0146976586288,
+      "y": 173.69418864540427,
+      "fluid": "GN2",
+      "portRx": 12,
+      "portRy": 12,
+      "portOffsets": {
+        "left": 12,
+        "right": 12,
+        "top": 12,
+        "bottom": 12
+      },
+      "rotation": 90
+    },
+    {
+      "id": "6fca3dcb-e46b-47fe-ac3f-abceed704afd",
+      "kind": "valve",
+      "symbolType": "manual-ball",
+      "tag": "MV-1",
+      "x": 1191.0146976586288,
+      "y": 234.80699174223292,
+      "state": "closed",
+      "fluid": "GN2",
+      "portRx": 18,
+      "portRy": 25,
+      "portOffsets": {
+        "left": 18,
+        "right": 18,
+        "top": 25,
+        "bottom": 12
+      },
+      "rotation": 90
+    },
+    {
+      "id": "259b1e63-a799-4f0a-8911-b878d048ba67",
+      "kind": "tank",
+      "symbolType": "tank",
+      "tag": "FK-3",
+      "x": 1066.7475790942758,
+      "y": 560.0594134127317,
+      "fluid": "Methane",
+      "volume": 1,
+      "meop": 100,
+      "mawp": 150,
+      "tankRole": "source",
+      "fluidLocked": true,
+      "boundary": "supply",
+      "tankHeight": 120,
+      "tankWidth": 130
+    },
+    {
+      "id": "a573e94a-e5a4-4ceb-a510-7c49ab81d6b2",
+      "kind": "tank",
+      "symbolType": "tank",
+      "tag": "OK-3",
+      "x": 1066.7475790942758,
+      "y": 862.3130184918464,
+      "fluid": "GOX",
+      "volume": 1,
+      "meop": 100,
+      "mawp": 150,
+      "tankRole": "source",
+      "fluidLocked": true,
+      "boundary": "supply",
+      "tankWidth": 130,
+      "tankHeight": 120
+    },
+    {
+      "id": "348cb1d5-b446-460c-8199-197a10b2a61c",
+      "kind": "tank",
+      "symbolType": "tank",
+      "tag": "TK-2",
+      "x": 1066.505142163287,
+      "y": 711.5907764750875,
+      "fluid": "GN2",
+      "volume": 1,
+      "meop": 100,
+      "mawp": 150,
+      "tankRole": "source",
+      "fluidLocked": true,
+      "boundary": "supply",
+      "tankWidth": 130,
+      "tankHeight": 120
+    },
+    {
+      "id": "945554fa-ac3f-4cb0-90ff-47f1a04a9e6a",
+      "kind": "valve",
+      "symbolType": "solenoid",
+      "tag": "OIV-2",
+      "x": 826.7475790942758,
+      "y": 1216.4047481074479,
+      "state": "closed",
+      "fluid": "GN2",
+      "portRx": 24,
+      "portRy": 48,
+      "portOffsets": {
+        "left": 24,
+        "right": 24,
+        "top": 48,
+        "bottom": 12
+      },
+      "rotation": 270
+    },
+    {
+      "id": "56962340-54b2-4a0f-84cd-585cf422d832",
+      "kind": "valve",
+      "symbolType": "solenoid",
+      "tag": "FIV-2",
+      "x": 826.7475790942758,
+      "y": 1357.9390325774377,
+      "state": "closed",
+      "fluid": "GN2",
+      "portRx": 24,
+      "portRy": 48,
+      "portOffsets": {
+        "left": 24,
+        "right": 24,
+        "top": 48,
+        "bottom": 12
+      },
+      "rotation": 270
+    },
+    {
+      "id": "9e55a8d9-fc5b-44a9-8cd1-47462b9c26dc",
+      "kind": "valve",
+      "symbolType": "pneumatic-ball",
+      "tag": "ODV-1",
+      "x": 826.9475632245394,
+      "y": 1137.8444455071053,
+      "state": "closed",
+      "fluid": "GN2",
+      "actuatorOffset": {
+        "x": 0,
+        "y": -25
+      },
+      "portRx": 18,
+      "portRy": 25,
+      "portOffsets": {
+        "left": 18,
+        "right": 18,
+        "top": 25,
+        "bottom": 12
+      },
+      "rotation": 180,
+      "ventsToAmbient": true
+    },
+    {
+      "id": "a6492c97-8ffc-40c7-8647-7ec798804853",
+      "kind": "fitting",
+      "symbolType": "tee",
+      "tag": "TEE-10",
+      "x": 771.1933512035378,
+      "y": 1137.8444455071053,
+      "fluid": "GN2",
+      "portRx": 16,
+      "portRy": 16,
+      "portOffsets": {
+        "left": 16,
+        "right": 16,
+        "top": 6,
+        "bottom": 16
+      },
+      "rotation": 180
+    },
+    {
+      "id": "f51723be-adeb-4d0e-b54e-8bfd1199b21b",
+      "kind": "valve",
+      "symbolType": "solenoid",
+      "tag": "OVV-1",
+      "x": 707.7475527937268,
+      "y": 1137.8444455071053,
+      "state": "open",
+      "fluid": "GN2",
+      "portRx": 24,
+      "portRy": 48,
+      "portOffsets": {
+        "left": 24,
+        "right": 24,
+        "top": 48,
+        "bottom": 12
+      },
+      "rotation": 180,
+      "labelX": 0,
+      "labelY": -80,
+      "ventsToAmbient": true
+    },
+    {
+      "id": "b8e66afe-3e6a-446b-a047-cf1f641abc7f",
+      "kind": "valve",
+      "symbolType": "solenoid",
+      "tag": "OIV-3",
+      "x": 915.9475466395472,
+      "y": 1278.4912106819681,
+      "state": "closed",
+      "fluid": "GN2",
+      "portRx": 24,
+      "portRy": 48,
+      "portOffsets": {
+        "left": 24,
+        "right": 24,
+        "top": 48,
+        "bottom": 12
+      },
+      "labelY": -20
+    },
+    {
+      "id": "8053caf2-da38-4645-823a-c4cd8fe275f5",
+      "kind": "valve",
+      "symbolType": "manual-ball",
+      "tag": "OKV-1",
+      "x": 1331.360489857079,
+      "y": 1239.0677927280592,
+      "state": "closed",
+      "fluid": "GN2",
+      "portRx": 18,
+      "portRy": 25,
+      "portOffsets": {
+        "left": 18,
+        "right": 18,
+        "top": 25,
+        "bottom": 12
+      },
+      "labelY": -10
+    },
+    {
+      "id": "5a03da9e-4d72-4385-af0c-bc06256888b0",
+      "kind": "fitting",
+      "symbolType": "tee",
+      "tag": "TEE-11",
+      "x": 1273.760515129448,
+      "y": 1239.0677927280592,
+      "fluid": "GN2",
+      "portRx": 16,
+      "portRy": 16,
+      "portOffsets": {
+        "left": 16,
+        "right": 16,
+        "top": 6,
+        "bottom": 16
+      },
+      "rotation": 180
+    },
+    {
+      "id": "c9df0fe0-1e16-4af3-8b7e-e15760879a26",
+      "kind": "valve",
+      "symbolType": "manual-ball",
+      "tag": "OMV-1",
+      "x": 1273.760515129448,
+      "y": 1193.957159099794,
+      "state": "closed",
+      "fluid": "GN2",
+      "portRx": 18,
+      "portRy": 25,
+      "portOffsets": {
+        "left": 18,
+        "right": 18,
+        "top": 25,
+        "bottom": 12
+      },
+      "rotation": 270,
+      "ventsToAmbient": true,
+      "labelX": 95,
+      "labelY": -15
+    },
+    {
+      "id": "98191ca7-173d-4166-8123-ba20db824e85",
+      "kind": "valve",
+      "symbolType": "pneumatic-ball",
+      "tag": "OFV-1",
+      "x": 1137.2431641226947,
+      "y": 1239.0677927280592,
+      "state": "closed",
+      "fluid": "GN2",
+      "actuatorOffset": {
+        "x": 0,
+        "y": -25
+      },
+      "portRx": 18,
+      "portRy": 25,
+      "portOffsets": {
+        "left": 18,
+        "right": 18,
+        "top": 25,
+        "bottom": 12
+      },
+      "rotation": 180
+    },
+    {
+      "id": "78ea57eb-2ac6-4b28-ba1b-2c15ab0c5099",
+      "kind": "fitting",
+      "symbolType": "cross",
+      "tag": "X-7",
+      "x": 1204.1425269142865,
+      "y": 1239.0677927280592,
+      "fluid": "GN2",
+      "portRx": 16,
+      "portRy": 16,
+      "portOffsets": {
+        "left": 16,
+        "right": 16,
+        "top": 16,
+        "bottom": 16
+      }
+    },
+    {
+      "id": "8a70df6c-782d-4398-8b33-a12df18ca116",
+      "kind": "sensor",
+      "symbolType": "transducer",
+      "tag": "OPT-0",
+      "x": 1204.1425269142865,
+      "y": 1193.9622166234378,
+      "fluid": "GN2",
+      "portRx": 18,
+      "portRy": 18,
+      "portOffsets": {
+        "left": 18,
+        "right": 18,
+        "top": 18,
+        "bottom": 18
+      },
+      "labelX": 50,
+      "labelY": -35
+    },
+    {
+      "id": "f34254c9-163c-49fc-9fb6-cfd4125a1376",
+      "kind": "control",
+      "symbolType": "relief-valve",
+      "tag": "RV-1",
+      "x": 1204.1425269142865,
+      "y": 1361.644508881743,
+      "fluid": "GN2",
+      "portRx": 32,
+      "portRy": 16,
+      "portOffsets": {
+        "left": 16,
+        "right": 32,
+        "top": 8,
+        "bottom": 16
+      },
+      "rotation": 90
+    },
+    {
+      "id": "0470e9cc-2a7d-40f4-9034-15e5c87d4f76",
+      "kind": "fitting",
+      "symbolType": "tee",
+      "tag": "TEE-13",
+      "x": 1204.1425269142865,
+      "y": 1318.4444362832867,
+      "fluid": "GN2",
+      "portRx": 16,
+      "portRy": 16,
+      "portOffsets": {
+        "left": 16,
+        "right": 16,
+        "top": 6,
+        "bottom": 16
+      },
+      "rotation": 90
+    },
+    {
+      "id": "6d6b18bc-45d7-4eee-85cb-4891bb251a1e",
+      "kind": "valve",
+      "symbolType": "solenoid",
+      "tag": "OVV-2",
+      "x": 1139.2151192252627,
+      "y": 1318.4444362832867,
+      "state": "closed",
+      "fluid": "GN2",
+      "portRx": 24,
+      "portRy": 48,
+      "portOffsets": {
+        "left": 24,
+        "right": 24,
+        "top": 48,
+        "bottom": 12
+      },
+      "rotation": 180,
+      "ventsToAmbient": true,
+      "labelX": 55,
+      "labelY": 55
+    },
+    {
+      "id": "5290de95-88cb-4e0b-b627-79bdd0c2abcf",
+      "kind": "sensor",
+      "symbolType": "gauge",
+      "tag": "NPG-8",
+      "x": 411.34759012990077,
+      "y": 1318.302717053572,
+      "fluid": "GN2",
+      "portRx": 18,
+      "portRy": 19,
+      "portOffsets": {
+        "left": 18,
+        "right": 18,
+        "top": 19,
+        "bottom": 17
+      }
+    },
+    {
+      "id": "22d4e574-56df-4432-beb1-593134b6757d",
+      "kind": "valve",
+      "symbolType": "manual-ball",
+      "tag": "FMV-2",
+      "x": 1024.0463928839677,
+      "y": 415.75155105518485,
+      "state": "closed",
+      "fluid": "GN2",
+      "portRx": 18,
+      "portRy": 25,
+      "portOffsets": {
+        "left": 18,
+        "right": 18,
+        "top": 25,
+        "bottom": 12
+      },
+      "rotation": 180,
+      "ventsToAmbient": true
+    },
+    {
+      "id": "0953c9cd-2ebe-4877-8102-1100230aabc0",
+      "kind": "valve",
+      "symbolType": "servo-ball",
+      "tag": "OTV-1",
+      "x": 1565.0367512917157,
+      "y": 1018.9682659151752,
+      "state": "closed",
+      "fluid": "GN2",
+      "portRx": 18,
+      "portRy": 40,
+      "portOffsets": {
+        "left": 18,
+        "right": 18,
+        "top": 40,
+        "bottom": 12
+      },
+      "labelY": -20
+    },
+    {
+      "id": "c592e5be-356a-464e-a6dc-cd147a138535",
+      "kind": "fitting",
+      "symbolType": "cross",
+      "tag": "X-8",
+      "x": 1482.2263858299923,
+      "y": 480.404026949849,
+      "fluid": "GN2",
+      "portRx": 16,
+      "portRy": 16,
+      "portOffsets": {
+        "left": 16,
+        "right": 16,
+        "top": 16,
+        "bottom": 16
+      }
+    },
+    {
+      "id": "b205d35c-d390-4491-ad83-e5afbbfc2f04",
+      "kind": "valve",
+      "symbolType": "servo-ball",
+      "tag": "FTV-1",
+      "x": 1562.7545950458775,
+      "y": 480.404026949849,
+      "state": "closed",
+      "fluid": "GN2",
+      "portRx": 18,
+      "portRy": 40,
+      "portOffsets": {
+        "left": 18,
+        "right": 18,
+        "top": 40,
+        "bottom": 12
+      },
+      "labelY": -25
+    },
+    {
+      "id": "894b6efa-51c2-4bd9-8695-b5122e227d5a",
+      "kind": "fitting",
+      "symbolType": "cross",
+      "tag": "X-9",
+      "x": 1093.7475790942758,
+      "y": 415.75155105518485,
+      "fluid": "GN2",
+      "portRx": 16,
+      "portRy": 16,
+      "portOffsets": {
+        "left": 16,
+        "right": 16,
+        "top": 16,
+        "bottom": 16
+      }
+    },
+    {
+      "id": "d8896f65-2c7a-4c3d-9f3a-e8f3aa8206ca",
+      "kind": "fitting",
+      "symbolType": "cross",
+      "tag": "X-10",
+      "x": 1641.0576315803014,
+      "y": 480.404026949849,
+      "fluid": "GN2",
+      "portRx": 16,
+      "portRy": 16,
+      "portOffsets": {
+        "left": 16,
+        "right": 16,
+        "top": 16,
+        "bottom": 16
+      }
+    },
+    {
+      "id": "bf0739cb-0acd-4a56-b181-6b0d462d2b08",
+      "kind": "control",
+      "symbolType": "check-valve",
+      "tag": "CV-1",
+      "x": 1722.7061178014997,
+      "y": 480.404026949849,
+      "fluid": "IPA",
+      "fluidLocked": true,
+      "portRx": 30,
+      "portRy": 13,
+      "portOffsets": {
+        "left": 30,
+        "right": 30,
+        "top": 13,
+        "bottom": 13
+      }
+    },
+    {
+      "id": "b30d844b-0d96-464e-a7ae-c13ac7a24adf",
+      "kind": "control",
+      "symbolType": "check-valve",
+      "tag": "CV-2",
+      "x": 1722.6636909852386,
+      "y": 1018.9682659151752,
+      "fluid": "GN2",
+      "portRx": 30,
+      "portRy": 13,
+      "portOffsets": {
+        "left": 30,
+        "right": 30,
+        "top": 13,
+        "bottom": 13
+      }
+    },
+    {
+      "id": "ea103b1b-9892-4a63-80c8-9e9a15e41292",
+      "kind": "control",
+      "symbolType": "tca",
+      "tag": "TCA-1",
+      "x": 1959.651130124496,
+      "y": 711.5907764750875,
+      "fluid": "Exhaust",
+      "fluidLocked": true,
+      "portRx": 104,
+      "portRy": 68,
+      "portOffsets": {
+        "left": 104,
+        "right": 100,
+        "top": 68,
+        "bottom": 68
+      },
+      "ventsToAmbient": true
+    },
+    {
+      "id": "ae04b60e-17c6-4b58-938c-7e824813df52",
+      "kind": "valve",
+      "symbolType": "servo-ball",
+      "tag": "FV-1",
+      "x": 1220.1999940246344,
+      "y": 711.5907764750875,
+      "state": "closed",
+      "fluid": "GN2",
+      "portRx": 18,
+      "portRy": 40,
+      "portOffsets": {
+        "left": 18,
+        "right": 18,
+        "top": 40,
+        "bottom": 12
+      }
+    },
+    {
+      "id": "c6757e7f-298e-4172-8401-f623b5f6da08",
+      "kind": "valve",
+      "symbolType": "servo-ball",
+      "tag": "FV-2",
+      "x": 1218.6000184625384,
+      "y": 862.3130184918464,
+      "state": "closed",
+      "fluid": "GN2",
+      "portRx": 18,
+      "portRy": 40,
+      "portOffsets": {
+        "left": 18,
+        "right": 18,
+        "top": 40,
+        "bottom": 12
+      }
+    },
+    {
+      "id": "f0bed84d-1b57-471f-bec5-a08e3f259a97",
+      "kind": "valve",
+      "symbolType": "manual-ball",
+      "tag": "MV-2",
+      "x": 1220.600018432736,
+      "y": 560.0594134127317,
+      "state": "closed",
+      "fluid": "GN2",
+      "portRx": 18,
+      "portRy": 25,
+      "portOffsets": {
+        "left": 18,
+        "right": 18,
+        "top": 25,
+        "bottom": 12
+      }
+    },
+    {
+      "id": "ece095c9-9446-4abb-af86-1dfcd296e74f",
+      "kind": "regulator",
+      "symbolType": "regulator",
+      "tag": "PR-1",
+      "x": 1361.2125041304155,
+      "y": 560.0594134127317,
+      "fluid": "GN2",
+      "portRx": 22,
+      "portRy": 48,
+      "portOffsets": {
+        "left": 22,
+        "right": 22,
+        "top": 48,
+        "bottom": 12
+      },
+      "labelY": 40,
+      "labelX": -45
+    },
+    {
+      "id": "ae84f25c-f971-4e34-8c85-1635616023a8",
+      "kind": "regulator",
+      "symbolType": "regulator",
+      "tag": "PR-2",
+      "x": 1308.8125415323295,
+      "y": 711.5907764750875,
+      "fluid": "GN2",
+      "portRx": 22,
+      "portRy": 48,
+      "portOffsets": {
+        "left": 22,
+        "right": 22,
+        "top": 48,
+        "bottom": 12
+      }
+    },
+    {
+      "id": "f30f355e-815f-446e-bcb7-be3d5823a963",
+      "kind": "fitting",
+      "symbolType": "tee",
+      "tag": "TEE-14",
+      "x": 1299.3102505144045,
+      "y": 560.0594134127317,
+      "fluid": "GN2",
+      "portRx": 16,
+      "portRy": 16,
+      "portOffsets": {
+        "left": 16,
+        "right": 16,
+        "top": 6,
+        "bottom": 16
+      },
+      "rotation": 180
+    },
+    {
+      "id": "9933152f-4058-4c50-940f-922ea83be22d",
+      "kind": "fitting",
+      "symbolType": "tee",
+      "tag": "TEE-15",
+      "x": 1262.5103243049537,
+      "y": 711.5907764750875,
+      "fluid": "GN2",
+      "portRx": 16,
+      "portRy": 16,
+      "portOffsets": {
+        "left": 16,
+        "right": 16,
+        "top": 6,
+        "bottom": 16
+      },
+      "rotation": 180
+    },
+    {
+      "id": "9c11664b-e6ce-45e0-87cf-1aa758213923",
+      "kind": "fitting",
+      "symbolType": "tee",
+      "tag": "TEE-18",
+      "x": 1359.2125041602178,
+      "y": 711.5907764750875,
+      "fluid": "GN2",
+      "portRx": 16,
+      "portRy": 16,
+      "portOffsets": {
+        "left": 16,
+        "right": 16,
+        "top": 6,
+        "bottom": 16
+      },
+      "rotation": 180
+    },
+    {
+      "id": "7e52012b-f086-4863-adf0-eb65f240225d",
+      "kind": "fitting",
+      "symbolType": "tee",
+      "tag": "TEE-19",
+      "x": 1421.6124666092921,
+      "y": 711.5907764750875,
+      "fluid": "GN2",
+      "portRx": 16,
+      "portRy": 16,
+      "portOffsets": {
+        "left": 16,
+        "right": 16,
+        "top": 6,
+        "bottom": 16
+      },
+      "rotation": 90
+    },
+    {
+      "id": "5fc2541f-2916-4f40-837c-6ab4b7ac8b36",
+      "kind": "fitting",
+      "symbolType": "cross",
+      "tag": "X-11",
+      "x": 1422.012491032295,
+      "y": 560.0594134127316,
+      "fluid": "GN2",
+      "portRx": 16,
+      "portRy": 16,
+      "portOffsets": {
+        "left": 16,
+        "right": 16,
+        "top": 16,
+        "bottom": 16
+      }
+    },
+    {
+      "id": "d8aa27ac-2021-4d7a-aac2-e284a103f91e",
+      "kind": "sensor",
+      "symbolType": "gauge",
+      "tag": "PG-1",
+      "x": 1299.3102505144045,
+      "y": 519.2129403020767,
+      "fluid": "GN2",
+      "portRx": 18,
+      "portRy": 19,
+      "portOffsets": {
+        "left": 18,
+        "right": 18,
+        "top": 19,
+        "bottom": 17
+      }
+    },
+    {
+      "id": "4ac9b1ac-1f77-44c7-acb6-2fa35fd3a617",
+      "kind": "sensor",
+      "symbolType": "gauge",
+      "tag": "PG-2",
+      "x": 1482.2263858299923,
+      "y": 520.6064721318083,
+      "fluid": "GN2",
+      "portRx": 18,
+      "portRy": 19,
+      "portOffsets": {
+        "left": 18,
+        "right": 18,
+        "top": 19,
+        "bottom": 17
+      }
+    },
+    {
+      "id": "bf352948-a079-4862-97a1-039f37239f88",
+      "kind": "sensor",
+      "symbolType": "gauge",
+      "tag": "PG-3",
+      "x": 1421.012491032295,
+      "y": 519.1935293754182,
+      "fluid": "GN2",
+      "portRx": 18,
+      "portRy": 19,
+      "portOffsets": {
+        "left": 18,
+        "right": 18,
+        "top": 19,
+        "bottom": 17
+      },
+      "labelX": -45
+    },
+    {
+      "id": "13b2b755-406c-4fbf-ba7d-833d4c525bc5",
+      "kind": "valve",
+      "symbolType": "manual-ball",
+      "tag": "MV-3",
+      "x": 1421.6124666092921,
+      "y": 750.1365806957173,
+      "state": "closed",
+      "fluid": "GN2",
+      "portRx": 18,
+      "portRy": 25,
+      "portOffsets": {
+        "left": 18,
+        "right": 18,
+        "top": 25,
+        "bottom": 12
+      },
+      "rotation": 90
+    },
+    {
+      "id": "49e1052f-8f72-4613-b6c2-f3b2eaf6135a",
+      "kind": "valve",
+      "symbolType": "manual-ball",
+      "tag": "MV-4",
+      "x": 1421.6124666092921,
+      "y": 670.9528975723094,
+      "state": "closed",
+      "fluid": "GN2",
+      "portRx": 18,
+      "portRy": 25,
+      "portOffsets": {
+        "left": 18,
+        "right": 18,
+        "top": 25,
+        "bottom": 12
+      },
+      "rotation": 90
+    },
+    {
+      "id": "1d1fdfac-4314-4e09-b2b1-e23ed6fc7548",
+      "kind": "control",
+      "symbolType": "check-valve",
+      "tag": "CV-3",
+      "x": 1421.6124666092921,
+      "y": 617.6399563599242,
+      "fluid": "GN2",
+      "fluidLocked": true,
+      "portRx": 30,
+      "portRy": 13,
+      "portOffsets": {
+        "left": 30,
+        "right": 30,
+        "top": 13,
+        "bottom": 13
+      },
+      "rotation": 270
+    },
+    {
+      "id": "b4d92933-1497-4618-9353-de27cfaa20c9",
+      "kind": "sensor",
+      "symbolType": "gauge",
+      "tag": "PG-4",
+      "x": 1262.5103243049537,
+      "y": 675.8762624678385,
+      "fluid": "GN2",
+      "portRx": 18,
+      "portRy": 19,
+      "portOffsets": {
+        "left": 18,
+        "right": 18,
+        "top": 19,
+        "bottom": 17
+      }
+    },
+    {
+      "id": "f2c671d8-73b2-4236-8ded-adc043249151",
+      "kind": "sensor",
+      "symbolType": "gauge",
+      "tag": "PG-5",
+      "x": 1359.2125041602178,
+      "y": 677.9381495962422,
+      "fluid": "GN2",
+      "portRx": 18,
+      "portRy": 19,
+      "portOffsets": {
+        "left": 18,
+        "right": 18,
+        "top": 19,
+        "bottom": 17
+      }
+    },
+    {
+      "id": "3bfd899a-d29f-4cbd-a752-bf9924894514",
+      "kind": "regulator",
+      "symbolType": "regulator",
+      "tag": "PR-3",
+      "x": 1361.4561491668817,
+      "y": 862.2942335000877,
+      "fluid": "GN2",
+      "portRx": 22,
+      "portRy": 48,
+      "portOffsets": {
+        "left": 22,
+        "right": 22,
+        "top": 48,
+        "bottom": 12
+      }
+    },
+    {
+      "id": "f7aa35a3-a5f8-4f6d-aa68-15d4a960ca5e",
+      "kind": "fitting",
+      "symbolType": "tee",
+      "tag": "TEE-22",
+      "x": 1301.250001444688,
+      "y": 862.3130184918464,
+      "fluid": "GN2",
+      "portRx": 16,
+      "portRy": 16,
+      "portOffsets": {
+        "left": 16,
+        "right": 16,
+        "top": 6,
+        "bottom": 16
+      }
+    },
+    {
+      "id": "fe230ab6-121f-45c2-bb22-ae8dc7b15763",
+      "kind": "fitting",
+      "symbolType": "cross",
+      "tag": "X-12",
+      "x": 1422.012491032295,
+      "y": 862.2942335000877,
+      "fluid": "GN2",
+      "portRx": 16,
+      "portRy": 16,
+      "portOffsets": {
+        "left": 16,
+        "right": 16,
+        "top": 16,
+        "bottom": 16
+      }
+    },
+    {
+      "id": "eac39188-fc64-4487-814e-82b6de9ade6d",
+      "kind": "control",
+      "symbolType": "check-valve",
+      "tag": "CV-4",
+      "x": 1421.6124666092921,
+      "y": 805.6856899484692,
+      "fluid": "GN2",
+      "fluidLocked": true,
+      "portRx": 30,
+      "portRy": 13,
+      "portOffsets": {
+        "left": 30,
+        "right": 30,
+        "top": 13,
+        "bottom": 13
+      },
+      "rotation": 90
+    },
+    {
+      "id": "89b24163-1c57-41bf-ac07-1304c58c65e1",
+      "kind": "sensor",
+      "symbolType": "gauge",
+      "tag": "PG-6",
+      "x": 1422.012491032295,
+      "y": 900.5825197407343,
+      "fluid": "GN2",
+      "portRx": 18,
+      "portRy": 19,
+      "portOffsets": {
+        "left": 18,
+        "right": 18,
+        "top": 19,
+        "bottom": 17
+      }
+    },
+    {
+      "id": "d7f93a8c-cc2a-43bb-a0a9-f361a9ddb337",
+      "kind": "sensor",
+      "symbolType": "gauge",
+      "tag": "PG-7",
+      "x": 1301.250001444688,
+      "y": 900.970833695051,
+      "fluid": "GN2",
+      "portRx": 18,
+      "portRy": 19,
+      "portOffsets": {
+        "left": 18,
+        "right": 18,
+        "top": 19,
+        "bottom": 17
+      }
+    },
+    {
+      "id": "dc9d5293-a52c-47a3-bf74-7c050cf1094d",
+      "kind": "control",
+      "symbolType": "asi",
+      "tag": "ASI-1",
+      "x": 1590.4392611046956,
+      "y": 711.5907764750875,
+      "fluid": "Exhaust",
+      "fluidLocked": true,
+      "portRx": 56,
+      "portRy": 28,
+      "portOffsets": {
+        "left": 56,
+        "right": 56,
+        "top": 28,
+        "bottom": 28
+      },
+      "ventsToAmbient": true
+    },
+    {
+      "id": "eaa8d29d-39e5-4582-a229-5c4bd7abab1a",
+      "kind": "sensor",
+      "symbolType": "gauge",
+      "tag": "PG-8",
+      "x": 541.9999652206902,
+      "y": 399.5600014121085,
+      "fluid": "GN2",
+      "portRx": 18,
+      "portRy": 19,
+      "portOffsets": {
+        "left": 18,
+        "right": 18,
+        "top": 19,
+        "bottom": 17
+      }
+    },
+    {
+      "id": "7e7be746-4d78-4843-b352-265f11f7be93",
+      "kind": "sensor",
+      "symbolType": "gauge",
+      "tag": "PG-9",
+      "x": 545.8000139921901,
+      "y": 521.7205467139738,
+      "fluid": "GN2",
+      "portRx": 18,
+      "portRy": 19,
+      "portOffsets": {
+        "left": 18,
+        "right": 18,
+        "top": 19,
+        "bottom": 17
+      }
+    },
+    {
+      "id": "d304bcff-a80b-40e0-9fa2-5c02c4eec151",
+      "kind": "sensor",
+      "symbolType": "gauge",
+      "tag": "PG-10",
+      "x": 543.1999774098399,
+      "y": 862.2942335000877,
+      "fluid": "GN2",
+      "portRx": 18,
+      "portRy": 19,
+      "portOffsets": {
+        "left": 18,
+        "right": 18,
+        "top": 19,
+        "bottom": 17
+      }
+    },
+    {
+      "id": "432bad71-c894-4f67-882b-c47918bc3c8a",
+      "kind": "sensor",
+      "symbolType": "gauge",
+      "tag": "PG-11",
+      "x": 542.9915817282979,
+      "y": 976.5923996685199,
+      "fluid": "GN2",
+      "portRx": 18,
+      "portRy": 19,
+      "portOffsets": {
+        "left": 18,
+        "right": 18,
+        "top": 19,
+        "bottom": 17
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "019f1aeb-2fe9-40ce-bb68-4bb70da983f7",
+      "from": "c45940f8-8053-4c0b-9ae3-ddf471e026b7",
+      "fromPort": "right",
+      "lineType": "tube",
+      "to": "a94be19c-eb01-434e-9fa5-9d56415ab38e",
+      "toPort": "bottom"
+    },
+    {
+      "id": "4aaa89c1-cae2-414c-9058-4bcd23652048",
+      "from": "2e5565e8-3df1-4d1d-86ef-23ea84857e2d",
+      "fromPort": "right",
+      "lineType": "tube",
+      "to": "c45940f8-8053-4c0b-9ae3-ddf471e026b7",
+      "toPort": "left"
+    },
+    {
+      "id": "08a67d38-1a24-4c90-8c31-33379b57640d",
+      "from": "fa640e93-6cda-467e-966d-5dbf0ef8a80a",
+      "fromPort": "right",
+      "lineType": "tube",
+      "to": "2e5565e8-3df1-4d1d-86ef-23ea84857e2d",
+      "toPort": "left"
+    },
+    {
+      "id": "e80c2e45-9dd3-4dcb-8152-ad4af01f7147",
+      "from": "9d36d33e-fd57-4582-a835-8a725e332602",
+      "fromPort": "right",
+      "lineType": "tube",
+      "to": "fa640e93-6cda-467e-966d-5dbf0ef8a80a",
+      "toPort": "left"
+    },
+    {
+      "id": "adc8dab3-eed5-4bf4-b135-0ea5bab0b817",
+      "from": "46d99447-7150-4ddd-a9ab-5557f7152997",
+      "fromPort": "right",
+      "lineType": "tube",
+      "to": "9d36d33e-fd57-4582-a835-8a725e332602",
+      "toPort": "left"
+    },
+    {
+      "id": "f1fd1bca-950d-4b9d-b74c-dacb6779e3b5",
+      "from": "1ddb2f14-1f9d-423d-b708-0d4a9d3443e7",
+      "fromPort": "right",
+      "lineType": "tube",
+      "to": "46d99447-7150-4ddd-a9ab-5557f7152997",
+      "toPort": "left"
+    },
+    {
+      "id": "d7ce7af5-b5d9-4fba-be53-d917c91f0889",
+      "from": "25f6d17d-7a34-4cb4-b532-520e23e0dc6d",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "2e5565e8-3df1-4d1d-86ef-23ea84857e2d",
+      "toPort": "bottom"
+    },
+    {
+      "id": "1ee96783-6ad8-4cdd-a98d-e8f827e8298b",
+      "from": "9b8cbf83-80fe-4655-80ac-f675c47fbd1f",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "9d36d33e-fd57-4582-a835-8a725e332602",
+      "toPort": "bottom"
+    },
+    {
+      "id": "17748706-d11f-416f-a1cc-3c6ee71bc0e2",
+      "from": "6b986898-f166-424a-a6e1-8de2be33281e",
+      "fromPort": "right",
+      "lineType": "tube",
+      "to": "8edb6228-804b-48d1-bcce-70d100e8ad3b",
+      "toPort": "right"
+    },
+    {
+      "id": "eae2812c-7c67-4635-8d25-5ef1f12056fa",
+      "from": "0699869b-1b1d-47ca-9ef2-34763a10e7b7",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "8edb6228-804b-48d1-bcce-70d100e8ad3b",
+      "toPort": "top"
+    },
+    {
+      "id": "0bcdbf1f-d145-4162-8937-b41bfb289426",
+      "from": "3305e59c-ebed-45dd-bc27-36278755b97e",
+      "fromPort": "right",
+      "lineType": "tube",
+      "to": "8edb6228-804b-48d1-bcce-70d100e8ad3b",
+      "toPort": "bottom"
+    },
+    {
+      "id": "7b78ed63-8952-4e8c-a3fb-b01be1f1db92",
+      "from": "20858a47-5e99-4962-a1e7-4e02eca13088",
+      "fromPort": "right",
+      "lineType": "tube",
+      "to": "3305e59c-ebed-45dd-bc27-36278755b97e",
+      "toPort": "left"
+    },
+    {
+      "id": "d1a10c21-2c1c-4a36-8d19-0ffd538945d2",
+      "from": "e52449a6-4068-4414-863a-3c117a92d961",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "0699869b-1b1d-47ca-9ef2-34763a10e7b7",
+      "toPort": "right"
+    },
+    {
+      "id": "8c6e9c07-ea1f-4ae6-82d3-f0c264f8887e",
+      "from": "e51b0e39-1289-4734-9e89-71731bb0a8ed",
+      "fromPort": "right",
+      "lineType": "tube",
+      "to": "20858a47-5e99-4962-a1e7-4e02eca13088",
+      "toPort": "left"
+    },
+    {
+      "id": "8543d5c4-669f-4832-8dca-d6aaeecf9321",
+      "from": "4e9ccb6f-6cef-4b80-bab2-64eb29191e87",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "e52449a6-4068-4414-863a-3c117a92d961",
+      "toPort": "right"
+    },
+    {
+      "id": "4e27d789-457c-4e8a-bbfe-00ca7ee5d3e8",
+      "from": "30470c27-5507-4915-bedc-8d16e8c5cfbe",
+      "fromPort": "right",
+      "lineType": "tube",
+      "to": "e51b0e39-1289-4734-9e89-71731bb0a8ed",
+      "toPort": "left",
+      "bend": 507.1990097559523,
+      "bendAxis": "x"
+    },
+    {
+      "id": "a47fbab4-6df8-46f7-9ebb-a4e906bcf961",
+      "from": "babb4a0a-4c6d-4e1c-be6a-1d4bb1925619",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "1ddb2f14-1f9d-423d-b708-0d4a9d3443e7",
+      "toPort": "left"
+    },
+    {
+      "id": "bcdc0ad0-d6d7-48a0-9f48-ca32b3524f78",
+      "from": "ab6417e5-d480-4ba4-97b6-4c53da851235",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "babb4a0a-4c6d-4e1c-be6a-1d4bb1925619",
+      "toPort": "right"
+    },
+    {
+      "id": "7b5f0d6d-8c07-4bc3-af16-7c832e895a82",
+      "from": "d3def867-de3c-4469-82d5-c6123b8774ac",
+      "fromPort": "right",
+      "lineType": "tube",
+      "to": "babb4a0a-4c6d-4e1c-be6a-1d4bb1925619",
+      "toPort": "bottom"
+    },
+    {
+      "id": "df606152-35d7-4ed7-b932-420e9a988bdb",
+      "from": "41354829-0c00-4ea2-8a2f-25eabc5a9390",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "d3def867-de3c-4469-82d5-c6123b8774ac",
+      "toPort": "left"
+    },
+    {
+      "id": "3666814e-ae75-496a-94d3-4abcd538b03d",
+      "from": "ab8bf572-abdd-4167-a934-1de663ed3b60",
+      "fromPort": "right",
+      "lineType": "tube",
+      "to": "fc42446f-e00b-482a-ace6-beaa32c92e36",
+      "toPort": "left"
+    },
+    {
+      "id": "dc8f59f9-967a-4dda-99f8-746dae425359",
+      "from": "5657beca-3f99-473b-ba39-cb2c1985cca9",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "fc42446f-e00b-482a-ace6-beaa32c92e36",
+      "toPort": "right"
+    },
+    {
+      "id": "54a8b584-1d58-4d75-9ccc-651f28f57443",
+      "from": "ab8bf572-abdd-4167-a934-1de663ed3b60",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "ab6417e5-d480-4ba4-97b6-4c53da851235",
+      "toPort": "right",
+      "bend": 188.34758194039762,
+      "bendAxis": "x"
+    },
+    {
+      "id": "7edbac06-687c-4c71-a1af-f741e260ee03",
+      "from": "3ec433c4-5d5d-4612-aadb-46f40aa56ac8",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "5657beca-3f99-473b-ba39-cb2c1985cca9",
+      "toPort": "right"
+    },
+    {
+      "id": "61e80d28-6d69-4863-a141-e964879caeb7",
+      "from": "3ec433c4-5d5d-4612-aadb-46f40aa56ac8",
+      "fromPort": "top",
+      "lineType": "tube",
+      "to": "773d1bdf-13d0-45d7-9d6d-5611a532932a",
+      "toPort": "left"
+    },
+    {
+      "id": "6d6b6da6-a039-490e-a13a-a4f4f3b8537a",
+      "from": "2a556c93-623d-4a76-8f78-8b879a282d9e",
+      "fromPort": "right",
+      "lineType": "tube",
+      "to": "3ec433c4-5d5d-4612-aadb-46f40aa56ac8",
+      "toPort": "bottom"
+    },
+    {
+      "id": "d31b4e76-66ec-4b0d-9a26-0be8b049a01e",
+      "from": "a94dce5d-3ed3-4d57-ba20-13b8c07f1996",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "4e9ccb6f-6cef-4b80-bab2-64eb29191e87",
+      "toPort": "right",
+      "bend": 507.1990097559523,
+      "bendAxis": "x"
+    },
+    {
+      "id": "4326e259-2dbb-4f1b-b1e3-f0dd214b1c3e",
+      "from": "4af9f567-6c66-4599-b2c5-6f07f1a36b0e",
+      "fromPort": "bottom",
+      "lineType": "tube",
+      "to": "6b986898-f166-424a-a6e1-8de2be33281e",
+      "toPort": "bottom"
+    },
+    {
+      "id": "230d1878-cecb-4071-aa7a-a6b78bda0c5e",
+      "from": "fc760e8d-d9f2-4a8d-8643-7456e2a0299b",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "6b986898-f166-424a-a6e1-8de2be33281e",
+      "toPort": "left"
+    },
+    {
+      "id": "65bd6905-9e46-4856-9e64-55505cda3058",
+      "from": "33fa83a9-2d62-4d2e-bb6d-38232db55c40",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "fc760e8d-d9f2-4a8d-8643-7456e2a0299b",
+      "toPort": "right"
+    },
+    {
+      "id": "039b7746-8b76-4feb-a08c-5bed786869ed",
+      "from": "82c1a7a1-ef5f-48a8-b2f7-93c56331fd3d",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "a94dce5d-3ed3-4d57-ba20-13b8c07f1996",
+      "toPort": "right"
+    },
+    {
+      "id": "45c2e7e3-c2c9-4f32-80da-a1db56bb1607",
+      "from": "496b3e0f-9f96-4c56-82e9-8a2e9c31ff65",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "82c1a7a1-ef5f-48a8-b2f7-93c56331fd3d",
+      "toPort": "right"
+    },
+    {
+      "id": "c31daac6-9d29-4b07-be93-f086083a7e2b",
+      "from": "088bc90c-5cbb-45c1-9113-78dbf0f345dc",
+      "fromPort": "bottom",
+      "lineType": "tube",
+      "to": "496b3e0f-9f96-4c56-82e9-8a2e9c31ff65",
+      "toPort": "top"
+    },
+    {
+      "id": "95682a82-0731-4e62-9be6-444fb71831b0",
+      "from": "29af6fff-c774-41fa-92b7-cf3d85d22c23",
+      "fromPort": "top",
+      "lineType": "tube",
+      "to": "496b3e0f-9f96-4c56-82e9-8a2e9c31ff65",
+      "toPort": "bottom"
+    },
+    {
+      "id": "d5dd8191-5c97-4107-9dc5-e7d4511fb7ed",
+      "from": "86a2f38f-504a-4a9a-891c-ed2b8ee0ec50",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "29af6fff-c774-41fa-92b7-cf3d85d22c23",
+      "toPort": "bottom"
+    },
+    {
+      "id": "81746102-2484-40af-bb07-b76eb7025598",
+      "from": "6c5e5e2a-b614-446d-9d56-2660b593b1c1",
+      "fromPort": "top",
+      "lineType": "tube",
+      "to": "86a2f38f-504a-4a9a-891c-ed2b8ee0ec50",
+      "toPort": "bottom"
+    },
+    {
+      "id": "2d90777f-fbb4-4efc-a389-222e63ca077a",
+      "from": "3e760408-c332-4637-9ba6-6b608079d761",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "86a2f38f-504a-4a9a-891c-ed2b8ee0ec50",
+      "toPort": "right"
+    },
+    {
+      "id": "276738b1-b423-49ab-ae98-b1da522542de",
+      "from": "fb1caf72-e22e-4675-bec7-bfff06eded33",
+      "fromPort": "right",
+      "lineType": "tube",
+      "to": "29af6fff-c774-41fa-92b7-cf3d85d22c23",
+      "toPort": "left"
+    },
+    {
+      "id": "16d396f2-0e94-4c5d-9e57-73b33f9bafee",
+      "from": "f62ae606-ea16-4816-8e62-5667bdfe6581",
+      "fromPort": "right",
+      "lineType": "tube",
+      "to": "088bc90c-5cbb-45c1-9113-78dbf0f345dc",
+      "toPort": "left"
+    },
+    {
+      "id": "8afe0587-56d1-4661-af19-d0f86b0f922b",
+      "from": "32746209-91c4-4176-bbe7-113aeb257970",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "f62ae606-ea16-4816-8e62-5667bdfe6581",
+      "toPort": "left"
+    },
+    {
+      "id": "bc1c99a2-1331-4967-b7eb-d0de1480be0d",
+      "from": "c3fb7f22-b279-4532-8c67-f54b418e7f1a",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "088bc90c-5cbb-45c1-9113-78dbf0f345dc",
+      "toPort": "right"
+    },
+    {
+      "id": "a0404008-2621-4d2c-ac7b-95d244ccf72e",
+      "from": "b1f35dd3-6b2c-4170-aca4-ca3dbd06ba75",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "30470c27-5507-4915-bedc-8d16e8c5cfbe",
+      "toPort": "left"
+    },
+    {
+      "id": "4263e2c4-e132-4940-9b05-99ccea759a47",
+      "from": "aea13c73-4df3-4475-a78e-6f69621e97c1",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "b1f35dd3-6b2c-4170-aca4-ca3dbd06ba75",
+      "toPort": "right"
+    },
+    {
+      "id": "5fbc0142-ce7b-4b79-b2a8-21fa27ac4a1f",
+      "from": "b78ef9a8-c7c3-4fb2-a644-9d10d164cf6e",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "29af6fff-c774-41fa-92b7-cf3d85d22c23",
+      "toPort": "right"
+    },
+    {
+      "id": "8dbd21f2-7acf-44fa-a318-99819cc430d2",
+      "from": "5ebb1507-4b9a-4b72-bd97-3fd9da1c3606",
+      "fromPort": "bottom",
+      "lineType": "tube",
+      "to": "aea13c73-4df3-4475-a78e-6f69621e97c1",
+      "toPort": "top"
+    },
+    {
+      "id": "a9a23488-1876-4fb8-b7d3-1836d76bc029",
+      "from": "a08773f7-2a49-4b64-ac34-bc05ac740a21",
+      "fromPort": "right",
+      "lineType": "tube",
+      "to": "5ebb1507-4b9a-4b72-bd97-3fd9da1c3606",
+      "toPort": "left"
+    },
+    {
+      "id": "a279082d-5224-431d-b1e7-db7e6bdfc582",
+      "from": "8efbe1b2-4962-40fc-b707-a58d278aabd0",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "5ebb1507-4b9a-4b72-bd97-3fd9da1c3606",
+      "toPort": "right"
+    },
+    {
+      "id": "468900f9-77be-4bd0-ba42-75491cf9366a",
+      "from": "6deb1e6d-3b09-42c4-a493-b39f5f0f267b",
+      "fromPort": "right",
+      "lineType": "tube",
+      "to": "5ebb1507-4b9a-4b72-bd97-3fd9da1c3606",
+      "toPort": "top"
+    },
+    {
+      "id": "46928065-8fdb-48c9-a713-86656d333854",
+      "from": "bc5cbee4-5f32-4706-b8f7-44a43de44dfc",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "6deb1e6d-3b09-42c4-a493-b39f5f0f267b",
+      "toPort": "left"
+    },
+    {
+      "id": "4504c160-8a15-4c4f-95bb-e52fb37958e6",
+      "from": "c1e64156-11a5-480e-b3bf-f219e1c1a257",
+      "fromPort": "bottom",
+      "lineType": "tube",
+      "to": "6deb1e6d-3b09-42c4-a493-b39f5f0f267b",
+      "toPort": "bottom"
+    },
+    {
+      "id": "397aa15e-b93c-4869-b946-5ed2db107af7",
+      "from": "aea13c73-4df3-4475-a78e-6f69621e97c1",
+      "fromPort": "right",
+      "lineType": "tube",
+      "to": "c400de80-33c8-42fc-ab62-f23cf61a81ff",
+      "toPort": "left"
+    },
+    {
+      "id": "535db8c1-ae65-4d6b-8096-cf188da9bde0",
+      "from": "68ee2752-ef91-4d8e-87b0-4f0147f97e5b",
+      "fromPort": "right",
+      "lineType": "tube",
+      "to": "8edb6228-804b-48d1-bcce-70d100e8ad3b",
+      "toPort": "left"
+    },
+    {
+      "id": "30fd6fe4-3179-4a58-ae8d-2bf48f620edd",
+      "from": "1ddb2f14-1f9d-423d-b708-0d4a9d3443e7",
+      "fromPort": "bottom",
+      "lineType": "tube",
+      "to": "68ee2752-ef91-4d8e-87b0-4f0147f97e5b",
+      "toPort": "left"
+    },
+    {
+      "id": "587f5470-38a6-48ac-ac7c-5ccb03c7383b",
+      "from": "db54502d-d287-4d73-bde1-7f8f764e2067",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "ab6417e5-d480-4ba4-97b6-4c53da851235",
+      "toPort": "bottom"
+    },
+    {
+      "id": "1578a26c-dabb-4f78-8f19-9a6879a313e2",
+      "from": "4830d3da-2414-4d26-bb92-1ebbd37ffe18",
+      "fromPort": "top",
+      "lineType": "tube",
+      "to": "ab8bf572-abdd-4167-a934-1de663ed3b60",
+      "toPort": "bottom"
+    },
+    {
+      "id": "6ed658e6-fefb-4f15-8bf4-2492b75ecc0a",
+      "from": "829b6987-a975-46f6-af29-c7bae4f1b9b6",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "4810962d-3d21-4055-9fc9-7ecb8ec58512",
+      "toPort": "bottom"
+    },
+    {
+      "id": "589e1b42-72aa-4f41-a040-4ba5cb095030",
+      "from": "6fca3dcb-e46b-47fe-ac3f-abceed704afd",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "829b6987-a975-46f6-af29-c7bae4f1b9b6",
+      "toPort": "right"
+    },
+    {
+      "id": "41fdad86-a01d-4ec9-865b-a80a5cf0da0e",
+      "from": "534d6185-1504-46ef-962c-60d84eccc27c",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "496b3e0f-9f96-4c56-82e9-8a2e9c31ff65",
+      "toPort": "right"
+    },
+    {
+      "id": "ae910719-e14a-44a9-af85-718ccd8a8912",
+      "from": "44288768-d70e-420f-9d1f-a1eb242ea947",
+      "fromPort": "top",
+      "lineType": "tube",
+      "to": "945554fa-ac3f-4cb0-90ff-47f1a04a9e6a",
+      "toPort": "left"
+    },
+    {
+      "id": "8c35afa5-82a0-4690-816c-f30961404859",
+      "from": "44288768-d70e-420f-9d1f-a1eb242ea947",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "3ec433c4-5d5d-4612-aadb-46f40aa56ac8",
+      "toPort": "right"
+    },
+    {
+      "id": "fa00c535-f7bd-41f1-b214-39476dec3055",
+      "from": "56962340-54b2-4a0f-84cd-585cf422d832",
+      "fromPort": "right",
+      "lineType": "tube",
+      "to": "44288768-d70e-420f-9d1f-a1eb242ea947",
+      "toPort": "bottom"
+    },
+    {
+      "id": "ddad17e2-f2ef-4e70-aa2c-2045178fdd47",
+      "from": "a6492c97-8ffc-40c7-8647-7ec798804853",
+      "fromPort": "bottom",
+      "lineType": "tube",
+      "to": "aea13c73-4df3-4475-a78e-6f69621e97c1",
+      "toPort": "bottom"
+    },
+    {
+      "id": "282b990f-bfa3-44ea-8e42-007161805184",
+      "from": "f51723be-adeb-4d0e-b54e-8bfd1199b21b",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "a6492c97-8ffc-40c7-8647-7ec798804853",
+      "toPort": "right"
+    },
+    {
+      "id": "b75ef425-5c60-47a3-bc1e-13a3dc7c8d37",
+      "from": "9e55a8d9-fc5b-44a9-8cd1-47462b9c26dc",
+      "fromPort": "right",
+      "lineType": "tube",
+      "to": "a6492c97-8ffc-40c7-8647-7ec798804853",
+      "toPort": "left"
+    },
+    {
+      "id": "897aa6ab-0ed5-411e-8657-950905095ffa",
+      "from": "945554fa-ac3f-4cb0-90ff-47f1a04a9e6a",
+      "fromPort": "right",
+      "lineType": "tube",
+      "to": "9e55a8d9-fc5b-44a9-8cd1-47462b9c26dc",
+      "toPort": "actuator"
+    },
+    {
+      "id": "52838c69-80f6-47f9-a08c-a8965336dae8",
+      "from": "b8e66afe-3e6a-446b-a047-cf1f641abc7f",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "44288768-d70e-420f-9d1f-a1eb242ea947",
+      "toPort": "right"
+    },
+    {
+      "id": "f190fb10-6e55-48b0-8806-e960c7b0a465",
+      "from": "8053caf2-da38-4645-823a-c4cd8fe275f5",
+      "fromPort": "right",
+      "lineType": "tube",
+      "to": "7e2f3e9c-c9e5-4234-b592-c82863992b5d",
+      "toPort": "left"
+    },
+    {
+      "id": "f38fdd1d-92f2-4cb9-9145-d88b3cac0f9c",
+      "from": "5a03da9e-4d72-4385-af0c-bc06256888b0",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "8053caf2-da38-4645-823a-c4cd8fe275f5",
+      "toPort": "left"
+    },
+    {
+      "id": "49c6e0cb-6bbf-49c2-88fa-d662b6609c94",
+      "from": "c9df0fe0-1e16-4af3-8b7e-e15760879a26",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "5a03da9e-4d72-4385-af0c-bc06256888b0",
+      "toPort": "bottom"
+    },
+    {
+      "id": "9af9e4ae-28cd-4458-9a8a-ae7db7f1b042",
+      "from": "78ea57eb-2ac6-4b28-ba1b-2c15ab0c5099",
+      "fromPort": "right",
+      "lineType": "tube",
+      "to": "5a03da9e-4d72-4385-af0c-bc06256888b0",
+      "toPort": "right"
+    },
+    {
+      "id": "60d3d091-54d7-4d10-8ca0-c5f2670c7d3b",
+      "from": "78ea57eb-2ac6-4b28-ba1b-2c15ab0c5099",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "98191ca7-173d-4166-8123-ba20db824e85",
+      "toPort": "left"
+    },
+    {
+      "id": "8ea46765-ea95-4745-a65b-a7b36de6210e",
+      "from": "8a70df6c-782d-4398-8b33-a12df18ca116",
+      "fromPort": "bottom",
+      "lineType": "tube",
+      "to": "78ea57eb-2ac6-4b28-ba1b-2c15ab0c5099",
+      "toPort": "top"
+    },
+    {
+      "id": "952d1471-1843-4db8-b538-261bd1bc42c5",
+      "from": "0470e9cc-2a7d-40f4-9034-15e5c87d4f76",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "78ea57eb-2ac6-4b28-ba1b-2c15ab0c5099",
+      "toPort": "bottom"
+    },
+    {
+      "id": "fc45e0c3-54be-4037-a72d-7c0b42f58cec",
+      "from": "f34254c9-163c-49fc-9fb6-cfd4125a1376",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "0470e9cc-2a7d-40f4-9034-15e5c87d4f76",
+      "toPort": "right"
+    },
+    {
+      "id": "c40fe23d-889f-465b-b303-c14f560ea223",
+      "from": "30470c27-5507-4915-bedc-8d16e8c5cfbe",
+      "fromPort": "actuator",
+      "lineType": "tube",
+      "to": "773d1bdf-13d0-45d7-9d6d-5611a532932a",
+      "toPort": "right"
+    },
+    {
+      "id": "8f0e6ce0-87fc-459d-a688-07f76d2bf217",
+      "from": "98191ca7-173d-4166-8123-ba20db824e85",
+      "fromPort": "actuator",
+      "lineType": "tube",
+      "to": "b8e66afe-3e6a-446b-a047-cf1f641abc7f",
+      "toPort": "right",
+      "bend": 1137.2431641226947,
+      "bendAxis": "x"
+    },
+    {
+      "id": "101370d8-faf8-49c2-bc06-f1ded324f30e",
+      "from": "6d6b18bc-45d7-4eee-85cb-4891bb251a1e",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "0470e9cc-2a7d-40f4-9034-15e5c87d4f76",
+      "toPort": "bottom"
+    },
+    {
+      "id": "ecc7470c-a17e-4706-9aaa-cdfee759d59b",
+      "from": "5290de95-88cb-4e0b-b627-79bdd0c2abcf",
+      "fromPort": "top",
+      "lineType": "tube",
+      "to": "5657beca-3f99-473b-ba39-cb2c1985cca9",
+      "toPort": "bottom"
+    },
+    {
+      "id": "bc6ccf22-ed93-4b78-84de-13590e427160",
+      "from": "0953c9cd-2ebe-4877-8102-1100230aabc0",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "c400de80-33c8-42fc-ab62-f23cf61a81ff",
+      "toPort": "right"
+    },
+    {
+      "id": "4999b240-8898-450c-a6e9-9567509fe03e",
+      "from": "c400de80-33c8-42fc-ab62-f23cf61a81ff",
+      "fromPort": "bottom",
+      "lineType": "tube",
+      "to": "98191ca7-173d-4166-8123-ba20db824e85",
+      "toPort": "right",
+      "bend": 1210.0677927280592,
+      "bendAxis": "y"
+    },
+    {
+      "id": "2db7682c-8b8d-436d-9f23-cade9aa36cd3",
+      "from": "894b6efa-51c2-4bd9-8695-b5122e227d5a",
+      "fromPort": "top",
+      "lineType": "tube",
+      "to": "534d6185-1504-46ef-962c-60d84eccc27c",
+      "toPort": "bottom"
+    },
+    {
+      "id": "c10fa49a-6384-48cf-ac89-81538ddbae0c",
+      "from": "894b6efa-51c2-4bd9-8695-b5122e227d5a",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "22d4e574-56df-4432-beb1-593134b6757d",
+      "toPort": "left"
+    },
+    {
+      "id": "8e834e77-7bcb-4dc3-9e0c-649c4db424ff",
+      "from": "894b6efa-51c2-4bd9-8695-b5122e227d5a",
+      "fromPort": "right",
+      "lineType": "tube",
+      "to": "6fca3dcb-e46b-47fe-ac3f-abceed704afd",
+      "toPort": "right",
+      "bend": 1191.0146976586288,
+      "bendAxis": "x"
+    },
+    {
+      "id": "ea562e7a-7748-4b3d-acec-1acaed334668",
+      "from": "c592e5be-356a-464e-a6dc-cd147a138535",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "894b6efa-51c2-4bd9-8695-b5122e227d5a",
+      "toPort": "bottom",
+      "bend": 480.0370050793125,
+      "bendAxis": "y"
+    },
+    {
+      "id": "6ccd6064-4bbd-4b17-b493-a4e53621ada0",
+      "from": "b205d35c-d390-4491-ad83-e5afbbfc2f04",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "c592e5be-356a-464e-a6dc-cd147a138535",
+      "toPort": "right"
+    },
+    {
+      "id": "0d844166-622f-4cc3-9f47-51c2c7dc6071",
+      "from": "d8896f65-2c7a-4c3d-9f3a-e8f3aa8206ca",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "b205d35c-d390-4491-ad83-e5afbbfc2f04",
+      "toPort": "right"
+    },
+    {
+      "id": "cfa1475f-2b73-4311-a60b-37edf0024a87",
+      "from": "bf0739cb-0acd-4a56-b181-6b0d462d2b08",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "d8896f65-2c7a-4c3d-9f3a-e8f3aa8206ca",
+      "toPort": "right"
+    },
+    {
+      "id": "cbb4fd32-874d-43bf-80f8-2e4a5fce22c7",
+      "from": "b30d844b-0d96-464e-a7ae-c13ac7a24adf",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "0953c9cd-2ebe-4877-8102-1100230aabc0",
+      "toPort": "right"
+    },
+    {
+      "id": "95ec75eb-b58f-416f-a36e-8ee8edebcdb2",
+      "from": "ae04b60e-17c6-4b58-938c-7e824813df52",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "348cb1d5-b446-460c-8199-197a10b2a61c",
+      "toPort": "right"
+    },
+    {
+      "id": "379e6f3f-776a-4e3a-9910-0df7d1843de1",
+      "from": "c6757e7f-298e-4172-8401-f623b5f6da08",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "a573e94a-e5a4-4ceb-a510-7c49ab81d6b2",
+      "toPort": "right"
+    },
+    {
+      "id": "f487d975-9844-454c-99d1-5ce422f56bc2",
+      "from": "f0bed84d-1b57-471f-bec5-a08e3f259a97",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "259b1e63-a799-4f0a-8911-b878d048ba67",
+      "toPort": "right"
+    },
+    {
+      "id": "9372ac92-f82a-42c9-b3ce-bbdb399bb5c4",
+      "from": "9933152f-4058-4c50-940f-922ea83be22d",
+      "fromPort": "right",
+      "lineType": "tube",
+      "to": "ae04b60e-17c6-4b58-938c-7e824813df52",
+      "toPort": "right"
+    },
+    {
+      "id": "b09ca254-6bdd-4446-981b-d2138209a92b",
+      "from": "ae84f25c-f971-4e34-8c85-1635616023a8",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "9933152f-4058-4c50-940f-922ea83be22d",
+      "toPort": "left"
+    },
+    {
+      "id": "265cdeab-ecd7-478d-ac48-632b4d5bb0af",
+      "from": "9c11664b-e6ce-45e0-87cf-1aa758213923",
+      "fromPort": "right",
+      "lineType": "tube",
+      "to": "ae84f25c-f971-4e34-8c85-1635616023a8",
+      "toPort": "right"
+    },
+    {
+      "id": "6afd1fd2-8f80-4e9f-9330-7490d750d5e4",
+      "from": "f30f355e-815f-446e-bcb7-be3d5823a963",
+      "fromPort": "right",
+      "lineType": "tube",
+      "to": "f0bed84d-1b57-471f-bec5-a08e3f259a97",
+      "toPort": "right"
+    },
+    {
+      "id": "74f03b90-e7d7-492a-8cdb-3cfd55d0af88",
+      "from": "f30f355e-815f-446e-bcb7-be3d5823a963",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "ece095c9-9446-4abb-af86-1dfcd296e74f",
+      "toPort": "left"
+    },
+    {
+      "id": "d2076ad1-6b15-48a0-ae89-47ed50234949",
+      "from": "d8aa27ac-2021-4d7a-aac2-e284a103f91e",
+      "fromPort": "bottom",
+      "lineType": "tube",
+      "to": "f30f355e-815f-446e-bcb7-be3d5823a963",
+      "toPort": "bottom"
+    },
+    {
+      "id": "668b8015-3bae-4a60-833c-85a2bad76c49",
+      "from": "4ac9b1ac-1f77-44c7-acb6-2fa35fd3a617",
+      "fromPort": "top",
+      "lineType": "tube",
+      "to": "c592e5be-356a-464e-a6dc-cd147a138535",
+      "toPort": "bottom"
+    },
+    {
+      "id": "5bfcffa7-b886-4043-bd55-247687fc5dc0",
+      "from": "d8aa27ac-2021-4d7a-aac2-e284a103f91e",
+      "fromPort": "bottom",
+      "end": {
+        "x": 1299.3102505144045,
+        "y": 544.5999829828742
+      },
+      "lineType": "tube"
+    },
+    {
+      "id": "c241948f-4a25-4ae3-9961-489dbc26191c",
+      "from": "5fc2541f-2916-4f40-837c-6ab4b7ac8b36",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "ece095c9-9446-4abb-af86-1dfcd296e74f",
+      "toPort": "right"
+    },
+    {
+      "id": "54d2ba69-ea1c-4b80-8691-54404135ddc2",
+      "from": "bf352948-a079-4862-97a1-039f37239f88",
+      "fromPort": "bottom",
+      "lineType": "tube",
+      "to": "5fc2541f-2916-4f40-837c-6ab4b7ac8b36",
+      "toPort": "top"
+    },
+    {
+      "id": "3ec028e5-edc3-4fe6-b6f6-f92ee862343e",
+      "from": "9c11664b-e6ce-45e0-87cf-1aa758213923",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "7e52012b-f086-4863-adf0-eb65f240225d",
+      "toPort": "bottom"
+    },
+    {
+      "id": "8c615d14-33c8-412f-8c5d-d864ceb40313",
+      "from": "13b2b755-406c-4fbf-ba7d-833d4c525bc5",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "7e52012b-f086-4863-adf0-eb65f240225d",
+      "toPort": "right"
+    },
+    {
+      "id": "19163b71-c76c-480b-9d30-13c767110274",
+      "from": "49e1052f-8f72-4613-b6c2-f3b2eaf6135a",
+      "fromPort": "right",
+      "lineType": "tube",
+      "to": "7e52012b-f086-4863-adf0-eb65f240225d",
+      "toPort": "left"
+    },
+    {
+      "id": "6f5dc6bc-2c56-48f3-b5cb-701de7ac8370",
+      "from": "1d1fdfac-4314-4e09-b2b1-e23ed6fc7548",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "49e1052f-8f72-4613-b6c2-f3b2eaf6135a",
+      "toPort": "left"
+    },
+    {
+      "id": "838b3720-cb96-4996-8650-3ccb4999d64d",
+      "from": "1d1fdfac-4314-4e09-b2b1-e23ed6fc7548",
+      "fromPort": "right",
+      "lineType": "tube",
+      "to": "5fc2541f-2916-4f40-837c-6ab4b7ac8b36",
+      "toPort": "bottom"
+    },
+    {
+      "id": "692f820c-12b1-4ed4-a142-3a02d78cb7ad",
+      "from": "b4d92933-1497-4618-9353-de27cfaa20c9",
+      "fromPort": "bottom",
+      "lineType": "tube",
+      "to": "9933152f-4058-4c50-940f-922ea83be22d",
+      "toPort": "bottom"
+    },
+    {
+      "id": "0b5a9108-1be5-4ccd-87f7-7601f6395cff",
+      "from": "f2c671d8-73b2-4236-8ded-adc043249151",
+      "fromPort": "bottom",
+      "lineType": "tube",
+      "to": "9c11664b-e6ce-45e0-87cf-1aa758213923",
+      "toPort": "bottom"
+    },
+    {
+      "id": "427b3367-c9fe-4085-b35e-2098e197c535",
+      "from": "f7aa35a3-a5f8-4f6d-aa68-15d4a960ca5e",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "c6757e7f-298e-4172-8401-f623b5f6da08",
+      "toPort": "right"
+    },
+    {
+      "id": "7b3a0257-45de-412f-b59b-d84266298ed1",
+      "from": "f7aa35a3-a5f8-4f6d-aa68-15d4a960ca5e",
+      "fromPort": "right",
+      "lineType": "tube",
+      "to": "3bfd899a-d29f-4cbd-a752-bf9924894514",
+      "toPort": "left"
+    },
+    {
+      "id": "b33715f7-b639-4529-b2e5-9f35a7aacd03",
+      "from": "fe230ab6-121f-45c2-bb22-ae8dc7b15763",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "3bfd899a-d29f-4cbd-a752-bf9924894514",
+      "toPort": "right"
+    },
+    {
+      "id": "fb0f3693-b15c-46d0-90c6-2934c7a9f177",
+      "from": "eac39188-fc64-4487-814e-82b6de9ade6d",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "13b2b755-406c-4fbf-ba7d-833d4c525bc5",
+      "toPort": "right"
+    },
+    {
+      "id": "7b8bc867-09d7-4ed3-9a56-f33eceaf2e28",
+      "from": "eac39188-fc64-4487-814e-82b6de9ade6d",
+      "fromPort": "right",
+      "lineType": "tube",
+      "to": "fe230ab6-121f-45c2-bb22-ae8dc7b15763",
+      "toPort": "top"
+    },
+    {
+      "id": "d9337f61-3a29-4519-91e3-1a400264aa7f",
+      "from": "89b24163-1c57-41bf-ac07-1304c58c65e1",
+      "fromPort": "top",
+      "lineType": "tube",
+      "to": "fe230ab6-121f-45c2-bb22-ae8dc7b15763",
+      "toPort": "bottom"
+    },
+    {
+      "id": "2099b42d-f3fa-4fd4-b7ae-b7baf9bb0e4f",
+      "from": "d7f93a8c-cc2a-43bb-a0a9-f361a9ddb337",
+      "fromPort": "top",
+      "lineType": "tube",
+      "to": "f7aa35a3-a5f8-4f6d-aa68-15d4a960ca5e",
+      "toPort": "bottom"
+    },
+    {
+      "id": "2a66e1f9-0f14-4e3a-a3e6-fa49f8c4f59f",
+      "from": "fe230ab6-121f-45c2-bb22-ae8dc7b15763",
+      "fromPort": "right",
+      "lineType": "tube",
+      "to": "dc9d5293-a52c-47a3-bf74-7c050cf1094d",
+      "toPort": "border:-56:20.6"
+    },
+    {
+      "id": "45e937de-7276-49ca-beef-e71c92b35fc9",
+      "from": "dc9d5293-a52c-47a3-bf74-7c050cf1094d",
+      "fromPort": "right",
+      "lineType": "tube",
+      "to": "ea103b1b-9892-4a63-80c8-9e9a15e41292",
+      "toPort": "border:-104:0.5",
+      "bend": 1757.777821736201,
+      "bendAxis": "x"
+    },
+    {
+      "id": "326a2bc7-c9b1-4f58-9e5b-960342ef3af6",
+      "from": "5fc2541f-2916-4f40-837c-6ab4b7ac8b36",
+      "fromPort": "right",
+      "lineType": "tube",
+      "to": "dc9d5293-a52c-47a3-bf74-7c050cf1094d",
+      "toPort": "border:-56:-11.4"
+    },
+    {
+      "id": "59990b0b-7e80-4985-9680-cebce8d4f777",
+      "from": "eaa8d29d-39e5-4582-a229-5c4bd7abab1a",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "4e9ccb6f-6cef-4b80-bab2-64eb29191e87",
+      "toPort": "bottom"
+    },
+    {
+      "id": "96b9ca7a-d36d-439a-b1b7-26348bf7037f",
+      "from": "7e7be746-4d78-4843-b352-265f11f7be93",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "0699869b-1b1d-47ca-9ef2-34763a10e7b7",
+      "toPort": "bottom"
+    },
+    {
+      "id": "964d8072-ebcc-4012-b9f3-c20a463f1c51",
+      "from": "d304bcff-a80b-40e0-9fa2-5c02c4eec151",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "3305e59c-ebed-45dd-bc27-36278755b97e",
+      "toPort": "bottom"
+    },
+    {
+      "id": "2be5f626-4eba-495d-8b6b-29e5a9756c4a",
+      "from": "432bad71-c894-4f67-882b-c47918bc3c8a",
+      "fromPort": "left",
+      "lineType": "tube",
+      "to": "e51b0e39-1289-4734-9e89-71731bb0a8ed",
+      "toPort": "bottom"
+    },
+    {
+      "id": "ffadbecc-0b41-4762-8b3a-d8c4f26e08d0",
+      "from": "b30d844b-0d96-464e-a7ae-c13ac7a24adf",
+      "fromPort": "right",
+      "lineType": "tube",
+      "to": "ea103b1b-9892-4a63-80c8-9e9a15e41292",
+      "toPort": "border:-104:52.1"
+    },
+    {
+      "id": "f95e6311-374d-439a-bf6a-524c2f0e2d16",
+      "from": "bf0739cb-0acd-4a56-b181-6b0d462d2b08",
+      "fromPort": "right",
+      "lineType": "tube",
+      "to": "ea103b1b-9892-4a63-80c8-9e9a15e41292",
+      "toPort": "border:-69.9:-68",
+      "bend": 1889.7511301244958,
+      "bendAxis": "x"
+    }
+  ],
+  "shapes": [],
+  "canvasSize": {
+    "w": 3250,
+    "h": 1880
+  },
+  "sop": {
+    "title": "Osiris Hot Fire SOP",
+    "initial": {},
+    "regulators": {},
+    "steps": [
+      {
+        "id": "55858ab4-22a9-4755-8fba-34b23f091f55",
+        "title": "Approach Test Stand",
+        "role": "SO",
+        "actions": [
+          {
+            "id": "6c27a0dd-62b1-4628-a539-6e08535e4d84",
+            "type": "instruction",
+            "target": "",
+            "name": "",
+            "value": 0,
+            "text": "Approach test stand"
+          }
+        ],
+        "sectionId": "01bff613-b990-4cef-a3e0-feb8070d559e"
+      },
+      {
+        "id": "c76c747c-edf9-42a6-b782-256ff846fbcb",
+        "title": "Remove Blue Tape",
+        "role": "SO",
+        "actions": [
+          {
+            "id": "6a7f61c4-bed9-4166-8c0c-5572b2408638",
+            "type": "instruction",
+            "target": "",
+            "name": "",
+            "value": 0,
+            "text": "Remove all blue tape covering openings to uncover vent holes  in the oxidizer system\n"
+          }
+        ],
+        "sectionId": "01bff613-b990-4cef-a3e0-feb8070d559e"
+      },
+      {
+        "id": "c52a1e51-6f39-4be4-a765-f32283aba255",
+        "title": "Open NMV-1",
+        "role": "SO",
+        "actions": [
+          {
+            "id": "a242d08f-d47b-4a10-8c4b-45ee6d3ae907",
+            "type": "open",
+            "target": "68ee2752-ef91-4d8e-87b0-4f0147f97e5b",
+            "name": "Nitrogen Manual Valve",
+            "value": 0,
+            "text": ""
+          }
+        ],
+        "sectionId": "01bff613-b990-4cef-a3e0-feb8070d559e"
+      },
+      {
+        "id": "848c0f27-dc91-4dfc-85b9-0a40f5d78ab1",
+        "title": "Open NKV-1",
+        "role": "SO",
+        "actions": [
+          {
+            "id": "6dae3d3d-da5d-4b07-b921-c911c1aaca45",
+            "type": "open",
+            "target": "c45940f8-8053-4c0b-9ae3-ddf471e026b7",
+            "name": "Open Nitrogen Supply Tank Valve",
+            "value": 0,
+            "text": ""
+          }
+        ],
+        "sectionId": "01bff613-b990-4cef-a3e0-feb8070d559e"
+      },
+      {
+        "id": "5e0997ba-8c19-441e-8f6f-5b9af36ea57a",
+        "title": "Set NPR-1",
+        "role": "SO",
+        "actions": [
+          {
+            "id": "6534ab0b-c79a-40ca-9556-8819893f409d",
+            "type": "regulator",
+            "target": "fa640e93-6cda-467e-966d-5dbf0ef8a80a",
+            "name": "Nitrogen High Pressure",
+            "value": 2100,
+            "text": ""
+          }
+        ],
+        "sectionId": "01bff613-b990-4cef-a3e0-feb8070d559e"
+      },
+      {
+        "id": "6e001e8e-fa8e-4663-9073-e0a6ad87d061",
+        "title": "Open NFV-1",
+        "role": "SO",
+        "actions": [
+          {
+            "id": "866f43a4-c250-4278-a1ae-d3b937458a3b",
+            "type": "open",
+            "target": "46d99447-7150-4ddd-a9ab-5557f7152997",
+            "name": "Nitrogen Fill Valve",
+            "value": 0,
+            "text": ""
+          }
+        ],
+        "sectionId": "01bff613-b990-4cef-a3e0-feb8070d559e"
+      }
+    ],
+    "sections": [
+      {
+        "id": "01bff613-b990-4cef-a3e0-feb8070d559e",
+        "title": "System Purging and Leak Test"
+      },
+      {
+        "id": "ea14901f-3182-42c7-a1f0-e48493104d38",
+        "title": "New section"
+      }
+    ],
+    "sidebarWidth": 394
+  }
+}

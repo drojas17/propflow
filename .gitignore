@@ -1,0 +1,10 @@
+node_modules/
+dist/
+tmp/
+*.tsbuildinfo
+.env
+.pnpm-store/
+.tmp-workbook-inspect/
+projects/*/backups/
+library/backups/
+*.tmp

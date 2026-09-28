@@ -1,0 +1,13 @@
+import {useState,type CSSProperties,type ReactNode} from 'react'
+import {sopSentence,withSopSections,type SopDocument,type SopNode} from './sopModel'
+import './sop.css'
+
+export default function PressureLadderWorkspace({document:stored,nodes,index,onSelect,navigation,children}:{document:SopDocument;nodes:SopNode[];index:number;onSelect:(index:number)=>void;navigation:ReactNode;children:ReactNode}){
+ const doc=withSopSections(stored),[collapsed,setCollapsed]=useState<Set<string>>(new Set()),[width,setWidth]=useState(doc.sidebarWidth??360),[drag,setDrag]=useState<{x:number;width:number}|null>(null)
+ const resize=(clientX:number)=>setWidth(Math.max(260,Math.min(650,(drag?.width??width)+clientX-(drag?.x??clientX))))
+ return <div className="ladder-workspace" style={{'--sop-sidebar-width':`${width}px`} as CSSProperties}>
+  <aside className="sop-steps ladder-steps"><div className="sop-heading"><b>Procedure states</b><small>Select a state to view its pressure ladder.</small></div><button className={index===-1?'sop-step active':'sop-step'} onClick={()=>onSelect(-1)}><b>Initial state</b><small>Valve positions and regulator setpoints</small></button><div className="sop-buttons"><button onClick={()=>setCollapsed(new Set(doc.sections?.map(s=>s.id)))}>Collapse all</button><button onClick={()=>setCollapsed(new Set())}>Expand all</button></div>{doc.sections?.map(section=>{const steps=doc.steps.filter(s=>s.sectionId===section.id);return <section className="sop-section" key={section.id}><div className="sop-section-heading"><button aria-expanded={!collapsed.has(section.id)} onClick={()=>setCollapsed(old=>{const next=new Set(old);if(next.has(section.id))next.delete(section.id);else next.add(section.id);return next})}>{collapsed.has(section.id)?'▸':'▾'} {steps.length}</button><b>{section.title}</b></div>{!collapsed.has(section.id)&&steps.map(step=>{const i=doc.steps.indexOf(step);return <button className={i===index?'sop-step active':'sop-step'} key={step.id} onClick={()=>onSelect(i)}><b>{i+1}. {step.title||'Untitled step'}</b><span>{step.role}</span><small>{step.actions.map(a=>sopSentence(a,nodes)).join(' ')||'No actions yet'}</small></button>})}</section>})}</aside>
+  <div className="sop-sidebar-resizer" role="separator" aria-label="Resize procedure sidebar" tabIndex={0} onPointerDown={e=>{if(e.button!==0)return;e.preventDefault();setDrag({x:e.clientX,width});e.currentTarget.setPointerCapture(e.pointerId)}} onPointerMove={e=>{if(drag)resize(e.clientX)}} onPointerUp={e=>{setDrag(null);e.currentTarget.releasePointerCapture(e.pointerId)}}/>
+  <section className="ladder-main">{navigation}{children}</section>
+ </div>
+}

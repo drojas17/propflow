@@ -1,0 +1,15 @@
+.project .new-project {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid #294052;
+  border-radius: 6px;
+  background: #102536;
+  color: #8edff7;
+}
+.project .new-project:hover {
+  border-color: #55d7ff;
+  color: #55d7ff;
+}

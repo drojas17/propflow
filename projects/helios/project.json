@@ -1,0 +1,15 @@
+{
+  "nodes": [],
+  "edges": [],
+  "shapes": [],
+  "canvasSize": {
+    "w": 850,
+    "h": 580
+  },
+  "sop": {
+    "title": "Operating procedure",
+    "initial": {},
+    "regulators": {},
+    "steps": []
+  }
+}

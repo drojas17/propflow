@@ -1,0 +1,3 @@
+.diagram-svg g:not(.symbol) path {
+  opacity: 1 !important;
+}

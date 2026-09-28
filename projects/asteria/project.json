@@ -1,0 +1,59 @@
+{
+  "nodes": [
+    {
+      "id": "0a9c0aa2-97f8-4121-83de-f55cd2b5513f",
+      "kind": "tank",
+      "symbolType": "tank",
+      "tag": "NK-1",
+      "x": 223.50262641851654,
+      "y": 541.2962488910929,
+      "fluid": "GN2",
+      "volume": 1,
+      "meop": 100,
+      "mawp": 150,
+      "tankRole": "source",
+      "fluidLocked": true,
+      "boundary": "supply"
+    },
+    {
+      "id": "e5a7cb9a-4ab7-49b2-85d9-0b48e09f93f7",
+      "kind": "tank",
+      "symbolType": "tank",
+      "tag": "TK-1",
+      "x": 763.708858320211,
+      "y": 324.39155642751246,
+      "fluid": "GN2",
+      "volume": 1,
+      "meop": 100,
+      "mawp": 150,
+      "tankRole": "receiver",
+      "fluidLocked": true
+    },
+    {
+      "id": "37d2669e-6c6b-41bd-9b7b-98e14bb1821f",
+      "kind": "tank",
+      "symbolType": "tank",
+      "tag": "TK-2",
+      "x": 763.708858320211,
+      "y": 797.0793172111612,
+      "fluid": "GN2",
+      "volume": 1,
+      "meop": 100,
+      "mawp": 150,
+      "tankRole": "receiver",
+      "fluidLocked": true
+    }
+  ],
+  "edges": [],
+  "shapes": [],
+  "canvasSize": {
+    "w": 1650,
+    "h": 1180
+  },
+  "sop": {
+    "title": "Operating procedure",
+    "initial": {},
+    "regulators": {},
+    "steps": []
+  }
+}
