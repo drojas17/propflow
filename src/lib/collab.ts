@@ -135,6 +135,9 @@ function diffIdMap(ymap: Y.Map<unknown>, items: { id: string }[]): boolean {
 /**
  * Diff React state into the doc inside one 'local' transaction (tracked by the
  * UndoManager). Returns false when nothing changed, so callers can skip work.
+ *
+ * Only actually-new/changed/deleted keys are written: re-setting every key
+ * would churn the whole struct history on every keystroke and bloat updates.
  */
 export function pushStateToDoc(c: CollabDoc, state: DocState): boolean {
   const nextCanvas = clean(state.canvasSize);
@@ -159,7 +162,13 @@ export function pushStateToDoc(c: CollabDoc, state: DocState): boolean {
           if (!nextIds.has(id)) doomed.push(id);
         });
         for (const id of doomed) ymap.delete(id);
-        for (const item of items) ymap.set(item.id, clean(item));
+        for (const item of items) {
+          const cleaned = clean(item);
+          const cur = ymap.get(item.id);
+          if (cur === undefined || JSON.stringify(toJSON(cur)) !== JSON.stringify(cleaned)) {
+            ymap.set(item.id, cleaned);
+          }
+        }
       };
       syncMap(c.nodes, state.nodes);
       syncMap(c.edges, state.edges);
@@ -237,16 +246,19 @@ export function readPeers(c: CollabDoc): PeerPresence[] {
 // ---------------------------------------------------------------- realtime channel
 
 export interface SyncHooks {
-  /** A remote Yjs update was applied to the doc; re-read it into React state. */
+  /** A remote Yjs update arrived and the doc is hydrated; apply it. */
   onRemoteUpdate: (update: Uint8Array) => void;
   /** Remote presence changed; re-read peers. */
   onPeersChanged: () => void;
-  /** Channel is live: load the DB snapshot into the doc, then resolve. */
-  onSubscribed: () => Promise<void>;
+  /** Realtime channel is live (informational; hydration is independent). */
+  onRealtimeUp: () => void;
 }
 
 export interface SyncHandle {
   broadcastUpdate: (update: Uint8Array) => void;
+  /** Call after the DB snapshot has been loaded into the doc. Replays any
+   * updates that arrived mid-load. Idempotent. */
+  setHydrated: () => void;
   leave: () => void;
 }
 
@@ -255,9 +267,11 @@ function payloadOf(msg: unknown): { u?: string } {
 }
 
 /**
- * Join the per-project Broadcast channel. Remote Yjs updates received before
- * the DB snapshot finishes loading are buffered and replayed after, so a
- * joiner can never miss an edit that landed mid-load.
+ * Join the per-project Broadcast channel. DB hydration is independent of the
+ * realtime connection: the app loads the snapshot from Postgres immediately
+ * and calls setHydrated(), while remote updates that arrive early are buffered
+ * and replayed after. If Realtime never connects, the app still works as a
+ * single-user Supabase-backed editor.
  */
 export function attachRealtimeSync(
   sb: SupabaseClient,
@@ -266,29 +280,88 @@ export function attachRealtimeSync(
   hooks: SyncHooks
 ): SyncHandle {
   let live = false;
+  let hydrated = false;
+  let left = false;
   const buffered: Uint8Array[] = [];
-  const channel: RealtimeChannel = sb.channel(`propflow:project:${projectId}`, {
-    config: { broadcast: { ack: false } },
-  });
+  const topic = `propflow:project:${projectId}`;
+  let channel: RealtimeChannel | null = null;
+  let gen = 0;
+  let joinPending = false;
+
+
 
   const broadcastUpdate = (update: Uint8Array) => {
-    if (!live) return;
+    if (!live || !channel) return;
     void channel.send({ type: 'broadcast', event: 'yjs-update', payload: { u: encodeUpdate(update) } });
   };
 
-  channel.on('broadcast', { event: 'yjs-update' }, (msg) => {
+  const onYjsBroadcast = (msg: unknown) => {
     const u = payloadOf(msg).u;
     if (!u) return;
     try {
       const update = decodeUpdate(u);
-      if (live) hooks.onRemoteUpdate(update);
+      if (live && hydrated) hooks.onRemoteUpdate(update);
       else buffered.push(update);
     } catch {
       /* ignore malformed payloads */
     }
-  });
+  };
 
-  channel.on('broadcast', { event: 'awareness' }, (msg) => {
+  /**
+   * Full-state handshake. Every client builds its Y.Doc independently from the
+   * same DB snapshot, so incremental updates alone can never integrate: a
+   * `Y.Map.set` that replaces a key links the new struct to the old one via
+   * `origin`, and peers never received each other's independent init structs.
+   * Exchanging full states gives every peer the complete struct history, after
+   * which incremental updates integrate cleanly.
+   */
+  const broadcastSyncState = () => {
+    if (!live || !hydrated || !channel) return;
+    try {
+      const full = Y.encodeStateAsUpdate(collab.doc);
+      void channel.send({
+        type: 'broadcast',
+        event: 'sync-state',
+        payload: { u: encodeUpdate(full) },
+      });
+    } catch {
+      /* best effort */
+    }
+  };
+
+  const broadcastSyncRequest = () => {
+    if (!live || !channel) return;
+    void channel.send({ type: 'broadcast', event: 'sync-request', payload: {} });
+  };
+
+  /** Exchange full states whenever we become ready (hydrated + live). */
+  const maybeHandshake = () => {
+    if (live && hydrated) {
+      broadcastSyncRequest();
+      broadcastSyncState();
+    }
+  };
+
+  const onSyncRequest = () => {
+    // Answer with our full state so the requester gets our struct history.
+    broadcastSyncState();
+  };
+
+  const onSyncState = (msg: unknown) => {
+    const u = payloadOf(msg).u;
+    if (!u) return;
+    try {
+      const update = decodeUpdate(u);
+      // A full state is just a (large) update; the normal remote path applies
+      // it without rebroadcasting and syncs it into React.
+      if (live && hydrated) hooks.onRemoteUpdate(update);
+      else buffered.push(update);
+    } catch {
+      /* ignore malformed payloads */
+    }
+  };
+
+  const onAwarenessBroadcast = (msg: unknown) => {
     const u = payloadOf(msg).u;
     if (!u) return;
     try {
@@ -296,7 +369,7 @@ export function attachRealtimeSync(
     } catch {
       /* ignore malformed payloads */
     }
-  });
+  };
 
   const onAwarenessUpdate = ({
     added,
@@ -307,7 +380,7 @@ export function attachRealtimeSync(
     updated: number[];
     removed: number[];
   }) => {
-    if (!live) return;
+    if (!live || !channel) return;
     const update = encodeAwarenessUpdate(collab.awareness, [...added, ...updated, ...removed]);
     void channel.send({ type: 'broadcast', event: 'awareness', payload: { u: encodeUpdate(update) } });
   };
@@ -315,20 +388,75 @@ export function attachRealtimeSync(
   const onAwarenessChange = () => hooks.onPeersChanged();
   collab.awareness.on('change', onAwarenessChange);
 
-  channel.subscribe((status) => {
-    if (status !== 'SUBSCRIBED') return;
-    void (async () => {
-      await hooks.onSubscribed();
-      live = true;
-      for (const update of buffered) hooks.onRemoteUpdate(update);
-      buffered.length = 0;
-      // Re-announce presence now that broadcast is actually up.
-      const local = collab.awareness.getLocalState();
-      collab.awareness.setLocalState(local ? { ...local } : null);
-    })();
-  });
+  /** Join (or rejoin) the channel. Each attempt uses a FRESH channel object:
+   * re-subscribing a dropped channel instance is unreliable, and a dropped
+   * tab must never silently stop syncing. */
+  const join = () => {
+    if (left) return;
+    joinPending = false;
+    const myGen = ++gen;
+    const ch = sb.channel(topic, { config: { broadcast: { ack: false } } });
+    channel = ch;
+    ch.on('broadcast', { event: 'yjs-update' }, onYjsBroadcast);
+    ch.on('broadcast', { event: 'awareness' }, onAwarenessBroadcast);
+    ch.on('broadcast', { event: 'sync-request' }, onSyncRequest);
+    ch.on('broadcast', { event: 'sync-state' }, onSyncState);
+    ch.subscribe((status) => {
+      if (myGen !== gen || left) return; // superseded by a newer join, or torn down
+      if (status === 'SUBSCRIBED') {
+        live = true;
+        hooks.onRealtimeUp();
+        // Now that broadcast is up, exchange full Yjs states so incremental
+        // updates from peers integrate (see handshake note above).
+        maybeHandshake();
+        // Re-announce presence now that broadcast is actually up.
+        const local = collab.awareness.getLocalState();
+        collab.awareness.setLocalState(local ? { ...local } : null);
+      } else if (status === 'CLOSED' || status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+        live = false;
+        gen++; // supersede this channel so its own unsubscribe-close is ignored
+        try {
+          void ch.unsubscribe();
+        } catch {
+          /* best effort */
+        }
+        if (!joinPending) {
+          joinPending = true;
+          globalThis.setTimeout(join, 1500);
+        }
+      }
+    });
+  };
+  join();
+
+  // Watchdog: if we somehow end up not-live without a pending rejoin (e.g. a
+  // missed callback), force a fresh join. Cheap insurance against silent desync.
+  const watchdog = globalThis.setInterval(() => {
+    if (!left && !live && !joinPending) {
+      joinPending = true;
+      gen++;
+      try {
+        void channel?.unsubscribe();
+      } catch {
+        /* best effort */
+      }
+      join();
+    }
+  }, 10000);
+
+  const setHydrated = () => {
+    if (hydrated) return;
+    hydrated = true;
+    for (const update of buffered) hooks.onRemoteUpdate(update);
+    buffered.length = 0;
+    // The DB snapshot is in the doc; exchange full states so this client's
+    // independent struct history is known to peers (and vice versa).
+    maybeHandshake();
+  };
 
   const leave = () => {
+    left = true;
+    globalThis.clearInterval(watchdog);
     try {
       collab.awareness.setLocalState(null);
     } catch {
@@ -336,8 +464,10 @@ export function attachRealtimeSync(
     }
     collab.awareness.off('update', onAwarenessUpdate);
     collab.awareness.off('change', onAwarenessChange);
-    void channel.unsubscribe();
+    const ch = channel;
+    channel = null;
+    if (ch) void ch.unsubscribe();
   };
 
-  return { broadcastUpdate, leave };
+  return { broadcastUpdate, setHydrated, leave };
 }
