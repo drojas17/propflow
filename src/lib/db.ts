@@ -61,12 +61,14 @@ export async function loadProjectDoc(id: string): Promise<ProjectDoc | null> {
   return (data?.doc as ProjectDoc | undefined) ?? null;
 }
 
-export async function saveProjectDoc(id: string, doc: ProjectDoc): Promise<void> {
+export async function saveProjectDoc(id: string, doc: ProjectDoc): Promise<string> {
   const sb = requireSupabase();
+  const updatedAt = new Date().toISOString();
   const { error } = await sb
     .from('project_documents')
-    .upsert({ project_id: id, doc, updated_at: new Date().toISOString() }, { onConflict: 'project_id' });
+    .upsert({ project_id: id, doc, updated_at: updatedAt }, { onConflict: 'project_id' });
   if (error) throw error;
+  return updatedAt;
 }
 
 // ---------------------------------------------------------------- library

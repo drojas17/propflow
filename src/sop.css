@@ -22,6 +22,9 @@
 .sop-section.selected-section{border-color:#55d7ff;background:#10253466}
 .sop-section-heading{cursor:pointer}
 .sop-section,.sop-section .sop-step{position:relative}
+.sop-section .sop-step{padding-right:30px}
+.sop-step-delete{position:absolute;top:6px;right:8px;cursor:pointer;color:#ff9a9a;font-size:14px;font-weight:700;line-height:1;padding:2px 5px;border-radius:4px}
+.sop-step-delete:hover{color:#ff5f5f;background:#ff5f5f22}
 .sop-drop-before::before,.sop-drop-section::before,.sop-drop-end::after{content:'';position:absolute;left:0;right:0;height:3px;background:#ffd35c;border-radius:3px;box-shadow:0 0 5px #ffd35c88;pointer-events:none;z-index:4}
 .sop-drop-before::before,.sop-drop-section::before{top:-5px}
 .sop-drop-end::after{bottom:2px;left:8px;right:8px}
@@ -63,3 +66,19 @@
 .ladder-steps .sop-section-heading b{padding-left:5px}
 .sop-speed{display:flex;align-items:center;gap:6px;margin:0;color:#8195a2;font-size:10px;white-space:nowrap}
 .sop-speed select{margin:0}
+
+/* ---------- mobile: stacked SOP layout, pan-able visualizer ---------- */
+@media (max-width:900px){
+  .sop-workspace{grid-template-columns:minmax(0,1fr);height:auto;min-height:calc(100dvh - 62px);overflow:visible}
+  .sop-steps{border-right:0;border-bottom:1px solid #22313e;overflow:visible;max-height:none}
+  .sop-middle{min-height:72dvh;min-width:0}
+  .sop-state{border-left:0;border-top:1px solid #22313e}
+  .sop-playbar{flex-wrap:wrap;height:auto;min-height:54px;padding:6px 8px;row-gap:6px}
+  .sop-diagram{touch-action:none}
+}
+
+/* step card is a div[role=button]; delete control is a real button */
+.sop-section div.sop-step{background:#102534;border:1px solid #315064;color:#c8eafa;border-radius:6px;font-size:11px}
+.sop-section div.sop-step:focus-visible{outline:2px solid #55d7ff;outline-offset:1px}
+.sop-workspace button.sop-step-delete{position:absolute;top:6px;right:8px;background:transparent;border:0;padding:2px 5px;color:#ff9a9a;font-size:14px;font-weight:700;line-height:1;border-radius:4px;cursor:pointer}
+.sop-workspace button.sop-step-delete:hover{color:#ff5f5f;background:#ff5f5f22}

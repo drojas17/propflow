@@ -139,11 +139,10 @@ function diffIdMap(ymap: Y.Map<unknown>, items: { id: string }[]): boolean {
  * Only actually-new/changed/deleted keys are written: re-setting every key
  * would churn the whole struct history on every keystroke and bloat updates.
  */
-export function pushStateToDoc(c: CollabDoc, state: DocState): boolean {
+export function pushStateToDoc(c: CollabDoc, state: DocState, base?: DocState | null): boolean {
   const nextCanvas = clean(state.canvasSize);
   const nextSop = state.sop == null ? null : clean(state.sop);
-  const canvasChanged =
-    JSON.stringify(toJSON(c.meta.get('canvasSize'))) !== JSON.stringify(nextCanvas);
+  const canvasChanged = JSON.stringify(toJSON(c.meta.get('canvasSize'))) !== JSON.stringify(nextCanvas);
   const sopChanged = JSON.stringify(toJSON(c.meta.get('sop')) ?? null) !== JSON.stringify(nextSop);
   const changed =
     diffIdMap(c.nodes, state.nodes) ||
@@ -153,13 +152,22 @@ export function pushStateToDoc(c: CollabDoc, state: DocState): boolean {
     sopChanged;
   if (!changed) return false;
 
+  // Deletion guard: only keys this client previously pushed (present in `base`)
+  // may be deleted. A stale snapshot must never delete entities it simply has
+  // not seen yet (e.g. a collaborator's newer nodes) — those survive as adds.
+  const baseIds = (items?: { id: string }[] | null) => new Set((items ?? []).map((i) => i.id));
+
   c.doc.transact(
     () => {
-      const syncMap = (ymap: Y.Map<unknown>, items: { id: string }[]) => {
+      const syncMap = (
+        ymap: Y.Map<unknown>,
+        items: { id: string }[],
+        deletable: Set<string> | null
+      ) => {
         const nextIds = new Set(items.map((i) => i.id));
         const doomed: string[] = [];
         ymap.forEach((_v, id) => {
-          if (!nextIds.has(id)) doomed.push(id);
+          if (!nextIds.has(id) && (!deletable || deletable.has(id))) doomed.push(id);
         });
         for (const id of doomed) ymap.delete(id);
         for (const item of items) {
@@ -170,9 +178,10 @@ export function pushStateToDoc(c: CollabDoc, state: DocState): boolean {
           }
         }
       };
-      syncMap(c.nodes, state.nodes);
-      syncMap(c.edges, state.edges);
-      syncMap(c.shapes, state.shapes);
+      const b = base ?? null;
+      syncMap(c.nodes, state.nodes, b ? baseIds(b.nodes) : null);
+      syncMap(c.edges, state.edges, b ? baseIds(b.edges) : null);
+      syncMap(c.shapes, state.shapes, b ? baseIds(b.shapes) : null);
       if (canvasChanged) c.meta.set('canvasSize', nextCanvas);
       if (sopChanged) c.meta.set('sop', nextSop);
     },
@@ -181,7 +190,71 @@ export function pushStateToDoc(c: CollabDoc, state: DocState): boolean {
   return true;
 }
 
-// ---------------------------------------------------------------- binary <-> base64 (Broadcast payloads must be JSON)
+/**
+ * Three-way merge of a remotely-persisted project snapshot into the live doc.
+ * `base` is the last state this client pushed (or hydrated from); entities the
+ * local side changed since base win, everything else takes the remote value.
+ * Remote deletes apply only to entities that were in base AND are still
+ * untouched locally. Returns whether the doc changed. Never throws on
+ * malformed input.
+ */
+export function mergeRemoteProject(c: CollabDoc, remote: ProjectDoc, base: DocState | null): boolean {
+  let changed = false;
+  const mergeMap = (
+    ymap: Y.Map<unknown>,
+    baseItems: { id: string }[] | undefined | null,
+    remoteItems: { id: string }[] | undefined | null
+  ) => {
+    const rjson = (v: unknown) => JSON.stringify(clean(v as { id: string }));
+    const baseById = new Map((baseItems ?? []).map((i) => [i.id, rjson(i)] as [string, string]));
+    const remoteById = new Map((remoteItems ?? []).map((i) => [i.id, rjson(i)] as [string, string]));
+    for (const [id, rj] of remoteById) {
+      const cur = ymap.get(id);
+      if (cur === undefined) {
+        ymap.set(id, JSON.parse(rj));
+        changed = true;
+      } else {
+        const cj = JSON.stringify(toJSON(cur));
+        if (cj === rj) continue;
+        const bj = baseById.get(id);
+        if (bj === undefined || cj === bj) {
+          // new remotely, or locally untouched since base → take remote
+          ymap.set(id, JSON.parse(rj));
+          changed = true;
+        }
+        // else both sides changed the same entity → keep local
+      }
+    }
+    for (const [id, bj] of baseById) {
+      if (remoteById.has(id)) continue;
+      const cur = ymap.get(id);
+      if (cur !== undefined && JSON.stringify(toJSON(cur)) === bj) {
+        ymap.delete(id);
+        changed = true;
+      }
+      // else locally changed/added since base → keep local (protects against
+      // a stale remote snapshot wiping local work)
+    }
+  };
+  const mergeMeta = (key: string, baseVal: unknown, remoteVal: unknown) => {
+    const rj = JSON.stringify(remoteVal ?? null);
+    const cj = JSON.stringify(toJSON(c.meta.get(key)) ?? null);
+    if (cj === rj) return;
+    if (cj === JSON.stringify(baseVal ?? null)) {
+      c.meta.set(key, remoteVal == null ? null : clean(remoteVal));
+      changed = true;
+    }
+    // else both changed → keep local
+  };
+  c.doc.transact(() => {
+    mergeMap(c.nodes, base?.nodes, (remote.nodes ?? []) as { id: string }[]);
+    mergeMap(c.edges, base?.edges, (remote.edges ?? []) as { id: string }[]);
+    mergeMap(c.shapes, base?.shapes, (remote.shapes ?? []) as { id: string }[]);
+    mergeMeta('canvasSize', base?.canvasSize, remote.canvasSize);
+    mergeMeta('sop', base?.sop ?? null, remote.sop ?? null);
+  }, 'remote');
+  return changed;
+}
 
 export function encodeUpdate(update: Uint8Array): string {
   let s = '';
