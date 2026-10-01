@@ -1,4 +1,7 @@
-:root{font-family:Inter,ui-sans-serif,system-ui,sans-serif;color:#dce7ef;background:#071018;font-synthesis:none;--bg:#071018;--panel:#0b151f;--panel2:#101c27;--line:#22313e;--muted:#7f91a2;--cyan:#55d7ff;--lime:#a8ef65}
+:root{
+  --symbol-bg:#071018;
+  --symbol-text:#f4f8fa;
+  --symbol-text-dim:#c4d1d8;font-family:Inter,ui-sans-serif,system-ui,sans-serif;color:#dce7ef;background:#071018;font-synthesis:none;--bg:#071018;--panel:#0b151f;--panel2:#101c27;--line:#22313e;--muted:#7f91a2;--cyan:#55d7ff;--lime:#a8ef65}
 /* ---------- light mode ---------- */
 [data-theme="light"]{color:#1a2b3a;background:#f0f4f8;--bg:#f0f4f8;--panel:#ffffff;--panel2:#e8eef4;--line:#d0d9e3;--muted:#5a6c7d;--cyan:#0e7aa8;--lime:#3d8b2a}
 [data-theme="light"] body{background:var(--bg)}
@@ -48,3 +51,9 @@ body.panel-open aside.right{display:none}
 .auth-user{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:#c8eafa;opacity:.9}
 .auth-user i{width:10px;height:10px;border-radius:50%;background:#7dffa8;display:inline-block}
 .auth-user button{padding:4px 8px}
+
+[data-theme="light"]{
+  --symbol-bg:#ffffff;
+  --symbol-text:#000000;
+  --symbol-text-dim:#4a5a66;
+}
