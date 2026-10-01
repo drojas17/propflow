@@ -146,3 +146,30 @@ export async function loadProjectUpdatedAt(id: string): Promise<string | null> {
   if (error) throw error;
   return (data?.updated_at as string | undefined) ?? null;
 }
+
+// ---------------------------------------------------------------- feedback
+
+export type FeedbackCategory = 'bug' | 'feature' | 'general';
+
+export interface FeedbackInput {
+  userEmail?: string | null;
+  userName?: string | null;
+  projectId?: string | null;
+  view?: string | null;
+  category: FeedbackCategory;
+  message: string;
+}
+
+/** Store user feedback for triage. Routed to Kev/a Codex agent for review. */
+export async function submitFeedback(input: FeedbackInput): Promise<void> {
+  const sb = requireSupabase();
+  const { error } = await sb.from('feedback').insert({
+    user_email: input.userEmail ?? null,
+    user_name: input.userName ?? null,
+    project_id: input.projectId ?? null,
+    view: input.view ?? null,
+    category: input.category,
+    message: input.message,
+  });
+  if (error) throw error;
+}
