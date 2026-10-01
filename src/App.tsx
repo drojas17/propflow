@@ -227,7 +227,35 @@ const [nodes,setNodes]=useState<Node[]>([]),[edges,setEdges]=useState<Edge[]>([]
  const identityRef=useRef(identity);identityRef.current=identity
  const [hydrated,setHydrated]=useState(false)
  const [projectId,setProjectId]=useState(()=>{const share=publicOnly?null:new URLSearchParams(window.location.search).get('share');return share?`share-${share}`:publicOnly?'local':'osiris'})
- const active=nodes.find(n=>n.id===selected),liveNodes=useMemo(()=>nodes.map(n=>view==='sop'||view==='ladder'?{...n,state:steps[step].states[n.id]??n.state}:n),[nodes,view,step]),energized=useMemo(()=>trace(liveNodes,edges,view==='sop'||view==='ladder'),[liveNodes,edges,view])
+ const active=nodes.find(n=>n.id===selected),liveNodes=useMemo(()=>nodes.map(n=>view==='sop'||view==='ladder'?{...n,state:steps[step].states[n.id]??n.state}:n),[nodes,view,step]),energized=useMemo(()=>{
+  const result=trace(liveNodes,edges,view==='sop'||view==='ladder');
+  // Post-process: sensors (PT, etc.) connected to energized edges inherit the edge fluid
+  // This handles dead-end sensors that the BFS might miss (e.g., PT on TCA exhaust)
+  const byId=new Map(liveNodes.map(n=>[n.id,n]));
+  liveNodes.forEach(n=>{
+    if(result.nodeFluids.has(n.id)) return;
+    if(n.kind!=='sensor') return;
+    // Find connected edges with fluid
+    for(const e of edges){
+      if(e.from!==n.id&&e.to!==n.id) continue;
+      const ef=result.edgeFluids.get(e.id);
+      if(ef){
+        result.nodeFluids.set(n.id,ef);
+        result.activeNodes.add(n.id);
+        break;
+      }
+      // Also check the neighbor's fluid
+      const otherId=e.from===n.id?e.to:e.from;
+      const otherFluid=otherId?result.nodeFluids.get(otherId):undefined;
+      if(otherFluid){
+        result.nodeFluids.set(n.id,otherFluid);
+        result.activeNodes.add(n.id);
+        break;
+      }
+    }
+  });
+  return result;
+},[liveNodes,edges,view])
  const ladderBaseNodes=useMemo(()=>nodes.map(n=>n.symbolType==='pneumatic-ball'?{...n,connectedSolenoidId:solenoidFor(n,nodes,edges)?.id}:n),[nodes,edges]),ladderNodes=useMemo(()=>sopState(ladderBaseNodes,sop,ladderStep),[ladderBaseNodes,sop,ladderStep]),ladderPressureMap=useMemo(()=>roughSopPressures(ladderNodes,edges),[ladderNodes,edges]),ladderRows=useMemo(()=>ladderNodes.filter(n=>['tank','sensor','regulator'].includes(n.kind)&&ladderPressureMap.has(n.id)).map(n=>({tag:n.tag,expected:Math.round(ladderPressureMap.get(n.id)!),status:'PRESSURIZED'})),[ladderNodes,ladderPressureMap])
  const pressures=useMemo(()=>liveNodes.filter(n=>n.kind==='sensor'||n.kind==='tank').map((n,i)=>{const isOn=energized.activeNodes.has(n.id),inlet=n.pressure??(isOn?2640:0),q=step===2?1.8:step===1?.7:0,loss=isOn?(0.018*18/.011)*(998*q*q/2)/6894.76+i*2:0;return{tag:n.tag,expected:isOn?Math.max(0,Math.round(inlet-loss)):0,status:isOn?'PRESSURIZED':'ISOLATED'}}),[liveNodes,energized,step])
  const [availableProjects,setAvailableProjects]=useState<string[]>(publicOnly?['local']:['osiris','polaris','helios']),[isSaving,setIsSaving]=useState(false)
