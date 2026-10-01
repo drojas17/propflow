@@ -236,14 +236,14 @@ const [nodes,setNodes]=useState<Node[]>([]),[edges,setEdges]=useState<Edge[]>([]
  const rotateSelected=()=>{if(!selectedIds.length)return;checkpoint();const ids=new Set(selectedIds);setNodes(v=>v.map(n=>ids.has(n.id)?{...n,rotation:((n.rotation??0)+90)%360}:n));setSaved(false)}
  const nudgeSelected=(key:string,snap:boolean)=>{if(!selectedIds.length)return;const ids=new Set(selectedIds),anchor=nodes.find(n=>n.id===(selected||selectedIds.at(-1)));if(!anchor)return;let dx=key==='arrowleft'?-1:key==='arrowright'?1:0,dy=key==='arrowup'?-1:key==='arrowdown'?1:0;if(snap){const grid=10;if(dx<0)dx=(Math.ceil(anchor.x/grid)-1)*grid-anchor.x;else if(dx>0)dx=(Math.floor(anchor.x/grid)+1)*grid-anchor.x;if(dy<0)dy=(Math.ceil(anchor.y/grid)-1)*grid-anchor.y;else if(dy>0)dy=(Math.floor(anchor.y/grid)+1)*grid-anchor.y}checkpoint();setNodes(v=>v.map(n=>ids.has(n.id)?{...n,x:Math.max(60,Math.min(canvasSize.w-60,n.x+dx)),y:Math.max(55,Math.min(canvasSize.h-55,n.y+dy))}:n));setSaved(false)}
  const bisect=(axis:'x'|'y',at:number)=>{const amount=bisectGap*2,halfGap=amount/2,coordinate=(n:Node)=>axis==='x'?n.x:n.y,nodeMoves=new Map(nodes.map(n=>[n.id,coordinate(n)>=at]));
+  const [panelCollapsed,setPanelCollapsed]=useState(false);
   // Auto-open sidebar when a component is selected
   useEffect(()=>{
-    if(selected){
+    if(selectedIds.length>0){
       document.body.classList.remove('panel-open');
       setPanelCollapsed(false);
     }
-  },[selected]);
-  const [panelCollapsed,setPanelCollapsed]=useState(false);
+  },[selectedIds]);
   const [editingTag,setEditingTag]=useState<{id:string;x:number;y:number;tag:string}|null>(null);
   // Auto-open sidebar when a component is selected
   useEffect(()=>{
