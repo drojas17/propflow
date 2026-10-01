@@ -8,6 +8,19 @@ import { requireSupabase } from './supabase';
  * the anonymous policies get dropped.
  */
 
+export interface Part {
+  id: string;
+  name: string;
+  category: string;
+  manufacturer?: string;
+  partNumber?: string;
+  description?: string;
+  specs?: Record<string, string>;
+  supplier?: string;
+  unitCost?: number;
+  createdAt: string;
+}
+
 export interface ProjectDoc {
   nodes: unknown[];
   edges: unknown[];
@@ -15,6 +28,7 @@ export interface ProjectDoc {
   canvasSize: { w: number; h: number };
   sop: unknown;
   projectName?: string;
+  parts?: Part[];
 }
 
 export interface LibraryDoc {
