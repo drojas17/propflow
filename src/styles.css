@@ -57,3 +57,16 @@ body.panel-open aside.right{display:none}
   --symbol-text:#000000;
   --symbol-text-dim:#4a5a66;
 }
+
+[data-theme="light"] .component-card>.component-add{
+  background:#ffffff;
+  border:1px solid #d0d9e0;
+  color:#1a2b3a;
+}
+[data-theme="light"] .component-card>.component-add:hover{
+  background:#f0f4f8;
+  border-color:#0e7aa8;
+}
+[data-theme="light"] .component-card .eyebrow{
+  color:#5a6c7d;
+}
