@@ -155,11 +155,13 @@ function Symbol({edges=[],networkNodes=[],n,selected,energized=true,connecting,o
     const d=Math.sqrt(dx*dx+dy*dy);
     if(d<nearest)nearest=d;
   });
-  // Hitbox half-size: half the neighbor distance minus buffer, clamped
-  // Min 35px (still easy to click), max 100px
-  const half=isFinite(nearest)?Math.max(35,Math.min(100,nearest/2-3)):100;
-  const hw=n.kind==="tank"?Math.max(tankRx+15,half):half;
-  const hh=n.kind==="tank"?Math.max(tankRy+15,half):half;
+  // Hitbox half-size: NEVER exceed half the neighbor distance (no overlap)
+  // Visual size needed, but clamped by neighbor proximity
+  const visualHw=n.kind==="tank"?tankRx+15:35;
+  const visualHh=n.kind==="tank"?tankRy+15:35;
+  const limit=isFinite(nearest)?Math.max(20,nearest/2-3):100;
+  const hw=Math.min(visualHw,limit,100);
+  const hh=Math.min(visualHh,limit,100);
   return <rect x={-hw} y={-hh} width={hw*2} height={hh*2} fill="transparent" style={{pointerEvents:"all"}}/>;
 })()}<g transform={`rotate(${n.rotation??0})`}>
  {selected&&<rect className="selected-hitbox" x={n.kind==='tank'?-tankRx-8:-48} y={n.kind==='tank'?-tankRy-8:-42} width={n.kind==='tank'?tankRx*2+16:96} height={n.kind==='tank'?tankRy*2+16:88} rx="12" fill="transparent" pointerEvents="all" stroke="#52d4ff" strokeWidth="2" strokeDasharray="5 4"/>}
