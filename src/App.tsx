@@ -234,7 +234,7 @@ const [nodes,setNodes]=useState<Node[]>([]),[edges,setEdges]=useState<Edge[]>([]
   const byId=new Map(liveNodes.map(n=>[n.id,n]));
   liveNodes.forEach(n=>{
     if(result.nodeFluids.has(n.id)) return;
-    if(n.kind!=='sensor') return;
+    if(n.symbolType!=='transducer') return;
     // Find connected edges with fluid
     for(const e of edges){
       if(e.from!==n.id&&e.to!==n.id) continue;
