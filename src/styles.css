@@ -70,3 +70,27 @@ body.panel-open aside.right{display:none}
 [data-theme="light"] .component-card .eyebrow{
   color:#5a6c7d;
 }
+
+@media (max-width:900px){
+  .mobile-panel-resizer{
+    display:block !important;
+    position:fixed;
+    left:0;right:0;
+    height:12px;
+    cursor:ns-resize;
+    z-index:91;
+    touch-action:none;
+  }
+  body.panel-open .mobile-panel-resizer{
+    bottom:60dvh;
+  }
+  .mobile-panel-resizer::after{
+    content:'';
+    position:absolute;
+    left:50%;top:50%;
+    transform:translate(-50%,-50%);
+    width:40px;height:4px;
+    border-radius:2px;
+    background:#3a5a6e;
+  }
+}
