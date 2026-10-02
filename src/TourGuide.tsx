@@ -42,6 +42,7 @@ export interface TourGuideProps {
   phase: "build" | "sop";
   sop: { steps: number; titled: number; actions: number; initialAllClosed: boolean; played: boolean };
   onStartSop: () => void;
+  onSkipToSop: () => void;
   onExit: () => void;
   onOpenTutorial: () => void;
   onKeepBuilding: () => void;
@@ -192,6 +193,7 @@ export default function TourGuide({
   phase,
   sop,
   onStartSop,
+  onSkipToSop,
   onExit,
   onOpenTutorial,
   onKeepBuilding,
@@ -642,6 +644,11 @@ export default function TourGuide({
 
         <div className="tour-footer">
           <div className="tour-navigation">
+            {phase === "build" && (
+              <button className="tour-button" type="button" onClick={onSkipToSop}>
+                Skip to SOP building
+              </button>
+            )}
             {step > 0 && (
               <button className="tour-button" type="button" onClick={back}>
                 <ArrowLeft size={15} aria-hidden="true" />
