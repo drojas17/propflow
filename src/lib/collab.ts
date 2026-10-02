@@ -160,7 +160,7 @@ function diffIdMap(ymap: Y.Map<unknown>, items: { id: string }[]): boolean {
  * Only actually-new/changed/deleted keys are written: re-setting every key
  * would churn the whole struct history on every keystroke and bloat updates.
  */
-export function pushStateToDoc(c: CollabDoc, state: DocState, base?: DocState | null): boolean {
+export function pushStateToDoc(c: CollabDoc, state: DocState, base?: DocState | null, explicitlyDeleted?: Set<string>): boolean {
   const nextCanvas = clean(state.canvasSize);
   const nextSop = state.sop == null ? null : clean(state.sop);
   const canvasChanged = JSON.stringify(toJSON(c.meta.get('canvasSize'))) !== JSON.stringify(nextCanvas);
@@ -186,12 +186,15 @@ export function pushStateToDoc(c: CollabDoc, state: DocState, base?: DocState | 
       const syncMap = (
         ymap: Y.Map<unknown>,
         items: { id: string }[],
-        deletable: Set<string> | null
+        prefix: string
       ) => {
         const nextIds = new Set(items.map((i) => i.id));
         const doomed: string[] = [];
         ymap.forEach((_v, id) => {
-          if (!nextIds.has(id) && (!deletable || deletable.has(id))) doomed.push(id);
+          // Only delete if explicitly marked for deletion by the user.
+          // Never infer deletions from state diffs - this was causing
+          // collaborators' nodes to be deleted when React state was stale.
+          if (!nextIds.has(id) && explicitlyDeleted?.has(prefix + ':' + id)) doomed.push(id);
         });
         for (const id of doomed) ymap.delete(id);
         for (const item of items) {
@@ -203,11 +206,11 @@ export function pushStateToDoc(c: CollabDoc, state: DocState, base?: DocState | 
         }
       };
       const b = base ?? null;
-      syncMap(c.nodes, state.nodes, b ? baseIds(b.nodes) : null);
-      syncMap(c.edges, state.edges, b ? baseIds(b.edges) : null);
-      syncMap(c.shapes, state.shapes, b ? baseIds(b.shapes) : null);
-      syncMap(c.parts, (state.parts ?? []) as { id: string }[], b ? baseIds((b.parts ?? []) as { id: string }[]) : null);
-      syncMap(c.customSymbols, (state.customSymbols ?? []) as { id: string }[], b ? baseIds((b.customSymbols ?? []) as { id: string }[]) : null);
+      syncMap(c.nodes, state.nodes, 'node');
+      syncMap(c.edges, state.edges, 'edge');
+      syncMap(c.shapes, state.shapes, 'shape');
+      syncMap(c.parts, (state.parts ?? []) as { id: string }[], 'part');
+      syncMap(c.customSymbols, (state.customSymbols ?? []) as { id: string }[], 'customSymbol');
       // symbolOverrides is a Record, sync via Y.Map
       {
         const nextOverrides = state.symbolOverrides ?? {};
