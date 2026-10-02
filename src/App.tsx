@@ -153,31 +153,64 @@ function WorkshopGlyph({mark:s,c,filledTriangles=false}:{mark:WorkshopElement;c:
 
 function VentIndicator({n,edges,nodes,c}:{n:Node;edges:Edge[];nodes:Node[];c:string}){const[,ry]=radius(n),spread=Math.max(24,ry*.85),offsets=n.symbolType==='tca'?Array.from({length:6},(_,i)=>-spread+i*(spread*2/5)):[0],length=n.symbolType==='tca'?34:22,head=length-9;return <g transform={ventTransform(n,edges,nodes)} pointerEvents="none">{offsets.map(offset=><path key={offset} d={`M0 ${offset}H${length}M${head} ${offset-7}L${length} ${offset} ${head} ${offset+7}`} fill="none" stroke={c} strokeWidth="3"/>)}</g>}
 function AsiExhaustArrow({n,edges,nodes,c}:{n:Node;edges:Edge[];nodes:Node[];c:string}){const byId=new Map(nodes.map(node=>[node.id,node])),edge=edges.find(e=>(e.from===n.id&&byId.get(e.to??'')?.symbolType==='tca')||(e.to===n.id&&byId.get(e.from??'')?.symbolType==='tca'))??edges.find(e=>(e.from===n.id&&!e.to&&!!e.end)||(e.to===n.id&&!e.from&&!!e.start));if(!edge)return null;const route=edgeRoute(edge,nodes),fromAsi=edge.from===n.id,tip=fromAsi?route.at(-1)!:route[0],inside=fromAsi?route.at(-2)!:route[1],local=rotatePoint(tip,n,-(n.rotation??0)),angle=Math.atan2(tip.y-inside.y,tip.x-inside.x)*180/Math.PI-(n.rotation??0),flow=trace(nodes,edges,false),fluid=flow.edgeFluids.get(edge.id)??n.fluid??'GN2',stroke=c==='#495a64'?'#495a64':actuatorEdges(nodes,edges).has(edge.id)?'#b3dfa5':flow.activeEdges.has(edge.id)?(colors[fluid]||'#789'):'#617069';return <path transform={`translate(${local.x-n.x} ${local.y-n.y}) rotate(${angle})`} d="M-11-8L0 0-11 8" fill="none" stroke={stroke} strokeWidth="3" opacity="1" pointerEvents="none"/>}
-function Symbol({edges=[],networkNodes=[],n,selected,energized=true,connecting,connectMode,onDown,onClick,onPortDown,onLabelDown,label,detail,custom,override,onLabelDoubleClick}:{edges?:Edge[];networkNodes?:Node[];n:Node;selected:boolean;energized?:boolean;connecting:boolean;connectMode?:boolean;onDown:(e:React.PointerEvent)=>void;onClick:(e:React.MouseEvent)=>void;onPortDown:(port:PortName,e:React.PointerEvent<SVGElement>)=>void;onLabelDown:(e:React.PointerEvent<SVGTextElement>)=>void;onLabelDoubleClick?:(n:Node,e:React.MouseEvent)=>void;label:{x:number;y:number;anchor:'start'|'middle'|'end'};detail:'schematic'|'assembly';custom?:CustomSymbol;override?:CustomSymbol}){const isLoadCell=n.symbolType==='load-cell',base=isLoadCell?'#a7b1bf':(colors[n.fluid||'']||'#a7b1bf'),c=isLoadCell?'#a7b1bf':(energized?base:'#65736f'),opacity=isLoadCell?1:(energized?1:.42),[tankRx,tankRy]=radius(n),tankCap=Math.min(18,Math.max(12,tankRy*.2));if(n.kind==='junction')return <g transform={`translate(${n.x} ${n.y})`}><circle r={detail==='assembly'?7:4} fill={detail==='assembly'?'#9da8ae':c} stroke="var(--symbol-bg)" strokeWidth="2"/></g>;return <g transform={`translate(${n.x} ${n.y})`} onPointerDown={onDown} onClick={onClick} className="symbol" opacity={opacity} aria-label={`${n.tag} ${n.kind}`}>{(()=>{
-  // Dynamic hitbox: shrink when neighbors are close to avoid overlap
-  const others=(networkNodes??[]).filter(o=>o.id!==n.id);
-  let nearest=Infinity;
-  others.forEach(o=>{
-    const dx=o.x-n.x, dy=o.y-n.y;
-    const d=Math.sqrt(dx*dx+dy*dy);
-    if(d<nearest)nearest=d;
-  });
-  // Hitbox: tight to visual (+8px padding), never overlapping neighbors
-  // Small enough to allow marquee selection on open space
-  const visualHw=tankRx+8;
-  const visualHh=tankRy+8;
-  const limit=isFinite(nearest)?Math.max(15,nearest/2-3):50;
-  const hw=Math.min(visualHw,limit,50);
-  const hh=Math.min(visualHh,limit,50);
-  return <rect x={-hw} y={-hh} width={hw*2} height={hh*2} fill="transparent" style={{pointerEvents:connectMode?"none":"all"}}/>;
-})()}<g transform={`rotate(${n.rotation??0})`}>
- {selected&&<rect className="selected-hitbox" x={n.kind==='tank'?-tankRx-8:-48} y={n.kind==='tank'?-tankRy-8:(n.kind==='regulator'||n.symbolType==='relief-valve'?-68:-42)} width={n.kind==='tank'?tankRx*2+16:96} height={n.kind==='tank'?tankRy*2+16:(n.kind==='regulator'||n.symbolType==='relief-valve'?114:88)} rx="12" fill="transparent" pointerEvents="all" stroke="#52d4ff" strokeWidth="2" strokeDasharray="5 4"/>}
+type VisualBounds={x1:number,y1:number,x2:number,y2:number};
+const STANDARD_BOUNDS:Partial<Record<string,VisualBounds>>={
+ 'manual-ball':{x1:-30,y1:-23,x2:30,y2:14},
+ 'pneumatic-ball':{x1:-30,y1:-37,x2:30,y2:14},
+ 'solenoid':{x1:-28,y1:-35,x2:28,y2:13},
+ 'servo-ball':{x1:-30,y1:-36,x2:30,y2:14},
+ 'burst-disk':{x1:-30,y1:-16,x2:30,y2:16},
+ 'relief-valve':{x1:-10,y1:-34,x2:30,y2:30},
+ 'regulator':{x1:-30,y1:-33,x2:30,y2:13},
+ 'check-valve':{x1:-30,y1:-15,x2:30,y2:15},
+ 'gauge':{x1:-18,y1:-18,x2:18,y2:30},
+ 'transducer':{x1:-18,y1:-28,x2:18,y2:30},
+ 'thermocouple':{x1:-18,y1:-28,x2:18,y2:30},
+ 'load-cell':{x1:-20,y1:-27,x2:20,y2:28},
+ 'tee':{x1:-28,y1:-4,x2:28,y2:28},
+ 'cross':{x1:-28,y1:-28,x2:28,y2:28},
+ 'adapter':{x1:-28,y1:-16,x2:28,y2:16},
+ 'tube':{x1:-32,y1:-5,x2:32,y2:5},
+ 'flex-hose':{x1:-30,y1:-18,x2:42,y2:18},
+};
+function symbolVisualBounds(symbol:CustomSymbol):VisualBounds{
+ let x1=Infinity,y1=Infinity,x2=-Infinity,y2=-Infinity;
+ const add=(ax1:number,ay1:number,ax2:number,ay2:number)=>{x1=Math.min(x1,ax1);y1=Math.min(y1,ay1);x2=Math.max(x2,ax2);y2=Math.max(y2,ay2)};
+ if(symbol.image)add(0,0,420,280);
+ for(const s of symbol.elements){
+  const x=Math.min(s.x1,s.x2),y=Math.min(s.y1,s.y2),w=Math.abs(s.x2-s.x1),h=Math.abs(s.y2-s.y1);
+  let bx1=x,by1=y,bx2=x+w,by2=y+h;
+  if((s.type==='triangle'||s.type==='curve')&&s.points?.length===3){const xs=s.points.map(p=>p.x),ys=s.points.map(p=>p.y);bx1=Math.min(...xs);by1=Math.min(...ys);bx2=Math.max(...xs);by2=Math.max(...ys)}
+  if(s.type==='text'){const fs=s.fontSize??16;bx1=s.x1;by1=s.y1-fs;bx2=s.x1+Math.max(6,(s.text??'').length)*fs*.62;by2=s.y1+fs*.25}
+  else{bx1-=7.5;by1-=7.5;bx2+=7.5;by2+=7.5}
+  const rot=(s.rotation??0)*Math.PI/180;
+  if(rot){const cx=(bx1+bx2)/2,cy=(by1+by2)/2,cos=Math.cos(rot),sin=Math.sin(rot);let rx1=Infinity,ry1=Infinity,rx2=-Infinity,ry2=-Infinity;for(const[px,py]of[[bx1,by1],[bx2,by1],[bx1,by2],[bx2,by2]]){const dx=px-cx,dy=py-cy,qx=cx+dx*cos-dy*sin,qy=cy+dx*sin+dy*cos;rx1=Math.min(rx1,qx);ry1=Math.min(ry1,qy);rx2=Math.max(rx2,qx);ry2=Math.max(ry2,qy)}bx1=rx1;by1=ry1;bx2=rx2;by2=ry2}
+  add(bx1,by1,bx2,by2);
+ }
+ if(!isFinite(x1))return{x1:-42,y1:-28,x2:42,y2:28};
+ return{x1:x1*.2-42,y1:y1*.2-28,x2:x2*.2-42,y2:y2*.2-28};
+}
+function nodeVisualBounds(n:Node,custom?:CustomSymbol,override?:CustomSymbol):VisualBounds{
+ const[rx,ry]=radius(n);
+ let b:VisualBounds;
+ if(n.kind==='tank')b={x1:-rx,y1:-ry,x2:rx,y2:ry};
+ else if(n.symbolType==='continuation')b={x1:-11,y1:-11,x2:11,y2:11};
+ else if(override)b=symbolVisualBounds(override);
+ else if(n.kind==='custom'&&custom)b=symbolVisualBounds(custom);
+ else if(n.kind==='ambient')b={x1:-25,y1:-21,x2:20,y2:11};
+ else b=STANDARD_BOUNDS[n.symbolType??'']??{x1:-rx,y1:-ry,x2:rx,y2:ry};
+ if(n.kind==='custom'&&custom&&override){const cb=symbolVisualBounds(custom);b={x1:Math.min(b.x1,cb.x1),y1:Math.min(b.y1,cb.y1),x2:Math.max(b.x2,cb.x2),y2:Math.max(b.y2,cb.y2)}}
+ for(const{p}of portsFor({...n,x:0,y:0,rotation:0})){b={x1:Math.min(b.x1,p.x),y1:Math.min(b.y1,p.y),x2:Math.max(b.x2,p.x),y2:Math.max(b.y2,p.y)}}
+ return b;
+}
+function Symbol({edges=[],networkNodes=[],n,selected,energized=true,connecting,connectMode,onDown,onClick,onPortDown,onLabelDown,label,detail,custom,override,onLabelDoubleClick}:{edges?:Edge[];networkNodes?:Node[];n:Node;selected:boolean;energized?:boolean;connecting:boolean;connectMode?:boolean;onDown:(e:React.PointerEvent)=>void;onClick:(e:React.MouseEvent)=>void;onPortDown:(port:PortName,e:React.PointerEvent<SVGElement>)=>void;onLabelDown:(e:React.PointerEvent<SVGTextElement>)=>void;onLabelDoubleClick?:(n:Node,e:React.MouseEvent)=>void;label:{x:number;y:number;anchor:'start'|'middle'|'end'};detail:'schematic'|'assembly';custom?:CustomSymbol;override?:CustomSymbol}){const isLoadCell=n.symbolType==='load-cell',base=isLoadCell?'#a7b1bf':(colors[n.fluid||'']||'#a7b1bf'),c=isLoadCell?'#a7b1bf':(energized?base:'#65736f'),opacity=isLoadCell?1:(energized?1:.42),[tankRx,tankRy]=radius(n),tankCap=Math.min(18,Math.max(12,tankRy*.2)),vb=nodeVisualBounds(n,custom,override),vPad=8;if(n.kind==='junction')return <g transform={`translate(${n.x} ${n.y})`}><circle r={detail==='assembly'?7:4} fill={detail==='assembly'?'#9da8ae':c} stroke="var(--symbol-bg)" strokeWidth="2"/></g>;return <g transform={`translate(${n.x} ${n.y})`} onPointerDown={onDown} onClick={onClick} className="symbol" opacity={opacity} aria-label={`${n.tag} ${n.kind}`}><rect x={vb.x1-vPad} y={vb.y1-vPad} width={vb.x2-vb.x1+vPad*2} height={vb.y2-vb.y1+vPad*2} fill="transparent" style={{pointerEvents:connectMode?"none":"all"}}/><g transform={`rotate(${n.rotation??0})`}>
+ {selected&&<rect className="selected-hitbox" x={vb.x1-vPad} y={vb.y1-vPad} width={vb.x2-vb.x1+vPad*2} height={vb.y2-vb.y1+vPad*2} rx="12" fill="transparent" pointerEvents="all" stroke="#52d4ff" strokeWidth="2" strokeDasharray="5 4"/>}
  {n.kind==='tank'?<><path d={`M${-tankRx} ${-tankRy+tankCap}V${tankRy-tankCap}Q${-tankRx} ${tankRy} 0 ${tankRy}Q${tankRx} ${tankRy} ${tankRx} ${tankRy-tankCap}V${-tankRy+tankCap}`} fill={`color-mix(in srgb, ${c} 18%, var(--symbol-bg))`} stroke={c} strokeWidth="2.8"/><ellipse cy={-tankRy+tankCap} rx={tankRx} ry={tankCap} fill={`color-mix(in srgb, ${c} 18%, var(--symbol-bg))`} stroke={c} strokeWidth="2.8"/></>:n.symbolType==='continuation'?<><circle r="11" fill="var(--symbol-bg)" stroke={c} strokeWidth="2.5"/><text y="4" textAnchor="middle" fill="var(--symbol-text)" fontSize="10" fontWeight="900">{n.tag}</text></>:override?<CustomGlyph symbol={override} c={c} filledTriangles={n.kind==='valve'&&n.state==='closed'}/>:!['ambient','custom'].includes(n.kind)?<StandardGlyph type={n.symbolType??'manual-ball'} c={c} state={n.state} detail={detail}/>:null}
  {n.kind==='tank'&&<><text y={Math.min(48,tankRy-10)} textAnchor="middle" fill={c} fontSize="8" fontWeight="900" letterSpacing="1">{n.tankRole==='source'||n.boundary==='supply'?'FILLED SOURCE':'RUN / RECEIVER'}</text><text y="-20" textAnchor="middle" fill="var(--symbol-text)" fontSize="13" fontWeight="800">{n.tag}</text><text y="-3" textAnchor="middle" fill="var(--symbol-text-dim)" fontSize="11" fontWeight="700">{n.volume??'—'} LITERS</text><text y="14" textAnchor="middle" fill="var(--symbol-text-dim)" fontSize="10" fontWeight="700">MEOP {n.meop??'—'} PSIG</text><text y="31" textAnchor="middle" fill="var(--symbol-text-dim)" fontSize="10" fontWeight="700">MAWP {n.mawp??'—'} PSIG</text></>}
  {n.kind==='custom'&&custom&&<CustomGlyph symbol={custom} c={c} filledTriangles={n.state==='closed'}/>} 
  {n.kind==='ambient'&&!override&&<><path d="M-25 0H18M8-11L20 0 8 11" fill="none" stroke={c} strokeWidth="3"/><text y="-12" textAnchor="middle" fill={c} fontSize="9" fontWeight="800">ATM</text></>}
  {n.ventsToAmbient&&(n.symbolType==='asi'?<AsiExhaustArrow n={n} edges={edges} nodes={networkNodes} c={detail==='assembly'?'#495a64':energized?c:'#617069'}/>:<VentIndicator n={n} edges={edges} nodes={networkNodes} c={c}/>)} 
- {connecting&&hasFreeformPerimeterPorts(n)&&<rect className="border-connection-target" x="-48" y="-42" width="96" height="88" rx="12" fill="transparent" pointerEvents="all" onPointerDown={e=>{const svg=e.currentTarget.ownerSVGElement;if(svg)onPortDown(borderPort(n,point(svg,e.clientX,e.clientY)),e)}}/>}
+ {connecting&&hasFreeformPerimeterPorts(n)&&<rect className="border-connection-target" x={vb.x1-vPad} y={vb.y1-vPad} width={vb.x2-vb.x1+vPad*2} height={vb.y2-vb.y1+vPad*2} rx="12" fill="transparent" pointerEvents="all" onPointerDown={e=>{const svg=e.currentTarget.ownerSVGElement;if(svg)onPortDown(borderPort(n,point(svg,e.clientX,e.clientY)),e)}}/>}
  {(selected||connecting)&&portsFor({...n,x:0,y:0,rotation:0}).map(({port,p})=><circle key={port} className="port fitting-port" cx={p.x} cy={p.y} r={n.symbolType==='tee'||n.symbolType==='cross'?5:7} onPointerDown={e=>onPortDown(port,e)}/>)}</g>{n.kind!=='tank'&&n.symbolType!=='continuation'&&!(detail==='schematic'&&n.kind==='fitting')&&<text x={label.x+(n.labelX??0)} y={label.y+(n.labelY??0)} textAnchor={label.anchor} fill="var(--symbol-text)" fontSize="12" fontWeight="700" style={{cursor:'move',pointerEvents:'auto',paintOrder:'stroke',stroke:'var(--symbol-bg)',strokeWidth:3}} onPointerDown={onLabelDown} onDoubleClick={(e)=>{e.stopPropagation();onLabelDoubleClick?.(n,e)}}>{n.tag}</text>}</g>}
 
 function ventOutlet(n:Node,edges:Edge[],nodes:Node[]){
