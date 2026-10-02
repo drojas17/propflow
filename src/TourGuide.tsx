@@ -40,7 +40,7 @@ export interface TourGuideProps {
   edges: { id: string; from?: string; to?: string }[];
   view: string;
   phase: "build" | "sop";
-  sop: { steps: number; titled: number; actions: number; initialAllClosed: boolean };
+  sop: { steps: number; titled: number; actions: number; initialAllClosed: boolean; played: boolean };
   onStartSop: () => void;
   onExit: () => void;
   onOpenTutorial: () => void;
@@ -155,19 +155,19 @@ const STEPS_SOP = [
   },
   {
     title: "Build the sequence",
-    body: "Add a second step: Close the solenoid vent (your SV), then Verify the transducer reads about 3000 psi \u2014 the pressure your source tank is supplying.",
+    body: "Add a second step: Confirm the vent valve is closed (it starts closed), then Verify the transducer reads about 3000 psi \u2014 the pressure your source tank is supplying.",
     where: "Step list \u2192 Add step \u00b7 step editor",
     icon: Layers,
   },
   {
     title: "Run your SOP",
-    body: "Hit Run simulation in the header. Step through the procedure and watch the pressures respond to each action \u2014 that\u2019s your SOP, checked against the system.",
-    where: "Header \u2192 Run simulation",
+    body: "Hit Play sequence in the bar above the diagram and watch the procedure run: valves change state, the right rail tracks every position, and a Safe system / power loss button appears next to Pause while it runs.",
+    where: "Diagram bar \u2192 Play sequence",
     icon: Play,
   },
   {
     title: "Procedure complete",
-    body: "Diagram \u2192 procedure \u2192 simulated run: the full PropFlow loop. Keep building on your own P&ID, or head back home.",
+    body: "Diagram \u2192 procedure \u2192 simulated run: the full PropFlow loop. Hit Export SOP PDF in the left rail to generate the finished SOP document, then keep building on your own P&ID or head back home.",
     where: "Choose below",
     icon: GraduationCap,
   },
@@ -292,7 +292,7 @@ export default function TourGuide({
     3: sop.titled >= 1,
     4: sop.actions >= 1,
     5: sop.steps >= 2 && sop.actions >= 2,
-    6: view === "ladder",
+    6: sop.played,
   };
   const detected =
     (phase === "sop" ? sopChecks : buildChecks)[step] ?? false;
