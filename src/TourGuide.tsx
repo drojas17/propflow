@@ -2,14 +2,18 @@ import { useEffect, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
+  Cable,
   CheckCircle2,
+  ClipboardList,
+  Droplets,
   FlaskConical,
   Gauge,
   GitBranch,
   GraduationCap,
-  Play,
+  Magnet,
   SlidersHorizontal,
   Waves,
+  Wind,
 } from "lucide-react";
 
 export interface TourGuideProps {
@@ -18,8 +22,15 @@ export interface TourGuideProps {
     kind: string;
     symbolType?: string;
     tag: string;
+    x: number;
+    y: number;
+    fluid?: string;
+    pressure?: number;
+    tankRole?: string;
+    boundary?: string;
+    ventsToAmbient?: boolean;
   }[];
-  edges: { id: string }[];
+  edges: { id: string; from?: string; to?: string }[];
   view: string;
   onExit: () => void;
   onOpenTutorial: () => void;
@@ -29,43 +40,67 @@ export interface TourGuideProps {
 const STEPS = [
   {
     title: "Your practice space",
-    body: "This is your private practice canvas — nothing you build here touches team projects. Follow along and we'll make a simple pressure system together.",
+    body: "This is your private practice canvas \u2014 nothing you build here touches team projects. Follow along and we\u2019ll build a small pressurized feed line together.",
     where: "The Training Lab button up top restarts this tour anytime.",
     icon: FlaskConical,
   },
   {
     title: "Start with a storage tank",
-    body: "Drag a Storage tank onto the canvas — every system starts at the pressure source.",
-    where: "Component library → Storage tank (highlighted)",
+    body: "Drag a Storage tank onto the canvas \u2014 every system starts at its pressure source.",
+    where: "Component library \u2192 Storage tank (highlighted)",
     icon: Waves,
   },
   {
+    title: "Make it a filled source",
+    body: "Click the tank to select it, then use the Inspector on the right: name it in the Tag field (try \u201cLOX Run Tank\u201d), set Tank role to \u201cFilled / source tank\u201d, and enter a Pressure \u2014 3000 psi works.",
+    where: "Canvas \u2192 click the tank \u2192 Inspector",
+    icon: Droplets,
+  },
+  {
     title: "Add a manual ball valve",
-    body: "Drag in a manual ball valve next to your tank. You'll use it to control the flow.",
-    where: "Component library → Manual ball valve (highlighted)",
+    body: "Drag in a Manual ball valve to the right of your tank. This is your shutoff.",
+    where: "Component library \u2192 Manual ball valve (highlighted)",
     icon: SlidersHorizontal,
   },
   {
-    title: "Add a pressure transducer",
-    body: "Place a pressure transducer after the valve so you can read the pressure there.",
-    where: "Component library → Pressure transducer (highlighted)",
+    title: "Connect tank to valve",
+    body: "Drag from the blue port dot on the tank to a port on the valve. PropFlow figures out the exact ports from the geometry.",
+    where: "Blue port dots on each component",
+    icon: Cable,
+  },
+  {
+    title: "Snap the valve level",
+    body: "Hold Shift and drag the valve \u2014 it snaps into alignment with the tank\u2019s port, so the run between them comes out perfectly straight.",
+    where: "Hold Shift while dragging the valve",
+    icon: Magnet,
+  },
+  {
+    title: "Park a transducer under the line",
+    body: "Drag in a Pressure transducer and place it underneath the tank-to-valve line. You\u2019ll tap it straight into the run \u2014 no tee fitting needed.",
+    where: "Component library \u2192 Pressure transducer (highlighted)",
     icon: Gauge,
   },
   {
-    title: "Connect with the blue ports",
-    body: "Drag from the blue port dot on the tank to the valve, then from the valve to the transducer — PropFlow figures out the ports for you. Tip: hold Shift while dragging components to snap them into alignment.",
-    where: "Blue port dots on each component",
+    title: "Branch onto the line",
+    body: "Drag from a port on the transducer up to the pipe itself. The connector snaps onto the run \u2014 let go and PropFlow plants a branch point on the line. You can slide that point along the pipe anytime.",
+    where: "Drag a port onto the pipe run",
     icon: GitBranch,
   },
   {
-    title: "See the pressure ladder",
-    body: "Hit Run simulation in the header to see pressures across your system.",
-    where: "Header → Run simulation",
-    icon: Play,
+    title: "Add a vent valve",
+    body: "Add a second Manual ball valve downstream of the first one and connect them. Then click the new valve and tick \u201cVents to ambient\u201d in the Inspector \u2014 that\u2019s your vent path.",
+    where: "Component library \u2192 Manual ball valve \u00b7 Inspector \u2192 Vents to ambient",
+    icon: Wind,
+  },
+  {
+    title: "Open SOP states",
+    body: "Last stop: SOP states. That\u2019s where this diagram becomes a step-by-step procedure, with valve positions checked against the drawing as you write.",
+    where: "Diagram toolbar \u2192 SOP states",
+    icon: ClipboardList,
   },
   {
     title: "You built a P&ID",
-    body: "That's the core loop — draw, connect, simulate. Open the tutorial for the full tour of quality-of-life features, or keep experimenting on this canvas.",
+    body: "A filled source, a shutoff, a pressure tap branched right onto the line, and a vent \u2014 that\u2019s the core loop. Open the tutorial for the full tour of quality-of-life features, or keep experimenting on this canvas.",
     where: "Choose your next step below",
     icon: GraduationCap,
   },
@@ -74,8 +109,10 @@ const STEPS = [
 const TARGETS: Record<number, string> = {
   0: "restart-tour",
   1: "tank",
-  2: "valve",
-  3: "sensor",
+  3: "valve",
+  6: "sensor",
+  8: "valve",
+  9: "sop-states",
 };
 
 export default function TourGuide({
@@ -87,26 +124,80 @@ export default function TourGuide({
   onKeepBuilding,
 }: TourGuideProps) {
   const [step, setStep] = useState(0);
+  const [doneSteps, setDoneSteps] = useState<ReadonlySet<number>>(new Set());
   const current = STEPS[step] ?? STEPS[0];
   const Icon = current.icon;
   const isLastStep = step === STEPS.length - 1;
 
-  const detected =
-    step === 1
-      ? nodes.some((node) => node.kind === "tank")
-      : step === 2
-        ? nodes.some((node) => node.kind === "valve")
-        : step === 3
-          ? nodes.some((node) => node.kind === "sensor")
-          : step === 4
-            ? edges.length >= 2
-            : step === 5
-              ? view === "ladder"
-              : false;
+  const tank = nodes.find((node) => node.kind === "tank");
+  const valves = nodes.filter((node) => node.kind === "valve");
+  const sensor = nodes.find((node) => node.kind === "sensor");
+  const linked = (a?: string, b?: string) =>
+    !!a &&
+    !!b &&
+    edges.some(
+      (edge) =>
+        (edge.from === a && edge.to === b) ||
+        (edge.from === b && edge.to === a),
+    );
+  const neighbors = (id: string) => {
+    const found = new Set<string>();
+    edges.forEach((edge) => {
+      if (edge.from === id && edge.to) found.add(edge.to);
+      if (edge.to === id && edge.from) found.add(edge.from);
+    });
+    return found;
+  };
+  const reachableFrom = (startId: string) => {
+    const seen = new Set<string>([startId]);
+    const queue = [startId];
+    while (queue.length) {
+      const currentId = queue.pop()!;
+      neighbors(currentId).forEach((id) => {
+        if (!seen.has(id)) {
+          seen.add(id);
+          queue.push(id);
+        }
+      });
+    }
+    return seen;
+  };
+  const firstValve = tank
+    ? valves.find((valve) => linked(tank.id, valve.id))
+    : undefined;
+  const secondValve = firstValve
+    ? valves.find(
+        (valve) => valve.id !== firstValve.id && linked(firstValve.id, valve.id),
+      )
+    : undefined;
+
+  const checks: Record<number, boolean> = {
+    1: !!tank,
+    2:
+      !!tank &&
+      tank.tag.trim() !== "" &&
+      !/^TK-\d+$/i.test(tank.tag.trim()) &&
+      (tank.tankRole === "source" || tank.boundary === "supply") &&
+      (tank.pressure ?? 0) > 0,
+    3: valves.length >= 1,
+    4: !!firstValve,
+    5: !!tank && !!firstValve && Math.abs(firstValve.y - tank.y) <= 3,
+    6: !!sensor && sensor.y > (firstValve?.y ?? tank?.y ?? 0) + 15,
+    7: !!tank && !!sensor && reachableFrom(tank.id).has(sensor.id),
+    8: !!secondValve && secondValve.ventsToAmbient === true,
+    9: view === "sop",
+  };
+  const detected = checks[step] ?? false;
+  const stepDone = doneSteps.has(step);
 
   useEffect(() => {
-    if (!detected) return;
+    if (!detected || stepDone) return;
     const timer = window.setTimeout(() => {
+      setDoneSteps((previous) => {
+        const updated = new Set(previous);
+        updated.add(step);
+        return updated;
+      });
       setStep((previous) =>
         previous === step
           ? Math.min(previous + 1, STEPS.length - 1)
@@ -114,7 +205,7 @@ export default function TourGuide({
       );
     }, 600);
     return () => window.clearTimeout(timer);
-  }, [step, detected]);
+  }, [step, detected, stepDone]);
 
   const [ring, setRing] = useState<{ x: number; y: number; w: number; h: number } | null>(null);
   useEffect(() => {
@@ -343,7 +434,7 @@ export default function TourGuide({
 
       <section className="tour-card" aria-label="Training Lab guided tour">
         <div className="tour-meta">
-          <span>Step {step + 1} of 7</span>
+          <span>Step {step + 1} of {STEPS.length}</span>
           <button className="tour-skip" type="button" onClick={onExit}>
             Skip tour
           </button>
@@ -354,9 +445,9 @@ export default function TourGuide({
           role="progressbar"
           aria-label="Tour progress"
           aria-valuemin={1}
-          aria-valuemax={7}
+          aria-valuemax={STEPS.length}
           aria-valuenow={step + 1}
-          aria-valuetext={`Step ${step + 1} of 7`}
+          aria-valuetext={`Step ${step + 1} of ${STEPS.length}`}
         >
           <div
             className="tour-progress-fill"
@@ -374,7 +465,7 @@ export default function TourGuide({
           {detected && (
             <p className="tour-detected">
               <CheckCircle2 size={14} aria-hidden="true" />
-              Step complete—moving on…
+              {stepDone ? "Step complete" : "Step complete \u2014 moving on"}
             </p>
           )}
         </div>
