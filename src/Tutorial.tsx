@@ -1,8 +1,9 @@
-import { ArrowLeft, Cable, CircleGauge, ClipboardList, GraduationCap, Layers, MousePointer2, Package, Rocket, Share2, Tag, Users } from 'lucide-react'
+import { ArrowLeft, Cable, CircleGauge, ClipboardList, GitBranch, GraduationCap, Layers, MousePointer2, Package, Rocket, Share2, Tag, Users } from 'lucide-react'
 
 const sections:{icon:React.ReactNode;title:string;body:string;where:string}[]=[
  {icon:<Tag size={20}/>,title:'Tags that number themselves',body:'Drop a valve and it becomes MV-1; the next one is MV-2, automatically. Numbered continuation flags pair themselves too. Double-click any label to rename it.',where:'Component library  •  double-click a label'},
  {icon:<Cable size={20}/>,title:'Connections that snap into place',body:'The connect and branch tools figure out which port you meant from the geometry, and snap guides keep your runs tidy while you draw.',where:'Drawing toolbar  •  connect / branch tools'},
+ {icon:<GitBranch size={20}/>,title:'Branch a line — no fitting needed',body:'A branch on paper is not always a physical tee or cross. Drag from any port straight onto a pipe run and the line snaps a branch point onto itself. Slide that point along the run to position it, and if two branch points land on top of each other they merge into one.',where:'Canvas → drag a port onto any line'},
  {icon:<MousePointer2 size={20}/>,title:'Labels go where you want',body:'Drag any tag label to reposition it. For pixel-perfect placement, nudge it with Label X / Label Y in the Inspector (Tab to commit).',where:'Canvas  •  Inspector'},
  {icon:<Users size={20}/>,title:'Work together, live',body:'See teammates’ cursors and selections in their colors, spot who’s online in the header, and never think about saving — every change autosaves, and undo / redo just works.',where:'Header  •  automatic'},
  {icon:<Layers size={20}/>,title:'Two views of the same system',body:'Schematic is the logic. Flip to Assembly for the physical build — select a line there to spec its tube and flex-hose runs.',where:'Diagram toolbar  •  Schematic / Assembly toggle'},
@@ -10,7 +11,7 @@ const sections:{icon:React.ReactNode;title:string;body:string;where:string}[]=[
  {icon:<ClipboardList size={20}/>,title:'Author SOPs that check themselves',body:'The SOP workspace turns your diagram into step-by-step procedures with valve states per step — validated against the diagram as you write.',where:'Diagram toolbar  •  SOP states'},
  {icon:<Package size={20}/>,title:'Real parts, real BOM',body:'Link inventory parts to symbols from the Inspector and generate a bill of materials when the design firms up. Need something the library doesn’t have? Draw it in the symbol workshop.',where:'Inspector  •  Inventory / BOM  •  Symbol workshop'},
  {icon:<Share2 size={20}/>,title:'Share safely',body:'The Share button mints an expiring read-only link — perfect for design reviews with people outside the team.',where:'Header  •  Share'},
- {icon:<GraduationCap size={20}/>,title:'Training lab',body:'Four guided, hands-on lessons live in the editor header. They watch the canvas and check your work as you go.',where:'Header  •  Training lab'},
+ {icon:<GraduationCap size={20}/>,title:'Training lab',body:'A guided tour builds your first P&ID with you on a blank practice canvas — it highlights each step, checks your work as you go, and nothing there is saved or shared.',where:'Header  •  Training lab'},
 ]
 
 export default function Tutorial({onBack,onOpenEditor}:{onBack:()=>void;onOpenEditor:()=>void}){
