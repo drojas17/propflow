@@ -1,0 +1,42 @@
+.landing{min-height:100vh;background:var(--bg,#071018);color:#dbe7f1;font-family:inherit}
+.landing-top{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;border-bottom:1px solid rgba(82,212,255,.14)}
+.landing-brand{display:flex;align-items:center;gap:10px;font-size:17px}
+.landing-brand span{color:#8fa3b3;font-size:12px}
+.landing-mark{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:9px;background:rgba(82,212,255,.12);color:#52d4ff}
+.landing-user{display:inline-flex;align-items:center;gap:10px;font-size:13px;color:#8fa3b3}
+.landing-hero{max-width:960px;margin:0 auto;padding:56px 28px 80px;text-align:center}
+.landing-kicker{display:inline-block;font-size:12px;letter-spacing:2.5px;text-transform:uppercase;color:#52d4ff;border:1px solid rgba(82,212,255,.35);border-radius:999px;padding:6px 16px;margin-bottom:22px}
+.landing-hero h1{font-size:52px;margin:0 0 14px;letter-spacing:-1px}
+.landing-lede{font-size:18px;color:#9fb2c2;max-width:640px;margin:0 auto 40px;line-height:1.55}
+.landing-pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:38px;text-align:left}
+.pillar{background:rgba(13,23,34,.85);border:1px solid rgba(82,212,255,.14);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:8px}
+.pillar svg{color:#52d4ff}
+.pillar b{font-size:15px}
+.pillar span{font-size:13px;color:#8fa3b3;line-height:1.5}
+.landing-cta{display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:52px}
+.landing-cta .primary{display:inline-flex;align-items:center;gap:8px;background:#52d4ff;color:#071018;border:none;border-radius:10px;padding:12px 22px;font-size:15px;font-weight:700;cursor:pointer}
+.landing-cta .primary:hover{background:#7ce0ff}
+.landing-or{color:#8fa3b3;font-size:13px}
+.landing-projects{text-align:left;background:rgba(13,23,34,.6);border:1px solid rgba(82,212,255,.12);border-radius:16px;padding:24px;margin-bottom:28px}
+.landing-projects-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.landing-projects-head h2{display:flex;align-items:center;gap:8px;font-size:17px;margin:0}
+.landing-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
+.project-card{display:flex;align-items:center;justify-content:space-between;background:rgba(82,212,255,.06);border:1px solid rgba(82,212,255,.18);border-radius:10px;padding:14px 16px;color:#dbe7f1;cursor:pointer;font-size:14px}
+.project-card:hover{background:rgba(82,212,255,.13);border-color:#52d4ff}
+.project-card span{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:#52d4ff}
+.landing-empty{color:#8fa3b3;font-size:14px}
+.landing-foot{display:flex;align-items:center;justify-content:center;gap:8px;color:#8fa3b3;font-size:13px}
+.landing-foot svg{color:#52d4ff;flex:none}
+.tutorial .landing-hero{text-align:left}
+.tutorial .landing-kicker{text-align:center}
+.tutorial h1,.tutorial .landing-lede{text-align:center}
+.tutorial-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:8px 0 40px}
+.tutorial-card{display:flex;gap:14px;background:rgba(13,23,34,.85);border:1px solid rgba(82,212,255,.14);border-radius:14px;padding:18px;text-align:left}
+.tutorial-icon{flex:none;display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:10px;background:rgba(82,212,255,.12);color:#52d4ff}
+.tutorial-card b{font-size:14.5px}
+.tutorial-card p{font-size:13px;color:#9fb2c2;line-height:1.55;margin:6px 0 8px}
+.tutorial-card small{font-size:11.5px;color:#5f7484;letter-spacing:.4px}
+.tutorial .landing-cta{margin-bottom:0}
+.ghost{background:transparent;border:1px solid rgba(82,212,255,.25);color:#dbe7f1;border-radius:8px;padding:8px 14px;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:7px}
+.ghost:hover{border-color:#52d4ff;color:#52d4ff}
+@media (max-width:760px){.landing-pillars{grid-template-columns:1fr}.tutorial-grid{grid-template-columns:1fr}.landing-hero h1{font-size:36px}}
