@@ -2,7 +2,7 @@ import * as Y from 'yjs';
 import { UndoManager } from 'yjs';
 import { Awareness, encodeAwarenessUpdate, applyAwarenessUpdate } from 'y-protocols/awareness';
 import type { RealtimeChannel, SupabaseClient } from '@supabase/supabase-js';
-import type { ProjectDoc } from './db';
+import type { ProjectDoc, Part } from './db';
 
 /**
  * Yjs collaboration engine for PropFlow.
@@ -23,6 +23,7 @@ export interface CollabDoc {
   nodes: Y.Map<unknown>;
   edges: Y.Map<unknown>;
   shapes: Y.Map<unknown>;
+  parts: Y.Map<unknown>;
   meta: Y.Map<unknown>;
   undoManager: UndoManager;
   awareness: Awareness;
@@ -32,6 +33,7 @@ export interface DocState {
   nodes: { id: string }[];
   edges: { id: string }[];
   shapes: { id: string }[];
+  parts?: Part[];
   canvasSize: { w: number; h: number };
   sop: unknown;
 }
@@ -49,6 +51,7 @@ export function createCollabDoc(): CollabDoc {
   const nodes = doc.getMap<unknown>('nodes');
   const edges = doc.getMap<unknown>('edges');
   const shapes = doc.getMap<unknown>('shapes');
+  const parts = doc.getMap<unknown>('parts');
   const meta = doc.getMap<unknown>('meta');
   // captureTimeout merges a rapid burst (e.g. one drag gesture) into a single undo step.
   const undoManager = new UndoManager([nodes, edges, shapes, meta], {
@@ -56,7 +59,7 @@ export function createCollabDoc(): CollabDoc {
     captureTimeout: 500,
   });
   const awareness = new Awareness(doc);
-  return { doc, nodes, edges, shapes, meta, undoManager, awareness };
+  return { doc, nodes, edges, shapes, parts, meta, undoManager, awareness };
 }
 
 /** JSON round-trip: strips `undefined` (Yjs can't store it) and detaches shared types. */
@@ -81,6 +84,8 @@ export function projectToDoc(c: CollabDoc, project: ProjectDoc): void {
       for (const e of project.edges as { id: string }[]) c.edges.set(e.id, clean(e));
       c.shapes.clear();
       for (const s of project.shapes as { id: string }[]) c.shapes.set(s.id, clean(s));
+      c.parts.clear();
+      for (const p of (project.parts ?? []) as { id: string }[]) c.parts.set(p.id, clean(p));
       c.meta.set('canvasSize', clean(project.canvasSize ?? { w: 850, h: 580 }));
       c.meta.set('sop', project.sop == null ? null : clean(project.sop));
     },
@@ -97,6 +102,7 @@ export function docToProject(c: CollabDoc): ProjectDoc {
     nodes: values(c.nodes),
     edges: values(c.edges),
     shapes: values(c.shapes),
+    parts: values(c.parts) as Part[],
     canvasSize: canvasSize ?? { w: 850, h: 580 },
     sop: sop ?? null,
   };
@@ -109,6 +115,7 @@ export function readDocState(c: CollabDoc): DocState {
     nodes: p.nodes as { id: string }[],
     edges: p.edges as { id: string }[],
     shapes: p.shapes as { id: string }[],
+    parts: (p.parts ?? []) as Part[],
     canvasSize: p.canvasSize,
     sop: p.sop,
   };
