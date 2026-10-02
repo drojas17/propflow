@@ -29,47 +29,54 @@ export interface TourGuideProps {
 const STEPS = [
   {
     title: "Your practice space",
-    body: "This is your private practice canvas. Build a simple pressure system and try the tools at your own pace.",
-    where: "Where: Training Lab canvas",
+    body: "This is your private practice canvas — nothing you build here touches team projects. Follow along and we'll make a simple pressure system together.",
+    where: "The Training Lab button up top restarts this tour anytime.",
     icon: FlaskConical,
   },
   {
     title: "Start with a storage tank",
-    body: "Drag a Storage tank onto the canvas. It will be the starting point for your system.",
-    where: "Where: Component library → Storage tank",
+    body: "Drag a Storage tank onto the canvas — every system starts at the pressure source.",
+    where: "Component library → Storage tank (highlighted)",
     icon: Waves,
   },
   {
     title: "Add a manual ball valve",
-    body: "Drag a manual ball valve onto the canvas beside your tank. You’ll use it to control the flow.",
-    where: "Where: Component library → Manual ball valve",
+    body: "Drag in a manual ball valve next to your tank. You'll use it to control the flow.",
+    where: "Component library → Manual ball valve (highlighted)",
     icon: SlidersHorizontal,
   },
   {
     title: "Add a pressure transducer",
-    body: "Place a pressure transducer beside the valve. It gives you a point to read the system’s pressure.",
-    where: "Where: Component library → Pressure transducer",
+    body: "Place a pressure transducer after the valve so you can read the pressure there.",
+    where: "Component library → Pressure transducer (highlighted)",
     icon: Gauge,
   },
   {
-    title: "Connect your components",
-    body: "Use the connect tool to link the tank to the valve, then the valve to the transducer. PropFlow infers the ports for you.",
-    where: "Where: Canvas toolbar → Connect tool",
+    title: "Connect with the blue ports",
+    body: "Drag from the blue port dot on the tank to the valve, then from the valve to the transducer — PropFlow figures out the ports for you. Tip: hold Shift while dragging components to snap them into alignment.",
+    where: "Blue port dots on each component",
     icon: GitBranch,
   },
   {
     title: "See the pressure ladder",
-    body: "Press “Run simulation” to see your system’s pressure ladder. Follow the pressure through the components you connected.",
-    where: "Where: Header → Run simulation",
+    body: "Hit Run simulation in the header to see pressures across your system.",
+    where: "Header → Run simulation",
     icon: Play,
   },
   {
-    title: "You’re ready to explore",
-    body: "Nice work—you’ve reached the end of the tour. Open the tutorial for more practice, keep building here, or head back home.",
-    where: "Where: Choose your next step below",
+    title: "You built a P&ID",
+    body: "That's the core loop — draw, connect, simulate. Open the tutorial for the full tour of quality-of-life features, or keep experimenting on this canvas.",
+    where: "Choose your next step below",
     icon: GraduationCap,
   },
 ] as const;
+
+const TARGETS: Record<number, string> = {
+  0: "restart-tour",
+  1: "tank",
+  2: "valve",
+  3: "sensor",
+};
 
 export default function TourGuide({
   nodes,
@@ -99,7 +106,6 @@ export default function TourGuide({
 
   useEffect(() => {
     if (!detected) return;
-
     const timer = window.setTimeout(() => {
       setStep((previous) =>
         previous === step
@@ -107,9 +113,33 @@ export default function TourGuide({
           : previous,
       );
     }, 600);
-
     return () => window.clearTimeout(timer);
   }, [step, detected]);
+
+  const [ring, setRing] = useState<{ x: number; y: number; w: number; h: number } | null>(null);
+  useEffect(() => {
+    const key = TARGETS[step];
+    if (!key) {
+      setRing(null);
+      return;
+    }
+    const update = () => {
+      const el = document.querySelector(`[data-tour="${key}"]`);
+      if (!el) {
+        setRing(null);
+        return;
+      }
+      const r = el.getBoundingClientRect();
+      setRing({ x: r.left - 5, y: r.top - 5, w: r.width + 10, h: r.height + 10 });
+    };
+    update();
+    const id = window.setInterval(update, 350);
+    window.addEventListener("resize", update);
+    return () => {
+      window.clearInterval(id);
+      window.removeEventListener("resize", update);
+    };
+  }, [step]);
 
   const next = () =>
     setStep((previous) => Math.min(previous + 1, STEPS.length - 1));
@@ -130,31 +160,23 @@ export default function TourGuide({
           color: var(--tour-text);
           font-family: inherit;
         }
-
         .tour-overlay,
         .tour-overlay * {
           box-sizing: border-box;
         }
-
-        .tour-badge {
-          position: absolute;
-          top: 70px;
-          left: 50%;
-          transform: translateX(-50%);
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          padding: 8px 14px;
-          border: 1px solid rgba(82, 212, 255, .35);
-          border-radius: 999px;
-          background: var(--tour-panel);
-          color: var(--tour-accent);
-          font-size: 13px;
-          font-weight: 700;
-          white-space: nowrap;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, .2);
+        .tour-ring {
+          position: fixed;
+          z-index: 1001;
+          border: 2px solid var(--tour-accent);
+          border-radius: 12px;
+          pointer-events: none;
+          box-shadow: 0 0 0 4px rgba(82, 212, 255, .18), 0 0 24px rgba(82, 212, 255, .35);
+          animation: tour-ring-pulse 1.6s ease-in-out infinite;
         }
-
+        @keyframes tour-ring-pulse {
+          0%, 100% { box-shadow: 0 0 0 3px rgba(82, 212, 255, .14), 0 0 18px rgba(82, 212, 255, .28); }
+          50% { box-shadow: 0 0 0 7px rgba(82, 212, 255, .22), 0 0 30px rgba(82, 212, 255, .45); }
+        }
         .tour-card {
           position: absolute;
           bottom: max(20px, env(safe-area-inset-bottom));
@@ -170,7 +192,6 @@ export default function TourGuide({
           box-shadow: 0 16px 50px rgba(0, 0, 0, .4);
           pointer-events: auto;
         }
-
         .tour-meta,
         .tour-footer,
         .tour-navigation,
@@ -179,18 +200,15 @@ export default function TourGuide({
           align-items: center;
           gap: 10px;
         }
-
         .tour-meta,
         .tour-footer {
           justify-content: space-between;
         }
-
         .tour-meta {
           margin-bottom: 10px;
           color: var(--tour-dim);
           font-size: 12px;
         }
-
         .tour-progress {
           height: 3px;
           overflow: hidden;
@@ -198,22 +216,18 @@ export default function TourGuide({
           background: rgba(143, 163, 179, .2);
           margin-bottom: 20px;
         }
-
         .tour-progress-fill {
           height: 100%;
           background: var(--tour-accent);
           transition: width .25s ease;
         }
-
         .tour-heading {
           margin-bottom: 10px;
         }
-
         .tour-icon {
           flex-shrink: 0;
           color: var(--tour-accent);
         }
-
         .tour-title {
           margin: 0;
           color: var(--tour-text);
@@ -221,21 +235,18 @@ export default function TourGuide({
           line-height: 1.3;
           font-weight: 700;
         }
-
         .tour-body {
           margin: 0 0 12px;
           color: var(--tour-text);
           font-size: 14px;
           line-height: 1.6;
         }
-
         .tour-where {
           margin: 0;
           color: var(--tour-dim);
           font-size: 12px;
           line-height: 1.5;
         }
-
         .tour-detected {
           display: flex;
           align-items: center;
@@ -244,25 +255,21 @@ export default function TourGuide({
           color: var(--tour-accent);
           font-size: 12px;
         }
-
         .tour-footer {
           margin-top: 20px;
           flex-wrap: wrap;
         }
-
         .tour-actions {
           display: flex;
           flex-wrap: wrap;
           gap: 8px;
           margin-top: 20px;
         }
-
         .tour-button,
         .tour-skip {
           font: inherit;
           cursor: pointer;
         }
-
         .tour-button {
           display: inline-flex;
           align-items: center;
@@ -277,22 +284,18 @@ export default function TourGuide({
           font-size: 13px;
           font-weight: 600;
         }
-
         .tour-button:hover {
           background: rgba(143, 163, 179, .12);
         }
-
         .tour-button-primary {
           background: var(--tour-accent);
           border-color: var(--tour-accent);
           color: #0d1722;
         }
-
         .tour-button-primary:hover {
           background: #85e1ff;
           border-color: #85e1ff;
         }
-
         .tour-skip {
           padding: 6px 0;
           border: 0;
@@ -302,42 +305,41 @@ export default function TourGuide({
           text-decoration: underline;
           text-underline-offset: 3px;
         }
-
         .tour-skip:hover {
           color: var(--tour-text);
         }
-
         .tour-button:focus-visible,
         .tour-skip:focus-visible {
           outline: 2px solid var(--tour-accent);
           outline-offset: 4px;
         }
-
         @media (max-width: 420px) {
           .tour-card {
             padding: 18px;
           }
-
           .tour-title {
             font-size: 18px;
           }
-
           .tour-actions .tour-button {
             flex: 1 1 auto;
           }
         }
-
         @media (prefers-reduced-motion: reduce) {
           .tour-progress-fill {
             transition: none;
           }
+          .tour-ring {
+            animation: none;
+          }
         }
       `}</style>
 
-      <div className="tour-badge">
-        <FlaskConical size={16} aria-hidden="true" />
-        Training Lab
-      </div>
+      {ring && (
+        <div
+          className="tour-ring"
+          style={{ left: ring.x, top: ring.y, width: ring.w, height: ring.h }}
+        />
+      )}
 
       <section className="tour-card" aria-label="Training Lab guided tour">
         <div className="tour-meta">

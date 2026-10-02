@@ -7,13 +7,13 @@ export default function Landing({user,signIn,signOut,projects,onOpenProject,onNe
   onOpenProject:(id:string)=>void;onNewProject:()=>void;onTour:()=>void;
 }){
   return <div className="landing">
-    <header className="landing-top">
+    <div className="landing-top">
       <div className="landing-brand"><span className="landing-mark"><Waypoints size={20}/></span><b>PropFlow</b><span>Flow Systems Studio</span></div>
       <div>{user
         ? <span className="landing-user">{user.email?.split('@')[0]}<button className="ghost" onClick={signOut}>Sign out</button></span>
         : <button className="ghost" onClick={signIn}>Sign in with MIT</button>}</div>
-    </header>
-    <main className="landing-hero">
+    </div>
+    <div className="landing-hero">
       <div className="landing-intro">
         <img className="landing-logo" src={rocketLogo} alt="MIT Rocket Team"/>
         <div className="landing-intro-text">
@@ -30,11 +30,11 @@ export default function Landing({user,signIn,signOut,projects,onOpenProject,onNe
         <button className="primary" onClick={onTour}><Rocket size={16}/> First time? Take a tour</button>
         <span className="landing-or">or jump straight into a project</span>
       </div>
-      <section className="landing-projects">
+      <div className="landing-projects">
         <div className="landing-projects-head"><h2><FolderOpen size={17}/> Projects</h2><button className="ghost" onClick={onNewProject}><Plus size={15}/> New project</button></div>
         {projects.length===0&&<p className="landing-empty">No projects yet &mdash; create your first one.</p>}
         <div className="landing-grid">{projects.map(id=><button key={id} className="project-card" onClick={()=>onOpenProject(id)}><b>{id.toUpperCase()}</b><span>Open <ArrowRight size={14}/></span></button>)}</div>
-      </section>
-    </main>
+      </div>
+    </div>
   </div>
 }

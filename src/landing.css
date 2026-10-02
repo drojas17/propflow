@@ -47,3 +47,5 @@
   .pillar{flex:none;min-width:270px}
   .tutorial-grid{grid-template-columns:1fr}
 }
+
+.tour-project-name{font-size:13px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:#52d4ff}

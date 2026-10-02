@@ -15,16 +15,16 @@ const sections:{icon:React.ReactNode;title:string;body:string;where:string}[]=[
 
 export default function Tutorial({onBack,onOpenEditor}:{onBack:()=>void;onOpenEditor:()=>void}){
   return <div className="landing tutorial">
-    <header className="landing-top">
+    <div className="landing-top">
       <button className="ghost" onClick={onBack}><ArrowLeft size={15}/> Home</button>
       <button className="primary" onClick={onOpenEditor}><Rocket size={15}/> Open the app</button>
-    </header>
-    <main className="landing-hero">
+    </div>
+    <div className="landing-hero">
       <div className="landing-kicker">PropFlow tutorial</div>
       <h1>Small touches, big time savings</h1>
       <p className="landing-lede">PropFlow does a lot of the tedious work for you. Here are the quality-of-life features people miss on their first visit &mdash; and where to find them.</p>
       <div className="tutorial-grid">{sections.map(s=><article key={s.title} className="tutorial-card"><span className="tutorial-icon">{s.icon}</span><div><b>{s.title}</b><p>{s.body}</p><small>{s.where}</small></div></article>)}</div>
       <div className="landing-cta"><button className="primary" onClick={onOpenEditor}><Rocket size={16}/> Open the app and try them</button></div>
-    </main>
+    </div>
   </div>
 }
