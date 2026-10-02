@@ -10,10 +10,16 @@ import {
   Gauge,
   GitBranch,
   GraduationCap,
+  Layers,
   Magnet,
+  MousePointerClick,
+  Pencil,
+  Play,
+  Plus,
+  ShieldCheck,
   SlidersHorizontal,
   Waves,
-  Wind,
+  Zap,
 } from "lucide-react";
 
 export interface TourGuideProps {
@@ -32,12 +38,15 @@ export interface TourGuideProps {
   }[];
   edges: { id: string; from?: string; to?: string }[];
   view: string;
+  phase: "build" | "sop";
+  sop: { steps: number; titled: number; actions: number };
+  onStartSop: () => void;
   onExit: () => void;
   onOpenTutorial: () => void;
   onKeepBuilding: () => void;
 }
 
-const STEPS = [
+const STEPS_BUILD = [
   {
     title: "Your practice space",
     body: "This is your private practice canvas \u2014 nothing you build here touches team projects. Follow along and we\u2019ll build a small pressurized feed line together.",
@@ -87,51 +96,113 @@ const STEPS = [
     icon: GitBranch,
   },
   {
-    title: "Add a vent valve",
-    body: "Add a second Manual ball valve downstream of the first one and connect them. Then click the new valve and tick \u201cVents to ambient\u201d in the Inspector \u2014 that\u2019s your vent path.",
-    where: "Component library \u2192 Manual ball valve \u00b7 Inspector \u2192 Vents to ambient",
-    icon: Wind,
+    title: "Add a relief valve on the same tap",
+    body: "Drag in a Relief valve and connect its port to the same branch point as the transducer \u2014 it\u2019ll share the tap. If pressure ever spikes, this is what saves the hardware.",
+    where: "Component library \u2192 Relief valve (highlighted)",
+    icon: ShieldCheck,
   },
   {
-    title: "Open SOP states",
-    body: "Last stop: SOP states. That\u2019s where this diagram becomes a step-by-step procedure, with valve positions checked against the drawing as you write.",
-    where: "Diagram toolbar \u2192 SOP states",
-    icon: ClipboardList,
+    title: "Add a solenoid vent valve",
+    body: "Add a Solenoid valve downstream of the manual valve and connect them. Then click it and tick \u201cVents to ambient\u201d in the Inspector \u2014 this is your remotely operated vent.",
+    where: "Component library \u2192 Solenoid valve (highlighted) \u00b7 Inspector \u2192 Vents to ambient",
+    icon: Zap,
   },
   {
-    title: "You built a P&ID",
-    body: "A filled source, a shutoff, a pressure tap branched right onto the line, and a vent \u2014 that\u2019s the core loop. Open the tutorial for the full tour of quality-of-life features, or keep experimenting on this canvas.",
-    where: "Choose your next step below",
+    title: "Second transducer, between the valves",
+    body: "Park another Pressure transducer between the two valves and branch it onto the line the same way. Now you can read pressure on both sides of the shutoff.",
+    where: "Component library \u2192 Pressure transducer (highlighted)",
+    icon: Gauge,
+  },
+  {
+    title: "Your P&ID is complete",
+    body: "Filled source, shutoff, a relief-protected tap, a solenoid vent, and a transducer on each side. From here: keep building your own P&ID on this canvas, or take the SOP states tutorial and turn this system into a procedure you can run.",
+    where: "Choose below",
     icon: GraduationCap,
   },
 ] as const;
 
-const TARGETS: Record<number, string> = {
+const STEPS_SOP = [
+  {
+    title: "Welcome to SOP states",
+    body: "An SOP turns your diagram into a procedure: a list of steps, each built from actions \u2014 open this valve, verify that reading. PropFlow checks every action against the real components in your drawing.",
+    where: "SOP workspace \u00b7 Procedure builder",
+    icon: ClipboardList,
+  },
+  {
+    title: "Add your first step",
+    body: "Add a step from the step list. Each step is one thing the operator does, in order.",
+    where: "Step list \u2192 Add step",
+    icon: Plus,
+  },
+  {
+    title: "Name it and assign a role",
+    body: "Give the step a title that says what happens \u2014 \u201cPressurize the feed line\u201d \u2014 and choose the operator role responsible for it.",
+    where: "Step editor \u2192 title + Operator role",
+    icon: Pencil,
+  },
+  {
+    title: "Add an action",
+    body: "Add an action and choose your manual valve: Open MV. Actions always target real components from your diagram, so there\u2019s no valve name to typo.",
+    where: "Step editor \u2192 Add action",
+    icon: MousePointerClick,
+  },
+  {
+    title: "Build the sequence",
+    body: "Add a second step: Close the solenoid vent (your SV), then Verify the transducer reads about 3000 psi \u2014 the pressure your source tank is supplying.",
+    where: "Step list \u2192 Add step \u00b7 step editor",
+    icon: Layers,
+  },
+  {
+    title: "Run your SOP",
+    body: "Hit Run simulation in the header. Step through the procedure and watch the pressures respond to each action \u2014 that\u2019s your SOP, checked against the system.",
+    where: "Header \u2192 Run simulation",
+    icon: Play,
+  },
+  {
+    title: "Procedure complete",
+    body: "Diagram \u2192 procedure \u2192 simulated run: the full PropFlow loop. Keep building on your own P&ID, or head back home.",
+    where: "Choose below",
+    icon: GraduationCap,
+  },
+] as const;
+
+const TARGETS_BUILD: Record<number, string> = {
   0: "restart-tour",
   1: "tank",
   3: "valve",
   6: "sensor",
-  8: "valve",
-  9: "sop-states",
+  8: "relief",
+  9: "solenoid",
+  10: "sensor",
 };
+
+const TARGETS_SOP: Record<number, string> = {};
 
 export default function TourGuide({
   nodes,
   edges,
   view,
+  phase,
+  sop,
+  onStartSop,
   onExit,
   onOpenTutorial,
   onKeepBuilding,
 }: TourGuideProps) {
   const [step, setStep] = useState(0);
   const [doneSteps, setDoneSteps] = useState<ReadonlySet<number>>(new Set());
+  const STEPS = phase === "sop" ? STEPS_SOP : STEPS_BUILD;
+  const TARGETS = phase === "sop" ? TARGETS_SOP : TARGETS_BUILD;
   const current = STEPS[step] ?? STEPS[0];
   const Icon = current.icon;
   const isLastStep = step === STEPS.length - 1;
 
   const tank = nodes.find((node) => node.kind === "tank");
   const valves = nodes.filter((node) => node.kind === "valve");
-  const sensor = nodes.find((node) => node.kind === "sensor");
+  const sensors = nodes.filter((node) => node.kind === "sensor");
+  const sensor = sensors[0];
+  const relief = nodes.find((node) => node.symbolType === "relief-valve");
+  const solenoid = valves.find((valve) => valve.symbolType === "solenoid");
   const linked = (a?: string, b?: string) =>
     !!a &&
     !!b &&
@@ -165,13 +236,17 @@ export default function TourGuide({
   const firstValve = tank
     ? valves.find((valve) => linked(tank.id, valve.id))
     : undefined;
-  const secondValve = firstValve
-    ? valves.find(
-        (valve) => valve.id !== firstValve.id && linked(firstValve.id, valve.id),
-      )
-    : undefined;
+  const sharedTap = (a?: string, b?: string) => {
+    if (!a || !b) return false;
+    const aNeighbors = neighbors(a);
+    return [...neighbors(b)].some(
+      (id) =>
+        aNeighbors.has(id) &&
+        nodes.find((n) => n.id === id)?.kind === "junction",
+    );
+  };
 
-  const checks: Record<number, boolean> = {
+  const buildChecks: Record<number, boolean> = {
     1: !!tank,
     2:
       !!tank &&
@@ -184,10 +259,33 @@ export default function TourGuide({
     5: !!tank && !!firstValve && Math.abs(firstValve.y - tank.y) <= 3,
     6: !!sensor && sensor.y > (firstValve?.y ?? tank?.y ?? 0) + 15,
     7: !!tank && !!sensor && reachableFrom(tank.id).has(sensor.id),
-    8: !!secondValve && secondValve.ventsToAmbient === true,
-    9: view === "sop",
+    8:
+      !!relief &&
+      !!tank &&
+      (sharedTap(sensor?.id, relief.id) ||
+        reachableFrom(tank.id).has(relief.id)),
+    9:
+      !!solenoid &&
+      !!firstValve &&
+      linked(firstValve.id, solenoid.id) &&
+      solenoid.ventsToAmbient === true,
+    10:
+      !!tank &&
+      sensors.length >= 2 &&
+      sensors.some(
+        (other) =>
+          other.id !== sensor?.id && reachableFrom(tank.id).has(other.id),
+      ),
   };
-  const detected = checks[step] ?? false;
+  const sopChecks: Record<number, boolean> = {
+    1: sop.steps >= 1,
+    2: sop.titled >= 1,
+    3: sop.actions >= 1,
+    4: sop.steps >= 2 && sop.actions >= 2,
+    5: view === "ladder",
+  };
+  const detected =
+    (phase === "sop" ? sopChecks : buildChecks)[step] ?? false;
   const stepDone = doneSteps.has(step);
 
   useEffect(() => {
@@ -470,7 +568,29 @@ export default function TourGuide({
           )}
         </div>
 
-        {isLastStep && (
+        {isLastStep && phase === "build" && (
+          <div className="tour-actions">
+            <button
+              className="tour-button tour-button-primary"
+              type="button"
+              onClick={onStartSop}
+            >
+              Do the SOP states tutorial
+            </button>
+            <button
+              className="tour-button"
+              type="button"
+              onClick={onKeepBuilding}
+            >
+              Build your own P&ID
+            </button>
+            <button className="tour-button" type="button" onClick={onExit}>
+              Back to home
+            </button>
+          </div>
+        )}
+
+        {isLastStep && phase === "sop" && (
           <div className="tour-actions">
             <button
               className="tour-button tour-button-primary"
