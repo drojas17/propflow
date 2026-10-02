@@ -14,9 +14,13 @@ export default function Landing({user,signIn,signOut,projects,onOpenProject,onNe
         : <button className="ghost" onClick={signIn}>Sign in with MIT</button>}</div>
     </header>
     <main className="landing-hero">
-      <img className="landing-logo" src={rocketLogo} alt="MIT Rocket Team"/>
-      <h1>Welcome to PropFlow</h1>
-      <p className="landing-lede">MIT Rocket Team&apos;s publicly accessible hub for making P&amp;IDs, visualizing and calculating fluid flow, and authoring SOPs.</p>
+      <div className="landing-intro">
+        <img className="landing-logo" src={rocketLogo} alt="MIT Rocket Team"/>
+        <div className="landing-intro-text">
+          <h1>Welcome to PropFlow</h1>
+          <p className="landing-lede">MIT Rocket Team&apos;s publicly accessible hub for making P&amp;IDs, visualizing and calculating fluid flow, and authoring SOPs.</p>
+        </div>
+      </div>
       <div className="landing-pillars">
         <div className="pillar"><GitBranch size={26}/><b>Draw P&amp;IDs</b><span>Schematic capture with a real component library, smart connections, and auto-numbered tags.</span></div>
         <div className="pillar"><CircleGauge size={26}/><b>Visualize &amp; calculate flow</b><span>Run the simulation to see pressures across the system and catch design issues early.</span></div>
