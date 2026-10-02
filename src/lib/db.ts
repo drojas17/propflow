@@ -36,6 +36,7 @@ export interface ProjectDoc {
 export interface LibraryDoc {
   customSymbols: unknown[];
   symbolOverrides: Record<string, unknown>;
+  tourReference?: { nodes: unknown[]; edges: unknown[] };
 }
 
 export interface ShareLink {
@@ -98,9 +99,21 @@ export async function loadLibrary(): Promise<LibraryDoc | null> {
 
 export async function saveLibraryDoc(library: LibraryDoc): Promise<void> {
   const sb = requireSupabase();
+  const { data } = await sb.from('global_library').select('data').eq('id', 1).maybeSingle();
+  const merged = { ...((data?.data as Record<string, unknown> | undefined) ?? {}), ...library };
   const { error } = await sb
     .from('global_library')
-    .upsert({ id: 1, data: library, updated_at: new Date().toISOString() }, { onConflict: 'id' });
+    .upsert({ id: 1, data: merged, updated_at: new Date().toISOString() }, { onConflict: 'id' });
+  if (error) throw error;
+}
+
+export async function saveTourReference(tourReference: { nodes: unknown[]; edges: unknown[] }): Promise<void> {
+  const sb = requireSupabase();
+  const { data } = await sb.from('global_library').select('data').eq('id', 1).maybeSingle();
+  const merged = { ...((data?.data as Record<string, unknown> | undefined) ?? {}), tourReference };
+  const { error } = await sb
+    .from('global_library')
+    .upsert({ id: 1, data: merged, updated_at: new Date().toISOString() }, { onConflict: 'id' });
   if (error) throw error;
 }
 

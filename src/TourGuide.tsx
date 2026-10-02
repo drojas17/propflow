@@ -10,7 +10,6 @@ import {
   Gauge,
   GitBranch,
   GraduationCap,
-  Layers,
   Magnet,
   MousePointerClick,
   Pencil,
@@ -40,9 +39,10 @@ export interface TourGuideProps {
   edges: { id: string; from?: string; to?: string }[];
   view: string;
   phase: "build" | "sop";
-  sop: { steps: number; titled: number; actions: number; initialAllClosed: boolean; played: boolean };
+  sop: { steps: number; titled: number; actions: number; initialAllClosed: boolean; played: boolean; safingSeen: boolean };
   onStartSop: () => void;
   onSkipToSop: () => void;
+  onEditReference: () => void;
   onExit: () => void;
   onOpenTutorial: () => void;
   onKeepBuilding: () => void;
@@ -155,21 +155,33 @@ const STEPS_SOP = [
     icon: MousePointerClick,
   },
   {
-    title: "Build the sequence",
-    body: "Add a second step: Confirm the vent valve is closed (it starts closed), then Verify the transducer reads about 3000 psi \u2014 the pressure your source tank is supplying.",
-    where: "Step list \u2192 Add step \u00b7 step editor",
-    icon: Layers,
+    title: "Open the vent valve",
+    body: "Add a second step: open the vent valve (your SV) \u2014 the solenoid vent from your P&ID. It starts closed, so opening it dumps the pressurized line to ambient. Give the step a + Valve action on the vent valve set to Open, then a Check (Verify) on the transducer: after venting, it should fall back toward 0 psi.",
+    where: "Step list \u2192 Add step \u00b7 step editor \u2192 + Valve action",
+    icon: Zap,
+  },
+  {
+    title: "Set the power-loss state",
+    body: "Now decide what happens if power dies mid-procedure. Click Safing state in the left rail and set where each valve falls: your vent valve (SV) OPEN, so the system safes itself, and the tank valve CLOSED. Servo valves hold their position \u2014 PropFlow marks those for you.",
+    where: "Left rail \u2192 Safing state",
+    icon: ShieldCheck,
+  },
+  {
+    title: "Pick a playback speed",
+    body: "Before you run it: set the Playback speed in the bar above the diagram. It\u2019s in sec / step \u2014 1 sec / step is brisk, 5 sec / step gives you time to watch every valve move. Set it, then hit Next.",
+    where: "Diagram bar \u2192 Playback speed",
+    icon: SlidersHorizontal,
   },
   {
     title: "Run your SOP",
-    body: "Hit Play sequence in the bar above the diagram and watch the procedure run: valves change state, the right rail tracks every position, and a Safe system / power loss button appears next to Pause while it runs.",
+    body: "Hit Play sequence and watch the procedure run: valves change state and the right rail tracks every position. While it plays, a Safe system / power loss button appears next to Pause \u2014 hit it to see the safing state you just set: the vent falls open and the system safes itself.",
     where: "Diagram bar \u2192 Play sequence",
     icon: Play,
   },
   {
     title: "Procedure complete",
     body: "Diagram \u2192 procedure \u2192 simulated run: the full PropFlow loop. Hit Export SOP PDF in the left rail to generate the finished SOP document, then keep building on your own P&ID or head back home.",
-    where: "Choose below",
+    where: "Left rail \u2192 Export SOP PDF \u00b7 or choose below",
     icon: GraduationCap,
   },
 ] as const;
@@ -184,7 +196,18 @@ const TARGETS_BUILD: Record<number, string> = {
   10: "sensor",
 };
 
-const TARGETS_SOP: Record<number, string> = { 1: "sop-initial" };
+const TARGETS_SOP: Record<number, string> = {
+  0: "sop-builder",
+  1: "sop-initial",
+  2: "sop-add-step",
+  3: "sop-step-title",
+  4: "sop-add-action",
+  5: "sop-add-step",
+  6: "sop-safing",
+  7: "sop-speed",
+  8: "sop-play",
+  9: "sop-export",
+};
 
 export default function TourGuide({
   nodes,
@@ -194,6 +217,7 @@ export default function TourGuide({
   sop,
   onStartSop,
   onSkipToSop,
+  onEditReference,
   onExit,
   onOpenTutorial,
   onKeepBuilding,
@@ -294,7 +318,8 @@ export default function TourGuide({
     3: sop.titled >= 1,
     4: sop.actions >= 1,
     5: sop.steps >= 2 && sop.actions >= 2,
-    6: sop.played,
+    6: sop.safingSeen,
+    8: sop.played,
   };
   const detected =
     (phase === "sop" ? sopChecks : buildChecks)[step] ?? false;
@@ -649,6 +674,9 @@ export default function TourGuide({
                 Skip to SOP building
               </button>
             )}
+            <button className="tour-button" type="button" onClick={onEditReference}>
+              Edit practice P&ID
+            </button>
             {step > 0 && (
               <button className="tour-button" type="button" onClick={back}>
                 <ArrowLeft size={15} aria-hidden="true" />
