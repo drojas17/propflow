@@ -62,7 +62,7 @@ const STEPS_BUILD = [
   },
   {
     title: "Make it a filled source",
-    body: "Click the tank to select it, then use the Inspector on the right: name it in the Tag field (try \u201cLOX Run Tank\u201d), set Tank role to \u201cFilled / source tank\u201d, and enter a Pressure \u2014 3000 psi works.",
+    body: "Click the tank to select it, then use the Inspector on the right: name it in the Tag field (try \u201cGN2 T-Bottle\u201d), set Tank role to \u201cFilled / source tank\u201d, and enter a Pressure \u2014 3000 psi works.",
     where: "Canvas \u2192 click the tank \u2192 Inspector",
     icon: Droplets,
   },
