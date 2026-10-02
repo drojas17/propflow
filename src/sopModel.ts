@@ -1,7 +1,7 @@
 export type SopNode={id:string;tag:string;kind:string;symbolType?:string;state?:'open'|'closed';pressure?:number;fluid?:string;fluidLocked?:boolean;tankRole?:string;boundary?:string;ventsToAmbient?:boolean;x:number;y:number;rotation?:number;connectedSolenoidId?:string;transientSource?:boolean}
 export type SopAction={id:string;type:'open'|'close'|'regulator'|'wait'|'verify'|'instruction';target:string;name:string;value:number;text:string}
 export type SopStep={id:string;title:string;role:string;actions:SopAction[];sectionId?:string}
-export type SopDocument={title:string;initial:Record<string,'open'|'closed'>;regulators:Record<string,number>;steps:SopStep[];sections?:{id:string;title:string}[];sidebarWidth?:number}
+export type SopDocument={title:string;initial:Record<string,'open'|'closed'>;regulators:Record<string,number>;safing?:Record<string,'open'|'closed'>;steps:SopStep[];sections?:{id:string;title:string}[];sidebarWidth?:number}
 export function moveSopStep(doc:SopDocument,id:string,sectionId:string,beforeId?:string){
  const step=doc.steps.find(s=>s.id===id);if(!step||id===beforeId)return doc;
  const remaining=doc.steps.filter(s=>s.id!==id),position=beforeId?remaining.findIndex(s=>s.id===beforeId):-1;

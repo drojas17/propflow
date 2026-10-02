@@ -35,11 +35,12 @@ export interface TourGuideProps {
     tankRole?: string;
     boundary?: string;
     ventsToAmbient?: boolean;
+    state?: string;
   }[];
   edges: { id: string; from?: string; to?: string }[];
   view: string;
   phase: "build" | "sop";
-  sop: { steps: number; titled: number; actions: number };
+  sop: { steps: number; titled: number; actions: number; initialAllClosed: boolean };
   onStartSop: () => void;
   onExit: () => void;
   onOpenTutorial: () => void;
@@ -103,7 +104,7 @@ const STEPS_BUILD = [
   },
   {
     title: "Add a solenoid vent valve",
-    body: "Add a Solenoid valve downstream of the manual valve and connect them. Then click it and tick \u201cVents to ambient\u201d in the Inspector \u2014 this is your remotely operated vent.",
+    body: "Add a Solenoid valve downstream of the manual valve and connect them. Then click it: tick \u201cVents to ambient\u201d and set Default state to OPEN \u2014 a vent is normally open, so on a power loss it opens on its own and safes the system.",
     where: "Component library \u2192 Solenoid valve (highlighted) \u00b7 Inspector \u2192 Vents to ambient",
     icon: Zap,
   },
@@ -129,20 +130,26 @@ const STEPS_SOP = [
     icon: ClipboardList,
   },
   {
+    title: "Start from a known state",
+    body: "First, the initial state: it defines where every valve sits before the procedure runs. Select Initial state at the top of the step list, then hit Close all valves on the right \u2014 everything shut is a known starting point.",
+    where: "Step list \u2192 Initial state \u00b7 right rail \u2192 Close all valves",
+    icon: ShieldCheck,
+  },
+  {
     title: "Add your first step",
     body: "Add a step from the step list. Each step is one thing the operator does, in order.",
     where: "Step list \u2192 Add step",
     icon: Plus,
   },
   {
-    title: "Name it and assign a role",
-    body: "Give the step a title that says what happens \u2014 \u201cPressurize the feed line\u201d \u2014 and choose the operator role responsible for it.",
+    title: "Name it: Open tank valve",
+    body: "Title this step \u201cOpen tank valve\u201d \u2014 the name should say exactly what happens \u2014 and choose the operator role responsible for it.",
     where: "Step editor \u2192 title + Operator role",
     icon: Pencil,
   },
   {
     title: "Add an action",
-    body: "Add an action and choose your manual valve: Open MV. Actions always target real components from your diagram, so there\u2019s no valve name to typo.",
+    body: "Now the action: open the tank valve. Two ways \u2014 click the valve right on the diagram and hit Open, or add an action here and pick the valve from the dropdown. Actions always target real components, so there\u2019s no valve name to typo.",
     where: "Step editor \u2192 Add action",
     icon: MousePointerClick,
   },
@@ -176,7 +183,7 @@ const TARGETS_BUILD: Record<number, string> = {
   10: "sensor",
 };
 
-const TARGETS_SOP: Record<number, string> = {};
+const TARGETS_SOP: Record<number, string> = { 1: "sop-initial" };
 
 export default function TourGuide({
   nodes,
@@ -269,7 +276,8 @@ export default function TourGuide({
       !!solenoid &&
       !!firstValve &&
       linked(firstValve.id, solenoid.id) &&
-      solenoid.ventsToAmbient === true,
+      solenoid.ventsToAmbient === true &&
+      solenoid.state === "open",
     10:
       !!tank &&
       sensors.length >= 2 &&
@@ -279,11 +287,12 @@ export default function TourGuide({
       ),
   };
   const sopChecks: Record<number, boolean> = {
-    1: sop.steps >= 1,
-    2: sop.titled >= 1,
-    3: sop.actions >= 1,
-    4: sop.steps >= 2 && sop.actions >= 2,
-    5: view === "ladder",
+    1: sop.initialAllClosed,
+    2: sop.steps >= 1,
+    3: sop.titled >= 1,
+    4: sop.actions >= 1,
+    5: sop.steps >= 2 && sop.actions >= 2,
+    6: view === "ladder",
   };
   const detected =
     (phase === "sop" ? sopChecks : buildChecks)[step] ?? false;
