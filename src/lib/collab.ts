@@ -24,6 +24,8 @@ export interface CollabDoc {
   edges: Y.Map<unknown>;
   shapes: Y.Map<unknown>;
   parts: Y.Map<unknown>;
+  customSymbols: Y.Map<unknown>;
+  symbolOverrides: Y.Map<unknown>;
   meta: Y.Map<unknown>;
   undoManager: UndoManager;
   awareness: Awareness;
@@ -34,6 +36,8 @@ export interface DocState {
   edges: { id: string }[];
   shapes: { id: string }[];
   parts?: Part[];
+  customSymbols?: unknown[];
+  symbolOverrides?: Record<string, unknown>;
   canvasSize: { w: number; h: number };
   sop: unknown;
 }
@@ -52,6 +56,8 @@ export function createCollabDoc(): CollabDoc {
   const edges = doc.getMap<unknown>('edges');
   const shapes = doc.getMap<unknown>('shapes');
   const parts = doc.getMap<unknown>('parts');
+  const customSymbols = doc.getMap<unknown>('customSymbols');
+  const symbolOverrides = doc.getMap<unknown>('symbolOverrides');
   const meta = doc.getMap<unknown>('meta');
   // captureTimeout merges a rapid burst (e.g. one drag gesture) into a single undo step.
   const undoManager = new UndoManager([nodes, edges, shapes, meta], {
@@ -59,7 +65,7 @@ export function createCollabDoc(): CollabDoc {
     captureTimeout: 500,
   });
   const awareness = new Awareness(doc);
-  return { doc, nodes, edges, shapes, parts, meta, undoManager, awareness };
+  return { doc, nodes, edges, shapes, parts, customSymbols, symbolOverrides, meta, undoManager, awareness };
 }
 
 /** JSON round-trip: strips `undefined` (Yjs can't store it) and detaches shared types. */
@@ -86,6 +92,10 @@ export function projectToDoc(c: CollabDoc, project: ProjectDoc): void {
       for (const s of project.shapes as { id: string }[]) c.shapes.set(s.id, clean(s));
       c.parts.clear();
       for (const p of (project.parts ?? []) as { id: string }[]) c.parts.set(p.id, clean(p));
+      c.customSymbols.clear();
+      for (const s of ((project as any).customSymbols ?? []) as { id: string }[]) c.customSymbols.set(s.id, clean(s));
+      c.symbolOverrides.clear();
+      for (const [k, v] of Object.entries((project as any).symbolOverrides ?? {})) c.symbolOverrides.set(k, clean(v));
       c.meta.set('canvasSize', clean(project.canvasSize ?? { w: 850, h: 580 }));
       c.meta.set('sop', project.sop == null ? null : clean(project.sop));
     },
@@ -103,6 +113,8 @@ export function docToProject(c: CollabDoc): ProjectDoc {
     edges: values(c.edges),
     shapes: values(c.shapes),
     parts: values(c.parts) as Part[],
+    customSymbols: values(c.customSymbols),
+    symbolOverrides: Object.fromEntries(c.symbolOverrides.entries()),
     canvasSize: canvasSize ?? { w: 850, h: 580 },
     sop: sop ?? null,
   };
@@ -116,6 +128,8 @@ export function readDocState(c: CollabDoc): DocState {
     edges: p.edges as { id: string }[],
     shapes: p.shapes as { id: string }[],
     parts: (p.parts ?? []) as Part[],
+    customSymbols: (p as any).customSymbols ?? [],
+    symbolOverrides: (p as any).symbolOverrides ?? {},
     canvasSize: p.canvasSize,
     sop: p.sop,
   };
@@ -155,6 +169,9 @@ export function pushStateToDoc(c: CollabDoc, state: DocState, base?: DocState | 
     diffIdMap(c.nodes, state.nodes) ||
     diffIdMap(c.edges, state.edges) ||
     diffIdMap(c.shapes, state.shapes) ||
+    diffIdMap(c.parts, (state.parts ?? []) as { id: string }[]) ||
+    diffIdMap(c.customSymbols, (state.customSymbols ?? []) as { id: string }[]) ||
+    JSON.stringify(Object.fromEntries(c.symbolOverrides.entries())) !== JSON.stringify(state.symbolOverrides ?? {}) ||
     canvasChanged ||
     sopChanged;
   if (!changed) return false;
@@ -189,6 +206,22 @@ export function pushStateToDoc(c: CollabDoc, state: DocState, base?: DocState | 
       syncMap(c.nodes, state.nodes, b ? baseIds(b.nodes) : null);
       syncMap(c.edges, state.edges, b ? baseIds(b.edges) : null);
       syncMap(c.shapes, state.shapes, b ? baseIds(b.shapes) : null);
+      syncMap(c.parts, (state.parts ?? []) as { id: string }[], b ? baseIds((b.parts ?? []) as { id: string }[]) : null);
+      syncMap(c.customSymbols, (state.customSymbols ?? []) as { id: string }[], b ? baseIds((b.customSymbols ?? []) as { id: string }[]) : null);
+      // symbolOverrides is a Record, sync via Y.Map
+      {
+        const nextOverrides = state.symbolOverrides ?? {};
+        const nextKeys = new Set(Object.keys(nextOverrides));
+        const doomed: string[] = [];
+        c.symbolOverrides.forEach((_v, k) => { if (!nextKeys.has(k)) doomed.push(k); });
+        for (const k of doomed) c.symbolOverrides.delete(k);
+        for (const [k, v] of Object.entries(nextOverrides)) {
+          const cleaned = clean(v);
+          if (JSON.stringify(toJSON(c.symbolOverrides.get(k))) !== JSON.stringify(cleaned)) {
+            c.symbolOverrides.set(k, cleaned);
+          }
+        }
+      }
       if (canvasChanged) c.meta.set('canvasSize', nextCanvas);
       if (sopChanged) c.meta.set('sop', nextSop);
     },

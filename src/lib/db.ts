@@ -29,6 +29,8 @@ export interface ProjectDoc {
   sop: unknown;
   projectName?: string;
   parts?: Part[];
+  customSymbols?: unknown[];
+  symbolOverrides?: Record<string, unknown>;
 }
 
 export interface LibraryDoc {
