@@ -53,6 +53,8 @@
 .sop-step-flash{left:calc(var(--sop-sidebar-width,360px) + 16px)}
 .app>main{grid-template-columns:var(--panel-left,250px) minmax(450px,1fr) var(--panel-right,300px)}
 .app-sidebar-resizer{position:absolute;top:62px;bottom:0;width:8px;z-index:10;cursor:col-resize;touch-action:none}
+body:not(.sidebar-open) .app-sidebar-resizer[data-side="left"]{display:none}
+body.panel-open .app-sidebar-resizer[data-side="right"]{display:none}
 .app-sidebar-resizer:hover,.app-sidebar-resizer:focus-visible{background:#55d7ff66;outline:none}
 .sop-workspace{grid-template-columns:var(--sop-sidebar-width,360px) minmax(450px,1fr) var(--panel-right,300px)}
 .playing .sop-control-flow{animation:sop-control-flow 1s linear infinite}
