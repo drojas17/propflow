@@ -191,6 +191,7 @@ export default function TourGuide({
 }: TourGuideProps) {
   const [step, setStep] = useState(0);
   const [doneSteps, setDoneSteps] = useState<ReadonlySet<number>>(new Set());
+  const [editorH, setEditorH] = useState(0);
   const STEPS = phase === "sop" ? STEPS_SOP : STEPS_BUILD;
   const TARGETS = phase === "sop" ? TARGETS_SOP : TARGETS_BUILD;
   const current = STEPS[step] ?? STEPS[0];
@@ -329,6 +330,24 @@ export default function TourGuide({
       window.removeEventListener("resize", update);
     };
   }, [step]);
+
+  useEffect(() => {
+    if (phase !== "sop") {
+      setEditorH(0);
+      return;
+    }
+    const update = () => {
+      const el = document.querySelector(".sop-editor");
+      setEditorH(el ? el.getBoundingClientRect().height : 0);
+    };
+    update();
+    const id = window.setInterval(update, 500);
+    window.addEventListener("resize", update);
+    return () => {
+      window.clearInterval(id);
+      window.removeEventListener("resize", update);
+    };
+  }, [phase]);
 
   const next = () =>
     setStep((previous) => Math.min(previous + 1, STEPS.length - 1));
@@ -530,7 +549,7 @@ export default function TourGuide({
         />
       )}
 
-      <section className="tour-card" aria-label="Training Lab guided tour">
+      <section className="tour-card" aria-label="Training Lab guided tour" style={phase === "sop" ? { left: "auto", right: 14, transform: "none", bottom: editorH + 14, width: "min(430px, calc(100% - 28px))", maxHeight: `calc(100dvh - ${editorH + 104}px)` } : undefined}>
         <div className="tour-meta">
           <span>Step {step + 1} of {STEPS.length}</span>
           <button className="tour-skip" type="button" onClick={onExit}>
