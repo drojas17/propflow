@@ -345,7 +345,7 @@ const [nodes,setNodes]=useState<Node[]>([])
   const edgeIds=new Set<string>();let droppedEdges=0
   for(const e of p.edges as Record<string,unknown>[]){if(!e||typeof e!=='object'||typeof e.id!=='string'||!e.id)throw new Error('A pipe in this file is missing its id.');if(edgeIds.has(e.id))throw new Error('This file has duplicate pipe ids.');edgeIds.add(e.id);if((e.from&&!nodeIds.has(e.from as string))||(e.to&&!nodeIds.has(e.to as string)))droppedEdges++}
   const docEdges=(p.edges as Record<string,unknown>[]).filter(e=>!(e.from&&!nodeIds.has(e.from as string))&&!(e.to&&!nodeIds.has(e.to as string)))
-  if(droppedEdges)warnings.push(`${droppedEdges} pipe${droppedEdges===1?'':'s'} pointed at missing components and were removed.`)
+  if(droppedEdges)warnings.push(`${droppedEdges} pipe${droppedEdges===1?'':'s'} pointed at missing components and ${droppedEdges===1?'was':'were'} removed.`)
   const shapes=Array.isArray(p.shapes)?p.shapes:[]
   for(const s of shapes as Record<string,unknown>[]){if(!s||typeof s!=='object'||typeof s.id!=='string'||!['line','rect','ellipse'].includes(s.type as string)||![s.x1,s.y1,s.x2,s.y2].every(v=>Number.isFinite(v)))throw new Error('A drawn shape in this file is invalid.')}
   const cs=(p.canvasSize??{w:850,h:580}) as {w:number;h:number}
