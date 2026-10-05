@@ -154,6 +154,22 @@ function diffIdMap(ymap: Y.Map<unknown>, items: { id: string }[]): boolean {
 }
 
 /**
+ * Delete edges whose from/to reference nodes that no longer exist (deleted by
+ * a collaborator, or removed by an undo). Left behind, they render as lines to
+ * the canvas origin and keep resurrecting through sync. Free-floating stubs
+ * (no from/to, drawn from start/end points) are untouched.
+ */
+function pruneDanglingEdges(c: CollabDoc): boolean {
+  const doomed: string[] = [];
+  c.edges.forEach((v, id) => {
+    const e = toJSON(v) as { from?: string; to?: string } | null;
+    if ((e?.from && !c.nodes.has(e.from)) || (e?.to && !c.nodes.has(e.to))) doomed.push(id);
+  });
+  for (const id of doomed) c.edges.delete(id);
+  return doomed.length > 0;
+}
+
+/**
  * Diff React state into the doc inside one 'local' transaction (tracked by the
  * UndoManager). Returns false when nothing changed, so callers can skip work.
  *
@@ -211,6 +227,7 @@ export function pushStateToDoc(c: CollabDoc, state: DocState, base?: DocState | 
       syncMap(c.shapes, state.shapes, 'shape');
       syncMap(c.parts, (state.parts ?? []) as { id: string }[], 'part');
       syncMap(c.customSymbols, (state.customSymbols ?? []) as { id: string }[], 'customSymbol');
+      pruneDanglingEdges(c);
       // symbolOverrides is a Record, sync via Y.Map
       {
         const nextOverrides = state.symbolOverrides ?? {};
@@ -295,6 +312,9 @@ export function mergeRemoteProject(c: CollabDoc, remote: ProjectDoc, base: DocSt
     mergeMap(c.shapes, base?.shapes, (remote.shapes ?? []) as { id: string }[]);
     mergeMeta('canvasSize', base?.canvasSize, remote.canvasSize);
     mergeMeta('sop', base?.sop ?? null, remote.sop ?? null);
+    // A stored snapshot can carry pipes pointing at deleted components; never
+    // let a merge reintroduce them into the live doc.
+    if (pruneDanglingEdges(c)) changed = true;
   }, 'remote');
   return changed;
 }
