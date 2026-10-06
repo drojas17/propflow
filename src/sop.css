@@ -84,3 +84,8 @@ body.panel-open .app-sidebar-resizer[data-side="right"]{display:none}
 .sop-section div.sop-step:focus-visible{outline:2px solid #55d7ff;outline-offset:1px}
 .sop-workspace button.sop-step-delete{position:absolute;top:6px;right:8px;background:transparent;border:0;padding:2px 5px;color:#ff9a9a;font-size:14px;font-weight:700;line-height:1;border-radius:4px;cursor:pointer}
 .sop-workspace button.sop-step-delete:hover{color:#ff5f5f;background:#ff5f5f22}
+
+/* Phones: the component library (left drawer) and inspector (bottom sheet) are fixed overlays below 900px, so the editor grid must not reserve columns for them. Without this, .app>main keeps its desktop 3-column template on mobile and the workspace is squeezed into the 250px first track next to a huge empty void. */
+@media (max-width:900px){
+  .app>main{grid-template-columns:minmax(0,1fr)}
+}

@@ -73,7 +73,7 @@ body.panel-open aside.right{display:none}
 
 @media (max-width:900px){
   .mobile-panel-resizer{
-    display:block !important;
+    display:none !important;
     position:fixed;
     left:0;right:0;
     height:12px;
@@ -82,6 +82,7 @@ body.panel-open aside.right{display:none}
     touch-action:none;
   }
   body.panel-open .mobile-panel-resizer{
+    display:block !important;
     bottom:60dvh;
   }
   .mobile-panel-resizer::after{
