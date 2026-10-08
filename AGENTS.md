@@ -7,10 +7,10 @@ Live site: https://propflow.drojas.me — Daniel Rojas (drojas17) is the owner; 
 
 - Work on branch `phase-2-supabase-yjs`. NEVER touch `main`.
 - Remotes: `personal` = git@github.com:drojas17/propflow.git (deploy source), `mit` = https://github.mit.edu/Liquid-Propulsion-Controls/Prop-flow.git.
-- Push to `personal` by default. Push to `mit` ONLY when Daniel explicitly says so.
+- Push to both `personal` and `mit` by default, unless Daniel explicitly requests otherwise.
 - Run `git status` and `git log --oneline -5` before editing: other agents (Kev, other Codex sessions) edit this repo in parallel and may have committed. Don't clobber their work.
 - Build before every commit: `npm run build` (tsc -b && vite build) must pass.
-- A change is not done until it's built, pushed to personal, and verified on the live site through the path Daniel actually uses.
+- A change is not done until it's built, pushed to both personal and mit, and verified on the live site through the path Daniel actually uses.
 - Stay inside this project folder. Don't delete untracked files (e.g. build_push_tmp.ps1, *.bat helpers) without asking.
 - Never expose or commit secrets (Supabase keys, MIT OAuth credentials).
 - Never change `symbolOverrides` behavior without Daniel's explicit say-so.
