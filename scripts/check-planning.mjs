@@ -66,5 +66,9 @@ assert.equal(docToProject(c).failureAnalysis.events.find(e=>e.id==='loss').title
 const beforeDelete=readDocState(c);pushStateToDoc(c,{...beforeDelete,testPlans:[]},beforeDelete,new Set(['testPlan:cold']))
 assert.equal(docToProject(c).testPlans.length,0);assert.equal(docToProject(c).nodes.length,2)
 c.undoManager.undo();assert.equal(docToProject(c).testPlans.length,1)
+const persisted=readDocState(c),latest={...persisted,failureAnalysis:{...persisted.failureAnalysis,events:persisted.failureAnalysis.events.map(e=>e.id==='loss'?{...e,title:'Latest unsaved edit'}:e)}};
+pushStateToDoc(c,latest,persisted);
+mergeRemoteProject(c,{...docToProject(c),failureAnalysis:persisted.failureAnalysis},persisted);
+assert.equal(docToProject(c).failureAnalysis.events.find(e=>e.id==='loss').title,'Latest unsaved edit');
 c.doc.destroy()
 console.log('Planning regression checks passed: test/sequence isolation, scopes, gates, cycles, import validation/remapping, Yjs persistence, stale-peer protection, delete/undo, dangling edges and stubs.')

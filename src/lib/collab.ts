@@ -280,7 +280,7 @@ export function pushStateToDoc(c: CollabDoc, state: DocState, base?: DocState | 
 
 /**
  * Three-way merge of a remotely-persisted project snapshot into the live doc.
- * `base` is the last state this client pushed (or hydrated from); entities the
+ * `base` is the last persisted (or hydrated) snapshot; entities the
  * local side changed since base win, everything else takes the remote value.
  * Remote deletes apply only to entities that were in base AND are still
  * untouched locally. Returns whether the doc changed. Never throws on
