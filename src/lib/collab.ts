@@ -3,6 +3,7 @@ import { UndoManager } from 'yjs';
 import { Awareness, encodeAwarenessUpdate, applyAwarenessUpdate } from 'y-protocols/awareness';
 import type { RealtimeChannel, SupabaseClient } from '@supabase/supabase-js';
 import type { ProjectDoc, Part } from './db';
+import type {Sequence, TestPlan, FailureAnalysis} from '../testModel';
 
 /**
  * Yjs collaboration engine for PropFlow.
@@ -27,6 +28,10 @@ export interface CollabDoc {
   customSymbols: Y.Map<unknown>;
   symbolOverrides: Y.Map<unknown>;
   meta: Y.Map<unknown>;
+  testPlans: Y.Map<unknown>;
+  sequences: Y.Map<unknown>;
+  failureEvents: Y.Map<unknown>;
+  failureTrees: Y.Map<unknown>;
   undoManager: UndoManager;
   awareness: Awareness;
 }
@@ -40,6 +45,10 @@ export interface DocState {
   symbolOverrides?: Record<string, unknown>;
   canvasSize: { w: number; h: number };
   sop: unknown;
+  projectName?: string;
+  testPlans?: TestPlan[];
+  sequences?: Sequence[];
+  failureAnalysis?: FailureAnalysis;
 }
 
 export interface PeerPresence {
@@ -59,13 +68,14 @@ export function createCollabDoc(): CollabDoc {
   const customSymbols = doc.getMap<unknown>('customSymbols');
   const symbolOverrides = doc.getMap<unknown>('symbolOverrides');
   const meta = doc.getMap<unknown>('meta');
+  const testPlans=doc.getMap<unknown>('testPlans'), sequences=doc.getMap<unknown>('sequences'), failureEvents=doc.getMap<unknown>('failureEvents'), failureTrees=doc.getMap<unknown>('failureTrees');
   // captureTimeout merges a rapid burst (e.g. one drag gesture) into a single undo step.
-  const undoManager = new UndoManager([nodes, edges, shapes, meta], {
+  const undoManager = new UndoManager([nodes, edges, shapes, meta, testPlans, sequences, failureEvents, failureTrees], {
     trackedOrigins: new Set(['local']),
     captureTimeout: 500,
   });
   const awareness = new Awareness(doc);
-  return { doc, nodes, edges, shapes, parts, customSymbols, symbolOverrides, meta, undoManager, awareness };
+  return { doc, nodes, edges, shapes, parts, customSymbols, symbolOverrides, meta, testPlans, sequences, failureEvents, failureTrees, undoManager, awareness };
 }
 
 /** JSON round-trip: strips `undefined` (Yjs can't store it) and detaches shared types. */
@@ -98,6 +108,8 @@ export function projectToDoc(c: CollabDoc, project: ProjectDoc): void {
       for (const [k, v] of Object.entries((project as any).symbolOverrides ?? {})) c.symbolOverrides.set(k, clean(v));
       c.meta.set('canvasSize', clean(project.canvasSize ?? { w: 850, h: 580 }));
       c.meta.set('sop', project.sop == null ? null : clean(project.sop));
+      c.meta.set('projectName',project.projectName??'');
+      for(const [map,items] of [[c.testPlans,project.testPlans??[]],[c.sequences,project.sequences??[]],[c.failureEvents,project.failureAnalysis?.events??[]],[c.failureTrees,project.failureAnalysis?.trees??[]]] as [Y.Map<unknown>,{id:string}[]][]){map.clear();for(const item of items)map.set(item.id,clean(item))}
     },
     'init'
   );
@@ -117,6 +129,10 @@ export function docToProject(c: CollabDoc): ProjectDoc {
     symbolOverrides: Object.fromEntries(c.symbolOverrides.entries()),
     canvasSize: canvasSize ?? { w: 850, h: 580 },
     sop: sop ?? null,
+    projectName: (c.meta.get('projectName') as string) || undefined,
+    testPlans: values(c.testPlans) as TestPlan[],
+    sequences: values(c.sequences) as Sequence[],
+    failureAnalysis: {events:values(c.failureEvents),trees:values(c.failureTrees)} as FailureAnalysis,
   };
 }
 
@@ -132,6 +148,7 @@ export function readDocState(c: CollabDoc): DocState {
     symbolOverrides: (p as any).symbolOverrides ?? {},
     canvasSize: p.canvasSize,
     sop: p.sop,
+    projectName:p.projectName, testPlans:p.testPlans, sequences:p.sequences, failureAnalysis:p.failureAnalysis,
   };
 }
 
@@ -181,6 +198,10 @@ export function pushStateToDoc(c: CollabDoc, state: DocState, base?: DocState | 
   const nextSop = state.sop == null ? null : clean(state.sop);
   const canvasChanged = JSON.stringify(toJSON(c.meta.get('canvasSize'))) !== JSON.stringify(nextCanvas);
   const sopChanged = JSON.stringify(toJSON(c.meta.get('sop')) ?? null) !== JSON.stringify(nextSop);
+  const nameChanged=state.projectName!==undefined&&c.meta.get('projectName')!==state.projectName&&(!base||state.projectName!==base.projectName);
+  const extraMaps:[Y.Map<unknown>,{id:string}[],{id:string}[],string][]=[
+    [c.testPlans,state.testPlans??[],base?.testPlans??[],'testPlan'],[c.sequences,state.sequences??[],base?.sequences??[],'sequence'],
+    [c.failureEvents,state.failureAnalysis?.events??[],base?.failureAnalysis?.events??[],'failureEvent'],[c.failureTrees,state.failureAnalysis?.trees??[],base?.failureAnalysis?.trees??[],'failureTree']];
   const changed =
     diffIdMap(c.nodes, state.nodes) ||
     diffIdMap(c.edges, state.edges) ||
@@ -189,7 +210,7 @@ export function pushStateToDoc(c: CollabDoc, state: DocState, base?: DocState | 
     diffIdMap(c.customSymbols, (state.customSymbols ?? []) as { id: string }[]) ||
     JSON.stringify(Object.fromEntries(c.symbolOverrides.entries())) !== JSON.stringify(state.symbolOverrides ?? {}) ||
     canvasChanged ||
-    sopChanged;
+    sopChanged || nameChanged || extraMaps.some(([map,items])=>diffIdMap(map,items));
   if (!changed) return false;
 
   // Deletion guard: only keys this client previously pushed (present in `base`)
@@ -227,6 +248,12 @@ export function pushStateToDoc(c: CollabDoc, state: DocState, base?: DocState | 
       syncMap(c.shapes, state.shapes, 'shape');
       syncMap(c.parts, (state.parts ?? []) as { id: string }[], 'part');
       syncMap(c.customSymbols, (state.customSymbols ?? []) as { id: string }[], 'customSymbol');
+      // Only publish changed entities in the new collections, preserving unseen peer edits.
+      for(const [map,items,baseItems,prefix] of extraMaps){
+        const previous=new Map(baseItems.map(item=>[item.id,JSON.stringify(clean(item))]));const nextIds=new Set(items.map(item=>item.id));
+        for(const id of map.keys())if(!nextIds.has(id)&&explicitlyDeleted?.has(`${prefix}:${id}`))map.delete(id);
+        for(const item of items){const value=clean(item);if(JSON.stringify(value)!==previous.get(item.id)&&JSON.stringify(toJSON(map.get(item.id)))!==JSON.stringify(value))map.set(item.id,value)}
+      }
       pruneDanglingEdges(c);
       // symbolOverrides is a Record, sync via Y.Map
       {
@@ -244,6 +271,7 @@ export function pushStateToDoc(c: CollabDoc, state: DocState, base?: DocState | 
       }
       if (canvasChanged) c.meta.set('canvasSize', nextCanvas);
       if (sopChanged) c.meta.set('sop', nextSop);
+      if(nameChanged)c.meta.set('projectName',state.projectName);
     },
     'local'
   );
@@ -312,6 +340,10 @@ export function mergeRemoteProject(c: CollabDoc, remote: ProjectDoc, base: DocSt
     mergeMap(c.shapes, base?.shapes, (remote.shapes ?? []) as { id: string }[]);
     mergeMeta('canvasSize', base?.canvasSize, remote.canvasSize);
     mergeMeta('sop', base?.sop ?? null, remote.sop ?? null);
+    if(remote.projectName!==undefined)mergeMeta('projectName',base?.projectName??'',remote.projectName);
+    if(remote.testPlans!==undefined)mergeMap(c.testPlans,base?.testPlans,remote.testPlans);
+    if(remote.sequences!==undefined)mergeMap(c.sequences,base?.sequences,remote.sequences);
+    if(remote.failureAnalysis!==undefined){mergeMap(c.failureEvents,base?.failureAnalysis?.events,remote.failureAnalysis.events);mergeMap(c.failureTrees,base?.failureAnalysis?.trees,remote.failureAnalysis.trees)}
     // A stored snapshot can carry pipes pointing at deleted components; never
     // let a merge reintroduce them into the live doc.
     if (pruneDanglingEdges(c)) changed = true;

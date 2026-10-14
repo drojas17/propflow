@@ -21,6 +21,10 @@ Live site: https://propflow.drojas.me — Daniel Rojas (drojas17) is the owner; 
 - `src/App.tsx` — the editor: canvas, nodes/edges/shapes, SOP editor, pressure ladder, PNG/PDF export, JSON import/export, Training Lab.
 - `src/Landing.tsx` + `src/landing.css` — entry page: project list, Import JSON, per-card JSON download, sign-in.
 - `src/Tutorial.tsx` — tutorial/tour page.
+- `src/ProjectControls.tsx`, `src/projectPlanning.ts`, `src/testModel.ts` — test configurations, independent diagram snapshots, SOP sequences, and shared failure-analysis model.
+- `src/FailureWorkspace.tsx` — reusable events, AND/OR trees, test/SOP/step applicability, and Boolean scenario preview.
+- `src/ComponentFinder.tsx` — placed-component search (Ctrl/Cmd+F or K), separate from the parts-library filter.
+- `src/projectImport.ts` — JSON validation and reference remapping when appending imported configurations.
 - `src/lib/collab.ts` — Yjs document sync: projectToDoc/docToProject, pushStateToDoc, mergeRemoteProject, pruneDanglingEdges.
 - `src/lib/db.ts` — Supabase REST calls: ensureProject, loadProjectDoc, saveProjectDoc, loadLibrary, listProjects.
 - `src/lib/supabase.ts` — client. Supabase project: xqnpqsckcrbckdaozquc.
@@ -30,7 +34,11 @@ Live site: https://propflow.drojas.me — Daniel Rojas (drojas17) is the owner; 
 
 - Supabase tables: projects, project_documents (one JSON doc per project), project_updates, global_library, share_links.
 - Load path: ensureProject() → loadProjectDoc() + loadLibrary() in parallel → hydrate() → Yjs projectToDoc. Autosave ~1s debounce; remote docs merge via mergeRemoteProject.
-- Project doc keys: nodes, edges, shapes, canvasSize, sop, parts, customSymbols, symbolOverrides, projectName.
+- Project doc keys: nodes, edges, shapes, canvasSize, sop, parts, customSymbols, symbolOverrides, projectName; optional sequences, testPlans, failureAnalysis.
+- The top-level diagram is the baseline. Test configurations hold independent diagram snapshots and multiple SOP sequences. The baseline's first sequence is mirrored into the legacy sop field. Active test/sequence selection is browser-local, never shared project metadata.
+- Failure events are shared once per project; trees/gates refer to them by ID. Empty tree scopes apply everywhere. Cycles must be prevented. Boolean scenario assumptions are local and never persisted; no quantitative reliability or failed-hardware simulation is implemented yet.
+- Test configurations are currently whole-entity collaboration entries. Do not claim fine-grained concurrent merging inside the same test diagram. See docs/test-planning-review.md.
+- Project display names can change without changing IDs or share links. ensureProject must preserve an existing row's name.
 - MIT sign-in is a custom OAuth provider (custom:petrock) via Supabase Auth.
 - RLS is currently DISABLED on the tables (deliberate interim state; table-level grants are already set). Do not re-enable RLS or change grants without Daniel's say-so — that happens later, when server editing becomes MIT-login-only.
 - The library (global_library) holds shared symbol definitions; at load, the library's symbolOverrides beat any stale copy in a project doc.
@@ -54,10 +62,11 @@ Live site: https://propflow.drojas.me — Daniel Rojas (drojas17) is the owner; 
 ## JSON import/export (format v2)
 
 - Files: {format:"propflow-project", version:2, exportedAt, projectName, nodes, edges, shapes, canvasSize, sop, parts, customSymbols, symbolOverrides}.
-- Export embeds only the custom symbols and override keys actually used by the diagram's nodes.
-- Import NEVER overwrites: it always creates a copy (server project when signed in; local-only otherwise), auto-renaming on collision (name-imported, -2, ...).
+- Export includes optional testPlans, sequences, failureAnalysis and embeds only custom symbols and override keys used across the baseline and every test diagram.
+- Landing import creates a copy (server project when signed in; local-only otherwise), auto-renaming on collision (name-imported, -2, ...).
+- Daniel authorized editor import into an existing project: Add to this project appends new test configurations and remaps diagram/SOP/part/custom-symbol/failure references. It NEVER replaces an existing diagram or imports symbol overrides over the project's shared overrides.
 - The validator normalizes and drops dangling edges with a warning count; it rejects format mismatches, versions >2, duplicate ids, non-finite coords, and malformed SOP.
-- IDs starting with `local-` are session-only (in-memory registry; refresh discards; Save downloads a JSON backup). `local` and `tour-local` are reserved. Never seed an import into the currently open collaborative doc — open it as a new project.
+- IDs starting with `local-` are session-only (in-memory registry; refresh discards; Save downloads a JSON backup). `local` and `tour-local` are reserved. An import must open as a new project or append new test configurations; never seed it over existing collaborative diagram entities.
 
 ## Export (PNG/PDF)
 

@@ -1,4 +1,5 @@
 import { requireSupabase } from './supabase';
+import type {Sequence, TestPlan, FailureAnalysis} from '../testModel';
 
 /**
  * Data-access layer over the Supabase collaboration schema.
@@ -31,6 +32,9 @@ export interface ProjectDoc {
   parts?: Part[];
   customSymbols?: unknown[];
   symbolOverrides?: Record<string, unknown>;
+  sequences?: Sequence[];
+  testPlans?: TestPlan[];
+  failureAnalysis?: FailureAnalysis;
 }
 
 export interface LibraryDoc {
@@ -57,11 +61,22 @@ export async function listProjects(): Promise<string[]> {
   return (data ?? []).map((row) => row.id as string);
 }
 
+export async function listProjectNames(): Promise<Record<string,string>> {
+  const {data,error}=await requireSupabase().from('projects').select('id,name').order('id');
+  if(error)throw error;
+  return Object.fromEntries((data??[]).map(row=>[row.id,row.name||row.id]));
+}
+
+export async function renameProject(id:string,name:string):Promise<void> {
+  const {error}=await requireSupabase().from('projects').update({name}).eq('id',id);
+  if(error)throw error;
+}
+
 export async function ensureProject(id: string, name?: string): Promise<void> {
   const sb = requireSupabase();
   const { error } = await sb
     .from('projects')
-    .upsert({ id, name: name ?? id }, { onConflict: 'id' });
+    .upsert({ id, name: name ?? id }, { onConflict: 'id', ignoreDuplicates: true });
   if (error) throw error;
 }
 
