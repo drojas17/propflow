@@ -282,6 +282,8 @@ const [nodes,setNodes]=useState<Node[]>([])
   const [showBOM,setShowBOM]=useState(false)
   const [partDialog,setPartDialog]=useState<{part:Part|null}|null>(null)
   const [showPartSelector,setShowPartSelector]=useState(false),[edges,setEdges]=useState<Edge[]>([]),[shapes,setShapes]=useState<Shape[]>([]),[selected,setSelected]=useState(''),[selectedIds,setSelectedIds]=useState<string[]>([]),[selectedEdge,setSelectedEdge]=useState<string|null>(null),[selectedShape,setSelectedShape]=useState<string|null>(null),[selectionBox,setSelectionBox]=useState<{x1:number;y1:number;x2:number;y2:number}|null>(null),[canvasSize,setCanvasSize]=useState({w:850,h:580}),[zoom,setZoom]=useState(1),[view,setView]=useState<View>('diagram'),[detail,setDetail]=useState<'schematic'|'assembly'>('schematic'),[sideTab,setSideTab]=useState<'inspector'|'simulation'>('inspector'),[step,setStep]=useState(0),[ladderStep,setLadderStep]=useState(-1),[saved,setSaved]=useState(true),[query,setQuery]=useState(''),[workshopTarget,setWorkshopTarget]=useState<{type?:SymbolType;customId?:string}|null>(null),[customSymbols,setCustomSymbols]=useState<CustomSymbol[]>([]),[symbolOverrides,setSymbolOverrides]=useState<Partial<Record<SymbolType,CustomSymbol>>>({}),[tool,setTool]=useState<Tool>('select'),[connectStart,setConnectStart]=useState<string|null>(null),[guideY,setGuideY]=useState<number|null>(null),[guideX,setGuideX]=useState<number|null>(null),[snapTarget,setSnapTarget]=useState<{nodeId:string;port:PortName}|null>(null),[bisectGap]=useState(50),[bisectPreview,setBisectPreview]=useState<{axis:'x'|'y';x:number;y:number}|null>(null),[feedbackOpen,setFeedbackOpen]=useState(false),[theme,setTheme]=useState(()=>(typeof localStorage!=='undefined'&&localStorage.getItem('propflow-theme'))||'dark')
+ // Reopen the inspector when selection changes; hooks must stay in the component body.
+ useEffect(()=>{if(selected||selectedIds.length){document.body.classList.remove('panel-open');setPanelCollapsed(false)}},[selected,selectedIds])
  const svgRef=useRef<SVGSVGElement>(null),canvasScrollRef=useRef<HTMLDivElement>(null),didDrag=useRef(false),sidebarDragging=useRef(false),[undoDepth,setUndoDepth]=useState(0),[redoDepth,setRedoDepth]=useState(0)
  const collabRef=useRef<CollabDoc|null>(null),syncHandleRef=useRef<SyncHandle|null>(null),dbSyncRef=useRef<{leave:()=>void}|null>(null),lastAppliedUpdatedAt=useRef<string>(''),suppressBroadcast=useRef(false),suppressReactSync=useRef(false),pushGuard=useRef(false),readOnlyRef=useRef(false),cursorRef=useRef<{x:number;y:number}|null>(null),lastCursorSent=useRef(0),selectedIdsRef=useRef<string[]>([]),lastPushedRef=useRef<DocState|null>(null),explicitlyDeletedRef=useRef<Set<string>>(new Set()),pendingLocalRef=useRef(false),hydratedRef=useRef(false),lastPersistedHashRef=useRef(''),persistNowRef=useRef<()=>Promise<void>>(async()=>{})
  const [peers,setPeers]=useState<PeerPresence[]>([]),[identity,setIdentity]=useState(makeIdentity),[user,setUser]=useState<User|null>(null)
@@ -422,22 +424,6 @@ const [nodes,setNodes]=useState<Node[]>([])
  const rotateSelected=()=>{if(!selectedIds.length)return;checkpoint();const ids=new Set(selectedIds);setNodes(v=>v.map(n=>ids.has(n.id)?{...n,rotation:((n.rotation??0)+90)%360}:n));setSaved(false)}
  const nudgeSelected=(key:string,snap:boolean)=>{if(!selectedIds.length)return;const ids=new Set(selectedIds),anchor=nodes.find(n=>n.id===(selected||selectedIds.at(-1)));if(!anchor)return;let dx=key==='arrowleft'?-1:key==='arrowright'?1:0,dy=key==='arrowup'?-1:key==='arrowdown'?1:0;if(snap){const grid=10;if(dx<0)dx=(Math.ceil(anchor.x/grid)-1)*grid-anchor.x;else if(dx>0)dx=(Math.floor(anchor.x/grid)+1)*grid-anchor.x;if(dy<0)dy=(Math.ceil(anchor.y/grid)-1)*grid-anchor.y;else if(dy>0)dy=(Math.floor(anchor.y/grid)+1)*grid-anchor.y}checkpoint();setNodes(v=>v.map(n=>ids.has(n.id)?{...n,x:Math.max(60,Math.min(canvasSize.w-60,n.x+dx)),y:Math.max(55,Math.min(canvasSize.h-55,n.y+dy))}:n));setSaved(false)}
  const bisect=(axis:'x'|'y',at:number)=>{const amount=bisectGap*2,halfGap=amount/2,coordinate=(n:Node)=>axis==='x'?n.x:n.y,nodeMoves=new Map(nodes.map(n=>[n.id,coordinate(n)>=at]));
-  const [panelCollapsed,setPanelCollapsed]=useState(false);
-  // Auto-open sidebar when a component is selected
-  useEffect(()=>{
-    if(selectedIds.length>0){
-      document.body.classList.remove('panel-open');
-      setPanelCollapsed(false);
-    }
-  },[selectedIds]);
-  const [editingTag,setEditingTag]=useState<{id:string;x:number;y:number;tag:string}|null>(null);
-  // Auto-open sidebar when a component is selected
-  useEffect(()=>{
-    if(selected){
-      document.body.classList.remove('panel-open');
-      setPanelCollapsed(false);
-    }
-  },[selected]);
   // A gauge tapped directly into a pipe on the divider must travel with that tap.
   for(const gauge of nodes.filter(n=>n.symbolType==='gauge')){for(const edge of edges){const otherId=edge.from===gauge.id?edge.to:edge.to===gauge.id?edge.from:undefined;if(!otherId)continue;const anchor=nodes.find(n=>n.id===otherId);if(anchor&&Math.abs(coordinate(anchor)-at)<=8){nodeMoves.set(gauge.id,nodeMoves.get(anchor.id)??false);break}}}
   // Split around the divider instead of treating it as an insertion point: content
@@ -446,9 +432,8 @@ const [nodes,setNodes]=useState<Node[]>([])
   checkpoint();setNodes(v=>v.map(n=>axis==='x'?{...n,x:n.x+(nodeMoves.get(n.id)?halfGap:-halfGap)}:{...n,y:n.y+(nodeMoves.get(n.id)?halfGap:-halfGap)}));setEdges(v=>v.map(edge=>{const start=edge.start?shiftPoint(edge.start):undefined,end=edge.end?shiftPoint(edge.end):undefined,waypoints=edge.waypoints?.map(shiftPoint),bend=edge.bend!==undefined&&edgeAxis(edge)===axis?shiftCoordinate(edge.bend):edge.bend;return{...edge,start,end,waypoints,bend}}));setShapes(v=>v.map(shape=>axis==='x'?{...shape,x1:shiftCoordinate(shape.x1),x2:shiftCoordinate(shape.x2)}:{...shape,y1:shiftCoordinate(shape.y1),y2:shiftCoordinate(shape.y2)}));setCanvasSize(size=>axis==='x'?{...size,w:size.w+amount}:{...size,h:size.h+amount});setSaved(false);setSelected('');setSelectedIds([]);setSelectedEdge(null);setSelectedShape(null);setBisectPreview(null);setGuideX(null);setGuideY(null);setTool('select')}
  const beginOrConfirmBisect=()=>{if(bisectPreview){bisect(bisectPreview.axis,bisectPreview.axis==='x'?bisectPreview.x:bisectPreview.y);return}const preview={axis:'x' as const,x:canvasSize.w/2,y:canvasSize.h/2};setTool('bisect-x');setConnectStart(null);setBisectPreview(preview);setGuideX(preview.x);setGuideY(null)}
  const cancelBisect=()=>{setBisectPreview(null);setGuideX(null);setGuideY(null);setTool('select')}
- const positionBisector=(e:React.PointerEvent<SVGSVGElement>)=>{if(!bisectPreview)return;const p=point(e.currentTarget,e.clientX,e.clientY);setBisectPreview(current=>current?{...current,x:p.x,y:p.y}:null);if(bisectPreview.axis==='x')setGuideX(p.x);else setGuideY(p.y)}
- const captureBisector=(e:React.PointerEvent<SVGSVGElement>)=>{if(!bisectPreview)return;e.preventDefault();e.stopPropagation();positionBisector(e)}
- const bisectCanvas=captureBisector
+ // Apply at the actual click position before node/pipe drag handlers run.
+ const bisectCanvas=(e:React.PointerEvent<SVGSVGElement>)=>{if(!bisectPreview||e.button!==0)return;e.preventDefault();e.stopPropagation();const p=point(e.currentTarget,e.clientX,e.clientY);bisect(bisectPreview.axis,bisectPreview.axis==='x'?p.x:p.y)}
  const addTube=(lineType:'tube'|'flex',at?:Point)=>{checkpoint();const p=at??{x:Math.min(canvasSize.w-100,(active?.x??420)+90),y:active?.y??220},id=uid();setEdges(v=>[...v,{id,start:{x:p.x-65,y:p.y},end:{x:p.x+65,y:p.y},lineType}]);setSelected('');setSelectedIds([]);setSelectedShape(null);setSelectedEdge(id);setSaved(false)}
  const canvasWheel=(e:WheelEvent)=>{const scroller=canvasScrollRef.current;if(!e.altKey||!scroller||!(e.target instanceof Node)||!scroller.contains(e.target))return;e.preventDefault();e.stopImmediatePropagation();const delta=Math.abs(e.deltaY)>=Math.abs(e.deltaX)?e.deltaY:e.deltaX,rect=scroller.getBoundingClientRect(),cx=e.clientX-rect.left,cy=e.clientY-rect.top;setZoom(old=>{const next=Math.max(.4,Math.min(2,+(old*(delta<0?1.1:.9)).toFixed(2))),ratio=next/old,scrollLeft=scroller.scrollLeft,scrollTop=scroller.scrollTop;requestAnimationFrame(()=>{scroller.scrollLeft=(scrollLeft+cx)*ratio-cx;scroller.scrollTop=(scrollTop+cy)*ratio-cy});return next})}
  useEffect(()=>{window.addEventListener('wheel',canvasWheel,{passive:false,capture:true});return()=>window.removeEventListener('wheel',canvasWheel,{capture:true})},[])
