@@ -172,6 +172,24 @@ function splitRenderedEdge(edge:Edge,nodes:Node[],hit:{p:Point;segment:number},j
   {...edge,id:uid(),from:junction,fromPort:undefined,toPort:fixedPort(b,edge.toPort,route.at(-1)!),start:undefined,bend:undefined,waypoints:right}
  ];
 }
+// A junction has no named ports: its connected run supplies the alignment axis.
+function snapConnectedNode(node:Node,nodes:Node[],edges:Edge[],moving:string[],delta:Point){
+ const wired=edges.flatMap(edge=>{
+  if(edge.from!==node.id&&edge.to!==node.id)return[];
+  const from=edge.from===node.id,other=nodes.find(n=>n.id===(from?edge.to:edge.from));
+  if(!other||moving.includes(other.id))return[];
+  const ownPort=from?edge.fromPort:edge.toPort,otherPort=from?edge.toPort:edge.fromPort,ownAxis=portAxis(node,ownPort);
+  const otherAxis=other.kind==='junction'?ownAxis:portAxis(other,otherPort);
+  return[{own:ownPort?portPoint(node,ownPort):{x:node.x,y:node.y},target:otherPort?portPoint(other,otherPort):{x:other.x,y:other.y},ownAxis,otherAxis}];
+ });
+ if(!wired.length)return null;
+ const xPorts=wired.filter(c=>c.ownAxis==='x').length,yPorts=wired.filter(c=>c.ownAxis==='y').length;
+ const axis=xPorts>yPorts||(xPorts===yPorts&&Math.abs(delta.x)>=Math.abs(delta.y))?'x':'y';
+ const tiers=[wired.filter(c=>c.ownAxis===axis&&c.otherAxis===axis),wired.filter(c=>c.otherAxis===axis),wired];
+ const refs=tiers.find(t=>t.length)!,coordinate=axis==='x'?'y':'x';
+ const best=refs.map(c=>({amount:c.target[coordinate]-c.own[coordinate],guide:c.target[coordinate]})).reduce((a,b)=>Math.abs(b.amount-delta[coordinate])<Math.abs(a.amount-delta[coordinate])?b:a);
+ return{axis,delta:{...delta,[coordinate]:best.amount},guide:best.guide};
+}
 function projectToRoute(raw:Point,points:Point[]){let best={p:points[0],segment:0,d:Infinity};for(let i=0;i<points.length-1;i++){const a=points[i],b=points[i+1],dx=b.x-a.x,dy=b.y-a.y,t=Math.max(0,Math.min(1,((raw.x-a.x)*dx+(raw.y-a.y)*dy)/(dx*dx+dy*dy||1))),p={x:a.x+t*dx,y:a.y+t*dy},d=(raw.x-p.x)**2+(raw.y-p.y)**2;if(d<best.d)best={p,segment:i,d}}return best}
 function autoLabelPosition(n:Node,nodes:Node[],edges:Edge[]){const[rx,ry]=radius(n),vertical=(Math.abs(n.rotation??0)%180)===90,candidates=vertical?[{x:rx+12,y:4,anchor:'start' as const},{x:-rx-12,y:4,anchor:'end' as const},{x:0,y:ry+19,anchor:'middle' as const},{x:0,y:-ry-11,anchor:'middle' as const}]:[{x:0,y:ry+19,anchor:'middle' as const},{x:rx+12,y:4,anchor:'start' as const},{x:-rx-12,y:4,anchor:'end' as const},{x:0,y:-ry-11,anchor:'middle' as const}],routes=edges.filter(e=>e.from===n.id||e.to===n.id).map(e=>edgeRoute(e,nodes)),vent=n.ventsToAmbient?ventRoute(n,edges,nodes):null;return candidates.map((candidate,index)=>{const p={x:n.x+candidate.x,y:n.y+candidate.y},nodePenalty=nodes.filter(other=>other.id!==n.id).reduce((sum,other)=>{const[ox,oy]=radius(other);return sum+(Math.abs(p.x-other.x)<ox+45&&Math.abs(p.y-other.y)<oy+14?10000:0)},0),pipePenalty=routes.reduce((sum,route)=>sum+(projectToRoute(p,route).d<18*18?2500:0),0),ventPenalty=vent&&projectToRoute(p,vent).d<28*28?12000:0;return{candidate,score:nodePenalty+pipePenalty+ventPenalty+index}}).sort((a,b)=>a.score-b.score)[0].candidate}
 
@@ -518,29 +536,10 @@ const [nodes,setNodes]=useState<Node[]>([])
   const up=()=>{setGuideX(null);setGuideY(null);window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up)};window.addEventListener('pointermove',move);window.addEventListener('pointerup',up)
  }
  const edgeDown=(edgeId:string,e:React.PointerEvent<SVGGElement>)=>{if(tool!=='select')return;e.preventDefault();e.stopPropagation();const svg=e.currentTarget.ownerSVGElement!,edge=edges.find(x=>x.id===edgeId);if(!edge)return;const route=edgeRoute(edge,nodes),a=route[0],b=route[route.length-1],start=point(svg,e.clientX,e.clientY);setSelected('');setSelectedIds([]);setSelectedShape(null);setSelectedEdge(edgeId);let moved=false;const move=(ev:PointerEvent)=>{const p=point(svg,ev.clientX,ev.clientY),dx=p.x-start.x,dy=p.y-start.y;if(!moved){checkpoint();moved=true;didDrag.current=true}setEdges(v=>v.map(x=>x.id===edgeId?{...x,from:undefined,to:undefined,fromPort:undefined,toPort:undefined,start:{x:a.x+dx,y:a.y+dy},end:{x:b.x+dx,y:b.y+dy},waypoints:undefined}:x));setSaved(false)},up=()=>{setTimeout(()=>{didDrag.current=false},0);window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up)};window.addEventListener('pointermove',move);window.addEventListener('pointerup',up)}
- const dragNode=(id:string,e:React.PointerEvent)=>{if(tool!=='select')return;e.preventDefault();e.stopPropagation();const group=selectedIds.includes(id)?selectedIds:[id],origins=new Map(nodes.filter(n=>group.includes(n.id)).map(n=>[n.id,{x:n.x,y:n.y}])),anchor=origins.get(id)!,connections=edges.flatMap(edge=>{if(edge.from!==id&&edge.to!==id)return[];const otherId=edge.from===id?edge.to:edge.from,other=nodes.find(n=>n.id===otherId),ownPort=edge.from===id?edge.fromPort:edge.toPort,otherPort=edge.from===id?edge.toPort:edge.fromPort;return other?[{other,ownPort,otherPort,ownAxis:portAxis(nodes.find(n=>n.id===id)!,ownPort),otherAxis:portAxis(other,otherPort),
-  // Actual connection point on the other node (port location, not center)
-  connPoint:otherPort?portPoint(other,otherPort):{x:other.x,y:other.y}}]:[]});if(!selectedIds.includes(id)&&!e.shiftKey){setSelectedIds([id]);setSelected(id)}setSelectedEdge(null);setSelectedShape(null);const svg=(e.currentTarget as SVGGElement).ownerSVGElement!,start=point(svg,e.clientX,e.clientY);let captured=false,finalP:Point|null=null;const move=(ev:PointerEvent)=>{if(!captured){checkpoint();captured=true;didDrag.current=true;if(!selectedIds.includes(id)){setSelectedIds([id]);setSelected(id)}}const p=point(svg,ev.clientX,ev.clientY);let dx=p.x-start.x,dy=p.y-start.y;if(ev.shiftKey){
-  // Shift-snap: align the dragged component's own connected port onto the port
-  // it is wired to (port-to-port, never center-to-center). The axis comes from
-  // the dragged component's OWN ports, majority wins (a tee wired
-  // left+right+bottom aligns horizontally; the bottom branch does not outvote
-  // the run); ties follow the drag direction. Only connections that also run
-  // along that axis at BOTH ends (a straight run, not a 90-degree bend into
-  // another component) provide the reference line; bends and port-less links
-  // only win if nothing straighter is wired up. Components inside the drag
-  // group move together, so they never provide references or votes.
-  const wired=connections.filter(c=>!group.includes(c.other.id)),xPorts=wired.filter(c=>c.ownAxis==='x').length,yPorts=wired.filter(c=>c.ownAxis==='y').length,alignH=xPorts>yPorts||(xPorts===yPorts&&Math.abs(dx)>=Math.abs(dy)),selfNode=nodes.find(n=>n.id===id);
-  let snapped=false;
-  if(selfNode&&wired.length){
-    const axis=alignH?'x':'y',tiers=[wired.filter(c=>c.ownAxis===axis&&c.otherAxis===axis),wired.filter(c=>c.otherAxis===axis),wired],refs=tiers.find(t=>t.length)??wired;
-    let bestDelta: number|undefined,bestGuide=0;
-    for(const c of refs){
-      const ownP=c.ownPort?portPoint(selfNode,c.ownPort):{x:selfNode.x,y:selfNode.y},delta=alignH?c.connPoint.y-ownP.y:c.connPoint.x-ownP.x,current=alignH?dy:dx;
-      if(bestDelta===undefined||Math.abs(delta-current)<Math.abs(bestDelta-current)){bestDelta=delta;bestGuide=alignH?c.connPoint.y:c.connPoint.x}
-    }
-    if(bestDelta!==undefined){if(alignH){dy=bestDelta;setGuideY(bestGuide);setGuideX(null)}else{dx=bestDelta;setGuideX(bestGuide);setGuideY(null)}snapped=true}
-  }
+ const dragNode=(id:string,e:React.PointerEvent)=>{if(tool!=='select')return;e.preventDefault();e.stopPropagation();const group=selectedIds.includes(id)?selectedIds:[id],origins=new Map(nodes.filter(n=>group.includes(n.id)).map(n=>[n.id,{x:n.x,y:n.y}])),anchor=origins.get(id)!;if(!selectedIds.includes(id)&&!e.shiftKey){setSelectedIds([id]);setSelected(id)}setSelectedEdge(null);setSelectedShape(null);const svg=(e.currentTarget as SVGGElement).ownerSVGElement!,start=point(svg,e.clientX,e.clientY);let captured=false,finalP:Point|null=null;const move=(ev:PointerEvent)=>{if(!captured){checkpoint();captured=true;didDrag.current=true;if(!selectedIds.includes(id)){setSelectedIds([id]);setSelected(id)}}const p=point(svg,ev.clientX,ev.clientY);let dx=p.x-start.x,dy=p.y-start.y;if(ev.shiftKey){
+  const selfNode=nodes.find(n=>n.id===id)!,snap=snapConnectedNode(selfNode,nodes,edges,group,{x:dx,y:dy});
+  const alignH=snap?.axis==='x'||(!snap&&Math.abs(dx)>=Math.abs(dy)),snapped=!!snap;
+  if(snap){dx=snap.delta.x;dy=snap.delta.y;setGuideX(snap.axis==='y'?snap.guide:null);setGuideY(snap.axis==='x'?snap.guide:null)}
   if(!snapped){
     let applied=false;
     if(alignH){const snap=nodes.filter(n=>!group.includes(n.id)).map(n=>n.y).sort((a,b)=>Math.abs(a-(anchor.y+dy))-Math.abs(b-(anchor.y+dy)))[0];if(snap!==undefined){dy=snap-anchor.y;setGuideY(snap);setGuideX(null);applied=true}}
