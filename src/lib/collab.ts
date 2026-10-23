@@ -196,8 +196,8 @@ function pruneDanglingEdges(c: CollabDoc): boolean {
 export function pushStateToDoc(c: CollabDoc, state: DocState, base?: DocState | null, explicitlyDeleted?: Set<string>): boolean {
   const nextCanvas = clean(state.canvasSize);
   const nextSop = state.sop == null ? null : clean(state.sop);
-  const canvasChanged = JSON.stringify(toJSON(c.meta.get('canvasSize'))) !== JSON.stringify(nextCanvas);
-  const sopChanged = JSON.stringify(toJSON(c.meta.get('sop')) ?? null) !== JSON.stringify(nextSop);
+  const canvasChanged = JSON.stringify(toJSON(c.meta.get('canvasSize'))) !== JSON.stringify(nextCanvas) && (!base || JSON.stringify(base.canvasSize) !== JSON.stringify(nextCanvas));
+  const sopChanged = JSON.stringify(toJSON(c.meta.get('sop')) ?? null) !== JSON.stringify(nextSop) && (!base || JSON.stringify(base.sop ?? null) !== JSON.stringify(nextSop));
   const nameChanged=state.projectName!==undefined&&c.meta.get('projectName')!==state.projectName&&(!base||state.projectName!==base.projectName);
   const extraMaps:[Y.Map<unknown>,{id:string}[],{id:string}[],string][]=[
     [c.testPlans,state.testPlans??[],base?.testPlans??[],'testPlan'],[c.sequences,state.sequences??[],base?.sequences??[],'sequence'],
@@ -213,18 +213,17 @@ export function pushStateToDoc(c: CollabDoc, state: DocState, base?: DocState | 
     sopChanged || nameChanged || extraMaps.some(([map,items])=>diffIdMap(map,items));
   if (!changed) return false;
 
-  // Deletion guard: only keys this client previously pushed (present in `base`)
-  // may be deleted. A stale snapshot must never delete entities it simply has
-  // not seen yet (e.g. a collaborator's newer nodes) — those survive as adds.
-  const baseIds = (items?: { id: string }[] | null) => new Set((items ?? []).map((i) => i.id));
+  // Only explicit local deletions remove keys.
 
   c.doc.transact(
     () => {
       const syncMap = (
         ymap: Y.Map<unknown>,
         items: { id: string }[],
-        prefix: string
+        prefix: string,
+        baseItems?: { id: string }[]
       ) => {
+        const previous = new Map((baseItems ?? []).map(item => [item.id, JSON.stringify(clean(item))]));
         const nextIds = new Set(items.map((i) => i.id));
         const doomed: string[] = [];
         ymap.forEach((_v, id) => {
@@ -237,23 +236,21 @@ export function pushStateToDoc(c: CollabDoc, state: DocState, base?: DocState | 
         for (const item of items) {
           const cleaned = clean(item);
           const cur = ymap.get(item.id);
+          // Unchanged local values cannot overwrite or resurrect peer edits.
+          if (base && previous.get(item.id) === JSON.stringify(cleaned)) continue;
+          if (base && previous.has(item.id) && cur === undefined) continue;
           if (cur === undefined || JSON.stringify(toJSON(cur)) !== JSON.stringify(cleaned)) {
             ymap.set(item.id, cleaned);
           }
         }
       };
       const b = base ?? null;
-      syncMap(c.nodes, state.nodes, 'node');
-      syncMap(c.edges, state.edges, 'edge');
-      syncMap(c.shapes, state.shapes, 'shape');
-      syncMap(c.parts, (state.parts ?? []) as { id: string }[], 'part');
-      syncMap(c.customSymbols, (state.customSymbols ?? []) as { id: string }[], 'customSymbol');
-      // Only publish changed entities in the new collections, preserving unseen peer edits.
-      for(const [map,items,baseItems,prefix] of extraMaps){
-        const previous=new Map(baseItems.map(item=>[item.id,JSON.stringify(clean(item))]));const nextIds=new Set(items.map(item=>item.id));
-        for(const id of map.keys())if(!nextIds.has(id)&&explicitlyDeleted?.has(`${prefix}:${id}`))map.delete(id);
-        for(const item of items){const value=clean(item);if(JSON.stringify(value)!==previous.get(item.id)&&JSON.stringify(toJSON(map.get(item.id)))!==JSON.stringify(value))map.set(item.id,value)}
-      }
+      syncMap(c.nodes, state.nodes, 'node', b?.nodes);
+      syncMap(c.edges, state.edges, 'edge', b?.edges);
+      syncMap(c.shapes, state.shapes, 'shape', b?.shapes);
+      syncMap(c.parts, (state.parts ?? []) as { id: string }[], 'part', b?.parts);
+      syncMap(c.customSymbols, (state.customSymbols ?? []) as { id: string }[], 'customSymbol', (b?.customSymbols ?? []) as { id: string }[]);
+      for(const [map,items,baseItems,prefix] of extraMaps)syncMap(map,items,prefix,baseItems);
       pruneDanglingEdges(c);
       // symbolOverrides is a Record, sync via Y.Map
       {
