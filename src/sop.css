@@ -117,3 +117,7 @@ body.panel-open .app-sidebar-resizer[data-side="right"]{display:none}
 [data-theme="light"] .sop-workspace ::-webkit-scrollbar-track,[data-theme="light"] .sop-workspace ::-webkit-scrollbar-corner{background:#edf2f7}
 [data-theme="light"] .sop-workspace ::-webkit-scrollbar-thumb{background:#a5b6c5;border-color:#edf2f7}
 [data-theme="light"] .sop-workspace ::-webkit-scrollbar-thumb:hover{background:#7e96aa}
+
+/* Keep unfilled SOP hardware legible; commodity flow still supplies the color. */
+[data-theme="light"] .sop-diagram{--inactive-symbol:#000000;--inactive-symbol-opacity:1;--sop-inactive-pipe:#000000}
+[data-theme="light"] .sop-diagram .symbol[data-energized="false"]{--symbol-text:#000000;--symbol-text-dim:#000000}
