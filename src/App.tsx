@@ -190,6 +190,34 @@ function snapConnectedNode(node:Node,nodes:Node[],edges:Edge[],moving:string[],d
  const best=refs.map(c=>({amount:c.target[coordinate]-c.own[coordinate],guide:c.target[coordinate]})).reduce((a,b)=>Math.abs(b.amount-delta[coordinate])<Math.abs(a.amount-delta[coordinate])?b:a);
  return{axis,delta:{...delta,[coordinate]:best.amount},guide:best.guide};
 }
+// Recompute from the drag-start route on every frame; never accumulate total deltas.
+function movedEdgeWaypoints(edge:Edge,before:Node[],after:Node[]){
+ if(!edge.waypoints?.length)return edge.waypoints;
+ const original=edgeRoute(edge,before),updated=edgeRoute(edge,after);
+ if(original.length<2||updated.length<2)return edge.waypoints;
+ const start=updated[0],end=updated.at(-1)!,ds={x:start.x-original[0].x,y:start.y-original[0].y},de={x:end.x-original.at(-1)!.x,y:end.y-original.at(-1)!.y};
+ if(Math.abs(ds.x-de.x)<1e-8&&Math.abs(ds.y-de.y)<1e-8)return edge.waypoints.map(p=>({x:p.x+ds.x,y:p.y+ds.y}));
+ const orthogonal=original.slice(1).every((p,i)=>Math.abs(p.x-original[i].x)<1e-8||Math.abs(p.y-original[i].y)<1e-8);
+ if(!orthogonal){
+  // Preserve intentionally diagonal routes, tapering movement toward the fixed end.
+  const lengths=original.slice(1).map((p,i)=>Math.hypot(p.x-original[i].x,p.y-original[i].y)),total=lengths.reduce((a,b)=>a+b,0);let distance=0;
+  return edge.waypoints.map((p,i)=>{distance+=lengths[i];const t=total?distance/total:.5;return{x:p.x+ds.x*(1-t)+de.x*t,y:p.y+ds.y*(1-t)+de.y*t}});
+ }
+ const route:Point[]=[];
+ for(const p of original){
+  if(route.length&&Math.hypot(p.x-route.at(-1)!.x,p.y-route.at(-1)!.y)<1e-8)continue;
+  while(route.length>1){const a=route.at(-2)!,b=route.at(-1)!;if(Math.abs((b.x-a.x)*(p.y-b.y)-(b.y-a.y)*(p.x-b.x))>1e-8)break;route.pop()}
+  route.push({...p});
+ }
+ if(route.length<3){
+  const horizontal=original.some((p,i)=>i>0&&Math.abs(p.x-original[i-1].x)>1e-8);
+  return horizontal?[{x:(start.x+end.x)/2,y:start.y},{x:(start.x+end.x)/2,y:end.y}]:[{x:start.x,y:(start.y+end.y)/2},{x:end.x,y:(start.y+end.y)/2}];
+ }
+ const firstHorizontal=Math.abs(route[0].y-route[1].y)<1e-8,lastHorizontal=Math.abs(route.at(-1)!.y-route.at(-2)!.y)<1e-8;
+ route[1][firstHorizontal?'y':'x']=start[firstHorizontal?'y':'x'];
+ route[route.length-2][lastHorizontal?'y':'x']=end[lastHorizontal?'y':'x'];
+ return route.slice(1,-1);
+}
 function projectToRoute(raw:Point,points:Point[]){let best={p:points[0],segment:0,d:Infinity};for(let i=0;i<points.length-1;i++){const a=points[i],b=points[i+1],dx=b.x-a.x,dy=b.y-a.y,t=Math.max(0,Math.min(1,((raw.x-a.x)*dx+(raw.y-a.y)*dy)/(dx*dx+dy*dy||1))),p={x:a.x+t*dx,y:a.y+t*dy},d=(raw.x-p.x)**2+(raw.y-p.y)**2;if(d<best.d)best={p,segment:i,d}}return best}
 function autoLabelPosition(n:Node,nodes:Node[],edges:Edge[]){const[rx,ry]=radius(n),vertical=(Math.abs(n.rotation??0)%180)===90,candidates=vertical?[{x:rx+12,y:4,anchor:'start' as const},{x:-rx-12,y:4,anchor:'end' as const},{x:0,y:ry+19,anchor:'middle' as const},{x:0,y:-ry-11,anchor:'middle' as const}]:[{x:0,y:ry+19,anchor:'middle' as const},{x:rx+12,y:4,anchor:'start' as const},{x:-rx-12,y:4,anchor:'end' as const},{x:0,y:-ry-11,anchor:'middle' as const}],routes=edges.filter(e=>e.from===n.id||e.to===n.id).map(e=>edgeRoute(e,nodes)),vent=n.ventsToAmbient?ventRoute(n,edges,nodes):null;return candidates.map((candidate,index)=>{const p={x:n.x+candidate.x,y:n.y+candidate.y},nodePenalty=nodes.filter(other=>other.id!==n.id).reduce((sum,other)=>{const[ox,oy]=radius(other);return sum+(Math.abs(p.x-other.x)<ox+45&&Math.abs(p.y-other.y)<oy+14?10000:0)},0),pipePenalty=routes.reduce((sum,route)=>sum+(projectToRoute(p,route).d<18*18?2500:0),0),ventPenalty=vent&&projectToRoute(p,vent).d<28*28?12000:0;return{candidate,score:nodePenalty+pipePenalty+ventPenalty+index}}).sort((a,b)=>a.score-b.score)[0].candidate}
 
@@ -536,7 +564,7 @@ const [nodes,setNodes]=useState<Node[]>([])
   const up=()=>{setGuideX(null);setGuideY(null);window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up)};window.addEventListener('pointermove',move);window.addEventListener('pointerup',up)
  }
  const edgeDown=(edgeId:string,e:React.PointerEvent<SVGGElement>)=>{if(tool!=='select')return;e.preventDefault();e.stopPropagation();const svg=e.currentTarget.ownerSVGElement!,edge=edges.find(x=>x.id===edgeId);if(!edge)return;const route=edgeRoute(edge,nodes),a=route[0],b=route[route.length-1],start=point(svg,e.clientX,e.clientY);setSelected('');setSelectedIds([]);setSelectedShape(null);setSelectedEdge(edgeId);let moved=false;const move=(ev:PointerEvent)=>{const p=point(svg,ev.clientX,ev.clientY),dx=p.x-start.x,dy=p.y-start.y;if(!moved){checkpoint();moved=true;didDrag.current=true}setEdges(v=>v.map(x=>x.id===edgeId?{...x,from:undefined,to:undefined,fromPort:undefined,toPort:undefined,start:{x:a.x+dx,y:a.y+dy},end:{x:b.x+dx,y:b.y+dy},waypoints:undefined}:x));setSaved(false)},up=()=>{setTimeout(()=>{didDrag.current=false},0);window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up)};window.addEventListener('pointermove',move);window.addEventListener('pointerup',up)}
- const dragNode=(id:string,e:React.PointerEvent)=>{if(tool!=='select')return;e.preventDefault();e.stopPropagation();const group=selectedIds.includes(id)?selectedIds:[id],origins=new Map(nodes.filter(n=>group.includes(n.id)).map(n=>[n.id,{x:n.x,y:n.y}])),anchor=origins.get(id)!;if(!selectedIds.includes(id)&&!e.shiftKey){setSelectedIds([id]);setSelected(id)}setSelectedEdge(null);setSelectedShape(null);const svg=(e.currentTarget as SVGGElement).ownerSVGElement!,start=point(svg,e.clientX,e.clientY);let captured=false,finalP:Point|null=null;const move=(ev:PointerEvent)=>{if(!captured){checkpoint();captured=true;didDrag.current=true;if(!selectedIds.includes(id)){setSelectedIds([id]);setSelected(id)}}const p=point(svg,ev.clientX,ev.clientY);let dx=p.x-start.x,dy=p.y-start.y;if(ev.shiftKey){
+ const dragNode=(id:string,e:React.PointerEvent)=>{if(tool!=='select')return;e.preventDefault();e.stopPropagation();const group=selectedIds.includes(id)?selectedIds:[id],origins=new Map(nodes.filter(n=>group.includes(n.id)).map(n=>[n.id,{x:n.x,y:n.y}])),anchor=origins.get(id)!,dragEdges=new Map(edges.map(edge=>[edge.id,edge]));if(!selectedIds.includes(id)&&!e.shiftKey){setSelectedIds([id]);setSelected(id)}setSelectedEdge(null);setSelectedShape(null);const svg=(e.currentTarget as SVGGElement).ownerSVGElement!,start=point(svg,e.clientX,e.clientY);let captured=false,finalP:Point|null=null;const move=(ev:PointerEvent)=>{if(!captured){checkpoint();captured=true;didDrag.current=true;if(!selectedIds.includes(id)){setSelectedIds([id]);setSelected(id)}}const p=point(svg,ev.clientX,ev.clientY);let dx=p.x-start.x,dy=p.y-start.y;if(ev.shiftKey){
   const selfNode=nodes.find(n=>n.id===id)!,snap=snapConnectedNode(selfNode,nodes,edges,group,{x:dx,y:dy});
   const alignH=snap?.axis==='x'||(!snap&&Math.abs(dx)>=Math.abs(dy)),snapped=!!snap;
   if(snap){dx=snap.delta.x;dy=snap.delta.y;setGuideX(snap.axis==='y'?snap.guide:null);setGuideY(snap.axis==='x'?snap.guide:null)}
@@ -547,26 +575,13 @@ const [nodes,setNodes]=useState<Node[]>([])
     if(!applied){setGuideX(null);setGuideY(null)}
   }
 }const jSelf=nodes.find(n=>n.id===id);if(jSelf?.kind==='junction'&&jSelf.slide&&group.length===1){const JA=nodes.find(n=>n.id===jSelf.slide!.a),JB=nodes.find(n=>n.id===jSelf.slide!.b);if(JA&&JB){const wA=(e:Edge|undefined,rev:boolean)=>!e?.waypoints?[]:rev?[...e.waypoints].reverse():e.waypoints,eAJ=edges.find(x=>(x.from===id&&x.to===JA.id)||(x.to===id&&x.from===JA.id)),eBJ=edges.find(x=>(x.from===id&&x.to===JB.id)||(x.to===id&&x.from===JB.id)),path=[{x:JA.x,y:JA.y},...wA(eAJ,eAJ?.to===JA.id),{x:jSelf.x,y:jSelf.y},...wA(eBJ,eBJ?.from===JB.id),{x:JB.x,y:JB.y}],pj=projectToRoute(p,path).p;dx=pj.x-anchor.x;dy=pj.y-anchor.y;setGuideX(null);setGuideY(null)}}finalP={x:anchor.x+dx,y:anchor.y+dy};setNodes(v=>v.map(n=>{const origin=origins.get(n.id);return origin?{...n,x:Math.max(60,Math.min(canvasSize.w-60,origin.x+dx)),y:Math.max(55,Math.min(canvasSize.h-55,origin.y+dy))}:n}));
-// Translate waypoints of connected edges by the same delta so they don't leave stale lines
+// Anchor fixed endpoints and compute every frame from the drag-start geometry.
+const nextNodes=nodes.map(n=>{const origin=origins.get(n.id);return origin?{...n,x:Math.max(60,Math.min(canvasSize.w-60,origin.x+dx)),y:Math.max(55,Math.min(canvasSize.h-55,origin.y+dy))}:n});
 setEdges(v=>v.map(e=>{
-  if(!e.waypoints?.length) return e;const jnTop=nodes.find(n=>n.id===id);if(jnTop?.kind==='junction'&&jnTop.slide&&group.length===1&&((e.from===id&&(e.to===jnTop.slide.a||e.to===jnTop.slide.b))||(e.to===id&&(e.from===jnTop.slide.a||e.from===jnTop.slide.b))))return e;
-  const fromMoving=origins.has(e.from??''), toMoving=origins.has(e.to??'');
-  if(!fromMoving&&!toMoving) return e;
-  // If both ends move together, translate by the drag delta
-  // If only one end moves, translate waypoints by that node's actual delta
-  let ddx=dx, ddy=dy;
-  if(fromMoving!==toMoving){
-    const movingId=fromMoving?e.from:e.to;
-    const origin=origins.get(movingId!);
-    const node=nodes.find(n=>n.id===movingId);
-    if(origin&&node){
-      // Use the actual movement (accounting for canvas clamping)
-      const newX=Math.max(60,Math.min(canvasSize.w-60,origin.x+dx));
-      const newY=Math.max(55,Math.min(canvasSize.h-55,origin.y+dy));
-      ddx=newX-node.x; ddy=newY-node.y;
-    }
-  }
-  return {...e, waypoints:e.waypoints.map(w=>({x:w.x+ddx, y:w.y+ddy}))};
+ const original=dragEdges.get(e.id);if(!original?.waypoints?.length)return e;
+ const jnTop=nodes.find(n=>n.id===id);if(jnTop?.kind==='junction'&&jnTop.slide&&group.length===1&&((e.from===id&&(e.to===jnTop.slide.a||e.to===jnTop.slide.b))||(e.to===id&&(e.from===jnTop.slide.a||e.from===jnTop.slide.b))))return e;
+ if(!origins.has(original.from??'')&&!origins.has(original.to??''))return e;
+ return{...e,waypoints:movedEdgeWaypoints(original,nodes,nextNodes)};
 }));
 setSaved(false)};const up=()=>{setGuideY(null);setGuideX(null);const jUp=nodes.find(n=>n.id===id);if(finalP&&jUp?.kind==='junction'&&group.length===1){const other=nodes.filter(n=>n.id!==id&&n.kind==='junction'&&Math.hypot(n.x-finalP!.x,n.y-finalP!.y)<=14/zoom).sort((m,n)=>Math.hypot(m.x-finalP!.x,m.y-finalP!.y)-Math.hypot(n.x-finalP!.x,n.y-finalP!.y))[0];if(other){setNodes(v=>v.filter(n=>n.id!==id).map(n=>{if(!n.slide||(n.slide.a!==id&&n.slide.b!==id))return n;let na=n.slide.a===id?other.id:n.slide.a,nb=n.slide.b===id?other.id:n.slide.b;if(na===n.id)na=jUp.slide&&jUp.slide.a!==other.id?jUp.slide.a:jUp.slide&&jUp.slide.b!==other.id?jUp.slide.b:na;if(nb===n.id)nb=jUp.slide&&jUp.slide.b!==other.id?jUp.slide.b:jUp.slide&&jUp.slide.a!==other.id?jUp.slide.a:nb;return{...n,slide:na===nb||na===n.id||nb===n.id?undefined:{a:na,b:nb}}}));setEdges(v=>v.map(e=>({...e,from:e.from===id?other.id:e.from,to:e.to===id?other.id:e.to})).filter(e=>!(e.from&&e.from===e.to&&e.from===other.id)));setSelected(other.id);setSelectedIds([other.id]);setSaved(false)}}setTimeout(()=>{didDrag.current=false},0);window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up)};window.addEventListener('pointermove',move);window.addEventListener('pointerup',up)}
  const marquee=(e:React.PointerEvent<SVGRectElement>)=>{if(tool!=='select')return;e.preventDefault();const svg=e.currentTarget.ownerSVGElement!,start=point(svg,e.clientX,e.clientY),extend=e.shiftKey;setSelectionBox({x1:start.x,y1:start.y,x2:start.x,y2:start.y});const move=(ev:PointerEvent)=>{const p=point(svg,ev.clientX,ev.clientY);setSelectionBox({x1:start.x,y1:start.y,x2:p.x,y2:p.y})};const up=(ev:PointerEvent)=>{const end=point(svg,ev.clientX,ev.clientY),minX=Math.min(start.x,end.x),maxX=Math.max(start.x,end.x),minY=Math.min(start.y,end.y),maxY=Math.max(start.y,end.y),moved=Math.abs(end.x-start.x)>3||Math.abs(end.y-start.y)>3,inside=moved?nodes.filter(n=>n.kind!=='junction'&&n.x>=minX&&n.x<=maxX&&n.y>=minY&&n.y<=maxY).map(n=>n.id):[],next=extend?[...new Set([...selectedIds,...inside])]:inside;setSelectedIds(next);setSelected(next.at(-1)??'');setSelectedEdge(null);setSelectedShape(null);setSelectionBox(null);window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up)};window.addEventListener('pointermove',move);window.addEventListener('pointerup',up)}
