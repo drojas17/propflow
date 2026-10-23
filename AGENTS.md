@@ -49,7 +49,7 @@ Live site: https://propflow.drojas.me — Daniel Rojas (drojas17) is the owner; 
 - pushStateToDoc() and mergeRemoteProject() prune edges whose endpoints are missing (pruneDanglingEdges). hydrate() also drops dangling edges on load.
 - Renderers must tolerate dangling edges anyway: edgeRoute() returns [] and pointsPath() returns '' for a missing endpoint. Never draw an edge to (0,0).
 - Free-floating pipe stubs (no from/to, explicit endpoints) are legal and must be preserved.
-- Merging is whole-entity last-writer-wins per node/edge; remote sync clears the local selection (known quirk).
+- Merging is whole-entity last-writer-wins per node/edge; remote sync preserves valid local selections and clears only entities that no longer exist in the active configuration.
 
 ## Product rules Daniel has set
 

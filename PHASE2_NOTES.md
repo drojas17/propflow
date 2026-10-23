@@ -1,5 +1,8 @@
 # Phase 2 — Supabase persistence + Yjs realtime collaboration
 
+> Historical implementation notes. The current baseline uses whole-entity Yjs values; a test configuration is one whole entity. The old “no last-writer-wins” description below is inaccurate. See [the collaboration audit](docs/collaboration-audit.md) for reproduced join conflicts, snapshot-save races, deployed stale-state/selection fixes, and the recommended next pass.
+
+
 Branch: `phase-2-supabase-yjs` (do not push until reviewed)
 Date: 2026-09-28
 
@@ -41,7 +44,7 @@ Date: 2026-09-28
 
 Google Docs-like, per project: everyone with the same project open shares one live
 document. Local edits broadcast over Supabase Realtime and merge via Yjs CRDT —
-no locking, no last-writer-wins. A debounced canonical snapshot keeps
+no locking, with conflicts resolved at the whole-entity level. A debounced JSON snapshot keeps
 `project_documents` durable for fresh loads. Presence (cursor + selection) rides
 the same channel via Yjs Awareness.
 

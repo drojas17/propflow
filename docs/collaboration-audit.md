@@ -11,6 +11,10 @@ Scope: source review, deterministic Yjs interleavings, and two independent live 
 
 Validation: `node scripts/check-collaboration.mjs`, `node scripts/check-planning.mjs`, production build, and live two-tab validation after deployment. The collaboration regression includes core entity collections, remote deletions, shared metadata, new entities, explicit deletion, and undo.
 
+## Live validation of this pass
+
+On the deployed fix, both tabs converged on FCV-2 label X=51 while tab A kept FTV-1 selected. Editing FTV-1 label X in A and then undoing it restored its original 49.47526901323795 value while B's FCV-2 edit remained 51. Deleting FCV-2 in A removed it in B, cleared B's now-invalid selection, and persisted with zero dangling edges. The test project is deleted after the reload check. No production team diagrams were edited. The two tabs shared one network, so this is not a latency or packet-loss benchmark.
+
 ## Significant remaining problems
 
 ### P1: An older peer can overwrite a live edit during the initial handshake
