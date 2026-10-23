@@ -53,3 +53,24 @@
 }
 
 .tour-project-name{font-size:13px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:#52d4ff}
+
+/* Landing uses the editor's light palette instead of dark-only surface colors. */
+[data-theme="light"] .landing{color:var(--symbol-text);--text:#1a2b3a;--input-bg:#f8fafc;--border:#c0cdd9}
+[data-theme="light"] .landing-top{background:var(--panel);border-color:var(--line)}
+[data-theme="light"] .landing-brand span,[data-theme="light"] .landing-user,[data-theme="light"] .landing-lede,[data-theme="light"] .landing-or,[data-theme="light"] .landing-empty,[data-theme="light"] .pillar span{color:var(--muted)}
+[data-theme="light"] .landing-brand .landing-mark{background:#dceef6;color:var(--cyan)}
+[data-theme="light"] .landing-logo{mix-blend-mode:normal;filter:brightness(0);opacity:.88}
+[data-theme="light"] .pillar,[data-theme="light"] .tutorial-card{background:var(--panel);border-color:var(--line);box-shadow:0 3px 12px #1a2b3a05}
+[data-theme="light"] .pillar svg,[data-theme="light"] .project-card span{color:var(--cyan)}
+[data-theme="light"] .landing-cta .primary{background:#0e7aa8;color:#ffffff}
+[data-theme="light"] .landing-cta .primary:hover{background:#09658d}
+[data-theme="light"] .landing-projects{background:#e8eef4;border-color:var(--line)}
+[data-theme="light"] .project-card{background:var(--panel);border-color:#c0cdd9;color:var(--symbol-text)}
+[data-theme="light"] .project-card:hover{background:#f4faff;border-color:var(--cyan)}
+[data-theme="light"] .project-download{background:#edf6fb;border-color:#b8d7e5;color:var(--cyan)}
+[data-theme="light"] .project-download:hover{background:#dceef6;border-color:var(--cyan)}
+[data-theme="light"] .landing .ghost{background:var(--panel);border-color:#c0cdd9;color:var(--symbol-text)}
+[data-theme="light"] .landing .ghost:hover,[data-theme="light"] .project-rename:hover{border-color:var(--cyan);color:var(--cyan);background:#edf6fb}
+[data-theme="light"] .landing button:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+[data-theme="light"] .tutorial-icon{background:#dceef6;color:var(--cyan)}
+[data-theme="light"] .tutorial-card p,[data-theme="light"] .tutorial-card small{color:var(--muted)}
