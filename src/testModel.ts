@@ -2,7 +2,10 @@ import {emptySop, type SopDocument} from './sopModel'
 
 export type Sequence = {id:string; name:string; document:SopDocument}
 export type DiagramSnapshot = {nodes:unknown[]; edges:unknown[]; shapes:unknown[]; canvasSize:{w:number;h:number}; sop:SopDocument; sequences:Sequence[]}
-export type TestPlan = DiagramSnapshot & {id:string; name:string; type:'cold-flow'|'hot-fire'|'hover'|'other'}
+export type TestPlan = DiagramSnapshot & {id:string; name:string; type:string}
+export const defaultTestTypes = ['cold-flow','hot-fire','hover']
+const testTypeLabels=new Map([['cold-flow','Cold flow'],['hot-fire','Hot fire'],['hover','Hover test'],['other','Other']])
+export const testTypeLabel = (type:string)=>testTypeLabels.get(type)??type
 export type FailureEvent = {id:string; title:string; kind:'event'|'and'|'or'; category:string; children:string[]; componentIds:string[]; detection:string; response:string}
 export type FailureScope = {testId:string; sequenceId?:string; stepId?:string}
 export type FailureTree = {id:string; title:string; rootId:string; scopes:FailureScope[]}
@@ -43,7 +46,7 @@ export function validateSop(raw:unknown):SopDocument{
 }
 export function validateExtensions(raw:Record<string,unknown>,validateDiagram:(v:Record<string,unknown>)=>DiagramSnapshot){
  const sequences=(v:unknown):Sequence[]=>{if(v===undefined)return[];if(!Array.isArray(v)||v.length>100)throw new Error('Invalid SOP sequences.');const seen=new Set<string>();return v.map(s=>{if(!s||typeof s.id!=='string'||!s.id||seen.has(s.id)||typeof s.name!=='string')throw new Error('Invalid or duplicate SOP sequence.');seen.add(s.id);return {...s,document:validateSop(s.document)}})};
- let testPlans:TestPlan[]=[];if(raw.testPlans!==undefined){if(!Array.isArray(raw.testPlans)||raw.testPlans.length>100)throw new Error('Invalid test configurations.');const seen=new Set<string>();testPlans=raw.testPlans.map(t=>{if(!t||typeof t.id!=='string'||!t.id||t.id==='baseline'||seen.has(t.id)||typeof t.name!=='string'||!['cold-flow','hot-fire','hover','other'].includes(t.type))throw new Error('Invalid or duplicate test configuration.');seen.add(t.id);return {...t,...validateDiagram(t),sequences:sequences(t.sequences)}})}
+ let testPlans:TestPlan[]=[];if(raw.testPlans!==undefined){if(!Array.isArray(raw.testPlans)||raw.testPlans.length>100)throw new Error('Invalid test configurations.');const seen=new Set<string>();testPlans=raw.testPlans.map(t=>{if(!t||typeof t.id!=='string'||!t.id||t.id==='baseline'||seen.has(t.id)||typeof t.name!=='string'||typeof t.type!=='string'||!t.type.trim()||t.type.length>120)throw new Error('Invalid or duplicate test configuration.');seen.add(t.id);return {...t,...validateDiagram(t),type:t.type.trim(),sequences:sequences(t.sequences)}})}
  const failureAnalysis=(raw.failureAnalysis??emptyFailures()) as FailureAnalysis;
  if(!failureAnalysis||!Array.isArray(failureAnalysis.events)||!Array.isArray(failureAnalysis.trees)||failureAnalysis.events.length>5000||failureAnalysis.trees.length>500)throw new Error('Invalid failure analysis.');
  const eventIds=new Set<string>(),treeIds=new Set<string>();for(const e of failureAnalysis.events){if(!e||typeof e.id!=='string'||!e.id||eventIds.has(e.id)||typeof e.title!=='string'||!['event','and','or'].includes(e.kind)||typeof e.category!=='string'||typeof e.detection!=='string'||typeof e.response!=='string'||!Array.isArray(e.children)||e.children.some(x=>typeof x!=='string')||new Set(e.children).size!==e.children.length||!Array.isArray(e.componentIds)||e.componentIds.some(x=>typeof x!=='string'))throw new Error('Invalid failure event.');eventIds.add(e.id)}

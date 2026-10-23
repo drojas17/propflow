@@ -40,6 +40,17 @@ const doc={...diagram,testPlans:[plan],projectName:'Review project',failureAnaly
 const file=new File([JSON.stringify({format:'propflow-project',version:2,...doc})],'review.json')
 const parsed=await parseProjectFile(file)
 assert.deepEqual(parsed.doc.testPlans,[plan])
+// User-defined types must survive file import, append, and collaboration reloads.
+const customPlan={...plan,type:'Leak-check / ambient'}
+const customDoc={...doc,testPlans:[customPlan]}
+const customParsed=await parseProjectFile(new File([JSON.stringify({format:'propflow-project',version:2,...customDoc})],'custom-type.json'))
+assert.equal(customParsed.doc.testPlans[0].type,customPlan.type)
+assert.equal(prepareProjectAppend(customParsed.doc).plans[1].type,customPlan.type)
+const customCollab=createCollabDoc();projectToDoc(customCollab,customDoc)
+assert.equal(docToProject(customCollab).testPlans[0].type,customPlan.type)
+customCollab.doc.destroy()
+for(const type of ['', '  ', null, 42, 'x'.repeat(121)])assert.throws(()=>validateExtensions({...doc,testPlans:[{...plan,type}]},v=>validateDiagramData(v,[])),/test configuration/)
+assert.equal(validateExtensions({...doc,testPlans:[{...plan,type:'other'}]},v=>validateDiagramData(v,[])).testPlans[0].type,'other')
 const appended=prepareProjectAppend(doc)
 assert.equal(appended.plans.length,2)
 assert.notEqual(appended.plans[0].nodes[0].id,'valve')
