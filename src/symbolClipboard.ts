@@ -20,6 +20,7 @@ export function decodeSymbolClipboard(text: string): WorkshopElement[] | null {
       if (mark.rotation !== undefined && !finite(mark.rotation)) return null
       if (mark.fill !== undefined && !['none', 'solid', 'accent'].includes(mark.fill)) return null
       if (mark.shadeOnClosed !== undefined && typeof mark.shadeOnClosed !== 'boolean') return null
+      if (mark.visibleIn !== undefined && !['both', 'active', 'inactive'].includes(mark.visibleIn)) return null
       if (mark.points !== undefined && (!Array.isArray(mark.points) || mark.points.length !== 3 || !mark.points.every((p: { x?: unknown; y?: unknown } | null) => p && finite(p.x) && finite(p.y)))) return null
     }
     return data.elements

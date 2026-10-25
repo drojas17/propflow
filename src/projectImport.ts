@@ -1,3 +1,4 @@
+import {validateSymbolMetadata} from './symbolBehavior'
 import type {ProjectDoc} from './lib/db'
 import {validateSop,validateExtensions,type DiagramSnapshot} from './testModel'
 import {uid} from './lib/uid'
@@ -26,7 +27,7 @@ export function prepareProjectAppend(doc:ProjectDoc){
 
 export function validateDiagramData(p:Record<string,unknown>,warnings:string[]):DiagramSnapshot{
  if(!Array.isArray(p.nodes)||!Array.isArray(p.edges)||p.nodes.length>5000||p.edges.length>10000)throw new Error('Missing or oversized project diagram.');
- const ids=new Set<string>();for(const n of p.nodes){if(!n||typeof n.id!=='string'||!n.id||ids.has(n.id)||typeof n.tag!=='string'||!['tank','valve','sensor','regulator','control','ambient','junction','fitting','custom'].includes(n.kind)||!Number.isFinite(n.x)||!Number.isFinite(n.y))throw new Error('Invalid or duplicate component.');ids.add(n.id)}
+ const ids=new Set<string>();for(const n of p.nodes){if(!n||typeof n.id!=='string'||!n.id||ids.has(n.id)||typeof n.tag!=='string'||!['tank','valve','sensor','regulator','control','ambient','junction','fitting','custom','electrical'].includes(n.kind)||!Number.isFinite(n.x)||!Number.isFinite(n.y))throw new Error('Invalid or duplicate component.');ids.add(n.id)}
  const edgeIds=new Set<string>();const point=(v:unknown)=>{const p=v as {x:number;y:number};return !!p&&Number.isFinite(p.x)&&Number.isFinite(p.y)};
  for(const e of p.edges){if(!e||typeof e.id!=='string'||!e.id||edgeIds.has(e.id)||e.from!==undefined&&typeof e.from!=='string'||e.to!==undefined&&typeof e.to!=='string'||e.start!==undefined&&!point(e.start)||e.end!==undefined&&!point(e.end)||e.waypoints!==undefined&&(!Array.isArray(e.waypoints)||!e.waypoints.every(point))||e.bend!==undefined&&!Number.isFinite(e.bend))throw new Error('Invalid or duplicate pipe.');edgeIds.add(e.id)}
  const edges=p.edges.filter(e=>(!e.from||ids.has(e.from))&&(!e.to||ids.has(e.to)));const dropped=p.edges.length-edges.length;if(dropped)warnings.push(`${dropped} pipe${dropped===1?'':'s'} pointed at missing components and ${dropped===1?'was':'were'} removed.`);
@@ -40,7 +41,7 @@ export async function parseProjectFile(file:File){
  if(p.format!==undefined&&p.format!=='propflow-project')throw new Error('This file is not a PropFlow project JSON.');if(p.version!==undefined&&(!Number.isInteger(p.version)||Number(p.version)<1||Number(p.version)>2))throw new Error('Unsupported PropFlow JSON version.');if(p.format===undefined)warnings.push('Legacy export: parts or symbols may not be included.');
  const diagram=validateDiagramData(p,warnings),extensions=validateExtensions(p,v=>validateDiagramData(v,warnings));
  const parts=p.parts??[],customSymbols=p.customSymbols??[];if(!Array.isArray(parts)||!Array.isArray(customSymbols))throw new Error('Invalid parts or symbols.');
- for(const [items,label] of [[parts,'part'],[customSymbols,'symbol']] as [Record<string,unknown>[],string][]){const ids=new Set<string>();for(const x of items){if(!x||typeof x.id!=='string'||!x.id||ids.has(x.id)||label==='symbol'&&!Array.isArray(x.elements))throw new Error(`Invalid or duplicate ${label}.`);ids.add(x.id)}}
+ for(const [items,label] of [[parts,'part'],[customSymbols,'symbol']] as [Record<string,unknown>[],string][]){const ids=new Set<string>();for(const x of items){if(!x||typeof x.id!=='string'||!x.id||ids.has(x.id)||label==='symbol'&&!Array.isArray(x.elements))throw new Error(`Invalid or duplicate ${label}.`);ids.add(x.id);if(label==='symbol')validateSymbolMetadata(x)}}
  const symbolOverrides:Record<string,unknown>={};if(p.symbolOverrides&&typeof p.symbolOverrides==='object'&&!Array.isArray(p.symbolOverrides))for(const [k,v] of Object.entries(p.symbolOverrides)){if(['__proto__','constructor','prototype'].includes(k)){warnings.push(`Ignored unsafe symbol override "${k}".`);continue}symbolOverrides[k]=v}
  const projectName=typeof p.projectName==='string'&&p.projectName.trim()?p.projectName.trim():file.name.replace(/\.json$/i,'');const name=projectName.toLowerCase().replace(/[^a-z0-9_-]+/g,'-').replace(/^-+|-+$/g,'').replace(/^local-/,'')||'imported-project';
  return {doc:{...diagram,...extensions,projectName,parts,customSymbols,symbolOverrides} as ProjectDoc,name,warnings}
