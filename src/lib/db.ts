@@ -1,4 +1,5 @@
 import { requireSupabase } from './supabase';
+import { mergeCustomSymbols } from './customLibrary';
 import type {Sequence, TestPlan, FailureAnalysis} from '../testModel';
 
 /**
@@ -114,12 +115,29 @@ export async function loadLibrary(): Promise<LibraryDoc | null> {
 
 export async function saveLibraryDoc(library: LibraryDoc): Promise<void> {
   const sb = requireSupabase();
-  const { data } = await sb.from('global_library').select('data').eq('id', 1).maybeSingle();
-  const merged = { ...((data?.data as Record<string, unknown> | undefined) ?? {}), ...library };
-  const { error } = await sb
-    .from('global_library')
-    .upsert({ id: 1, data: merged, updated_at: new Date().toISOString() }, { onConflict: 'id' });
-  if (error) throw error;
+  // Compare-and-swap prevents two projects saving together from losing additions.
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const { data, error: readError } = await sb.from('global_library').select('data,updated_at').eq('id', 1).maybeSingle();
+    if (readError) throw readError;
+    const previous = (data?.data ?? {}) as Partial<LibraryDoc>;
+    const merged = { ...previous, ...library, customSymbols: mergeCustomSymbols(
+      (previous.customSymbols ?? []) as { id: string }[], library.customSymbols as { id: string }[]
+    ) };
+    const nextTime = Math.max(Date.now(), Date.parse(data?.updated_at ?? '') + 1 || 0);
+    const row = { id: 1, data: merged, updated_at: new Date(nextTime).toISOString() };
+    if (!data) {
+      const { error } = await sb.from('global_library').insert(row);
+      if (!error) return;
+      if (error.code === '23505') continue;
+      throw error;
+    }
+    let update = sb.from('global_library').update(row).eq('id', 1);
+    update = data.updated_at == null ? update.is('updated_at', null) : update.eq('updated_at', data.updated_at);
+    const { data: saved, error } = await update.select('id');
+    if (error) throw error;
+    if (saved?.length) return;
+  }
+  throw new Error('The shared symbol library changed while saving. Please save the symbol again.');
 }
 
 export async function saveTourReference(tourReference: { nodes: unknown[]; edges: unknown[] }): Promise<void> {
