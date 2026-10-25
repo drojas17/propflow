@@ -22,6 +22,27 @@ export function withSopSections(doc:SopDocument):SopDocument{
  return doc;
 }
 export function initialValve(n:SopNode,doc:SopDocument){return doc.initial[n.id]??n.state??'closed'}
+/** Apply a whole user gesture to one document snapshot (and one undo entry). */
+export function setSopComponentActions(doc:SopDocument,index:number,updates:SopAction[]):SopDocument{
+ if(!updates.length)return doc;
+ const isState=(a:SopAction)=>['open','close','on','off'].includes(a.type);
+ const pending=new Map<string,SopAction>();
+ for(const action of updates)if(isState(action)||action.type==='regulator')pending.set(`${action.target}:${action.type==='regulator'?'regulator':'state'}`,action);
+ if(!pending.size)return doc;
+ if(index<0){
+  const initial={...doc.initial},regulators={...doc.regulators};
+  for(const a of pending.values())if(a.type==='regulator')regulators[a.target]=a.value;else initial[a.target]=a.type==='open'||a.type==='on'?'open':'closed';
+  return{...doc,initial,regulators};
+ }
+ const step=doc.steps[index];if(!step)return doc;
+ const key=(a:SopAction)=>`${a.target}:${a.type==='regulator'?'regulator':'state'}`;
+ const matches=(a:SopAction)=>(isState(a)||a.type==='regulator')&&pending.has(key(a));
+ const actions=[...step.actions.filter(a=>!matches(a)),...[...pending.values()].map(a=>{
+  const existing=step.actions.find(old=>matches(old)&&key(old)===key(a));
+  return{...a,id:existing?.id??a.id,name:existing?.name??a.name};
+ })];
+ return{...doc,steps:doc.steps.map((s,i)=>i===index?{...s,actions}:s)};
+}
 export function sopSentence(action:SopAction,nodes:SopNode[]){
  const node=nodes.find(n=>n.id===action.target),tag=node?.tag??'[missing component]',name=action.name.trim()|| (action.type==='regulator'?'line':action.type==='verify'?'instrument':action.type==='on'||action.type==='off'?'device':'valve');
  if(node?.symbolType==='pneumatic-ball'&&(action.type==='open'||action.type==='close')){const solenoid=nodes.find(n=>n.id===node.connectedSolenoidId);return `${action.type==='open'?'Open':'Close'} ${name} (${tag}${solenoid?` [${solenoid.tag}]`:''}).`}
