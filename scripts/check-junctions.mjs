@@ -17,3 +17,8 @@ assert.equal(r.nodes.length,1);assert.equal(r.nodes[0].id,'unrelated');assert.eq
 assert(!source.includes("nodes.filter(n=>n.kind!=='junction'&&n.x>=minX"))
 assert(source.includes('const all=nodes.map(n=>n.id)'))
 console.log('Junction checks passed: recursive orphan cleanup, surviving two-way junctions, deletion tombstones, unrelated nodes/stubs, group selection.')
+
+const ps=source.indexOf('function portPoint('),pe=source.indexOf('\n',ps);vm.runInContext(stripTypeScriptTypes(source.slice(ps,pe)),ctx)
+assert.equal(ctx.portPoint({...n('j'),portRx:20,portRy:16},'bottom').y,100,'Inherited tee radii must not offset a junction pipe endpoint')
+r=ctx.deleteDiagramEntities([n('j'),n('a','valve')],[e('aj','a','j'),{id:'tail',from:'j',end:{x:200,y:100}}],['a'],[])
+assert.equal(r.nodes.length,1);assert.equal(r.edges[0].id,'tail')
