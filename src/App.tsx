@@ -202,6 +202,17 @@ function snapConnectedNode(node:Node,nodes:Node[],edges:Edge[],moving:string[],d
  return{axis,delta:{...delta,[coordinate]:best.amount},guide:best.guide};
 }
 // Recompute from the drag-start route on every frame; never accumulate total deltas.
+function nudgeDiagram(nodes:Node[],edges:Edge[],ids:Set<string>,delta:Point,size:{w:number;h:number}){
+ const moving=nodes.filter(n=>ids.has(n.id));if(!moving.length)return{nodes,edges};
+ // Clamp the shared delta, not each node: a selection must remain rigid at the canvas limits.
+ const dx=Math.max(Math.min(0,60-Math.min(...moving.map(n=>n.x))),Math.min(Math.max(0,size.w-60-Math.max(...moving.map(n=>n.x))),delta.x)),dy=Math.max(Math.min(0,55-Math.min(...moving.map(n=>n.y))),Math.min(Math.max(0,size.h-55-Math.max(...moving.map(n=>n.y))),delta.y));
+ const nextNodes=nodes.map(n=>ids.has(n.id)?{...n,x:n.x+dx,y:n.y+dy}:n);
+ const nextEdges=edges.map(edge=>{
+  const from=ids.has(edge.from??''),to=ids.has(edge.to??'');if(!from&&!to)return edge;
+  return{...edge,waypoints:movedEdgeWaypoints(edge,nodes,nextNodes),bend:from&&to&&edge.bend!==undefined?edge.bend+(edgeAxis(edge)==='x'?dx:dy):edge.bend};
+ });
+ return{nodes:nextNodes,edges:nextEdges};
+}
 function movedEdgeWaypoints(edge:Edge,before:Node[],after:Node[]){
  if(!edge.waypoints?.length)return edge.waypoints;
  const original=edgeRoute(edge,before),updated=edgeRoute(edge,after);
@@ -498,7 +509,7 @@ const [nodes,setNodes]=useState<Node[]>([])
  const redo=()=>{const collab=collabRef.current;if(!collab||readOnlyRef.current)return;collab.undoManager.redo();syncUndoDepths(collab);setSaved(false)}
  const update=(patch:Partial<Node>)=>{if(!selected)return;checkpoint();setNodes(v=>v.map(n=>n.id===selected?{...n,...patch}:n));setSaved(false)}
  const rotateSelected=()=>{if(!selectedIds.length)return;checkpoint();const ids=new Set(selectedIds);setNodes(v=>v.map(n=>ids.has(n.id)?{...n,rotation:((n.rotation??0)+90)%360}:n));setSaved(false)}
- const nudgeSelected=(key:string,snap:boolean)=>{if(!selectedIds.length)return;const ids=new Set(selectedIds),anchor=nodes.find(n=>n.id===(selected||selectedIds.at(-1)));if(!anchor)return;let dx=key==='arrowleft'?-1:key==='arrowright'?1:0,dy=key==='arrowup'?-1:key==='arrowdown'?1:0;if(snap){const grid=10;if(dx<0)dx=(Math.ceil(anchor.x/grid)-1)*grid-anchor.x;else if(dx>0)dx=(Math.floor(anchor.x/grid)+1)*grid-anchor.x;if(dy<0)dy=(Math.ceil(anchor.y/grid)-1)*grid-anchor.y;else if(dy>0)dy=(Math.floor(anchor.y/grid)+1)*grid-anchor.y}checkpoint();setNodes(v=>v.map(n=>ids.has(n.id)?{...n,x:Math.max(60,Math.min(canvasSize.w-60,n.x+dx)),y:Math.max(55,Math.min(canvasSize.h-55,n.y+dy))}:n));setSaved(false)}
+ const nudgeSelected=(key:string,snap:boolean)=>{if(!selectedIds.length)return;const ids=new Set(selectedIds),anchor=nodes.find(n=>n.id===(selected||selectedIds.at(-1)));if(!anchor)return;let dx=key==='arrowleft'?-1:key==='arrowright'?1:0,dy=key==='arrowup'?-1:key==='arrowdown'?1:0;if(snap){const grid=10;if(dx<0)dx=(Math.ceil(anchor.x/grid)-1)*grid-anchor.x;else if(dx>0)dx=(Math.floor(anchor.x/grid)+1)*grid-anchor.x;if(dy<0)dy=(Math.ceil(anchor.y/grid)-1)*grid-anchor.y;else if(dy>0)dy=(Math.floor(anchor.y/grid)+1)*grid-anchor.y}checkpoint();const next=nudgeDiagram(nodes,edges,ids,{x:dx,y:dy},canvasSize);setNodes(next.nodes);setEdges(next.edges);setSaved(false)}
  const bisect=(axis:'x'|'y',at:number)=>{const amount=bisectGap*2,halfGap=amount/2,coordinate=(n:Node)=>axis==='x'?n.x:n.y,nodeMoves=new Map(nodes.map(n=>[n.id,coordinate(n)>=at]));
   // A gauge tapped directly into a pipe on the divider must travel with that tap.
   for(const gauge of nodes.filter(n=>n.symbolType==='gauge')){for(const edge of edges){const otherId=edge.from===gauge.id?edge.to:edge.to===gauge.id?edge.from:undefined;if(!otherId)continue;const anchor=nodes.find(n=>n.id===otherId);if(anchor&&Math.abs(coordinate(anchor)-at)<=8){nodeMoves.set(gauge.id,nodeMoves.get(anchor.id)??false);break}}}
