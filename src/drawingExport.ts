@@ -1,8 +1,9 @@
+import { exportKeyLayout, type ExportBox } from './exportKeyLayout'
 type KeyEntry={label:string;ariaLabel:string;tank:boolean}
 const ns='http://www.w3.org/2000/svg'
 
 /** Export geometry and key use the same coordinate system, independent of editor zoom. */
-export function prepareDrawingExport(source:SVGSVGElement,entries:KeyEntry[],colors:Record<string,string>,light:boolean,detail:string){
+export function prepareDrawingExport(source:SVGSVGElement,entries:KeyEntry[],colors:Record<string,string>,light:boolean,detail:string,routes:{x:number;y:number}[][]=[]){
  const svg=source.cloneNode(true) as SVGSVGElement
  svg.removeAttribute('style')
  svg.removeAttribute('class')
@@ -18,28 +19,47 @@ export function prepareDrawingExport(source:SVGSVGElement,entries:KeyEntry[],col
   const bounds=svg.getBBox(),margin=30
   const x=bounds.width?bounds.x-margin:0,y=bounds.height?bounds.y-margin:0
   const width=Math.max(300,bounds.width+margin*2),drawingHeight=Math.max(100,bounds.height+margin*2)
-  // Scale the key's type with the drawing so it remains readable in a page-wide preview.
-  const unit=Math.max(1,width/1800),padding=20*unit,font=18*unit,rowHeight=74*unit
-  const columns=Math.max(1,Math.floor((width-padding*2)/(340*unit))),columnWidth=(width-padding*2)/columns
-  const fluids=Object.entries(colors),fluidColumns=Math.max(1,Math.floor((width-padding*2)/(150*unit)))
-  const fluidRows=Math.ceil(fluids.length/fluidColumns),symbolY=70*unit+fluidRows*32*unit
-  const keyHeight=symbolY+Math.ceil(entries.length/columns)*rowHeight+padding,totalHeight=drawingHeight+keyHeight
-  const keyY=y+drawingHeight
+  const fluids=Object.entries(colors).filter(([label])=>label!=='Water')
+  const page={x,y,width,height:drawingHeight}
+  const obstacles:ExportBox[]=Array.from(svg.children).flatMap(child=>{
+   if(!(child instanceof SVGGraphicsElement)||child.hasAttribute('data-export-pipe'))return[]
+   const box=child.getBBox(),matrix=child.getCTM(),rootMatrix=svg.getCTM()
+   if(!matrix||!rootMatrix||(!box.width&&!box.height))return[]
+   const transform=rootMatrix.inverse().multiply(matrix)
+   const corners=[[box.x,box.y],[box.x+box.width,box.y],[box.x,box.y+box.height],[box.x+box.width,box.y+box.height]].map(([cx,cy])=>new DOMPoint(cx,cy).matrixTransform(transform))
+   const left=Math.min(...corners.map(p=>p.x)),top=Math.min(...corners.map(p=>p.y))
+   return[{x:left,y:top,width:Math.max(...corners.map(p=>p.x))-left,height:Math.max(...corners.map(p=>p.y))-top}]
+  })
+  // Treat each straight pipe segment separately: a bent run's overall box can
+  // cover large areas of genuinely empty space inside its bends.
+  for(const route of routes)for(let i=1;i<route.length;i++){
+   const a=route[i-1],b=route[i]
+   obstacles.push({x:Math.min(a.x,b.x)-4,y:Math.min(a.y,b.y)-4,width:Math.abs(a.x-b.x)+8,height:Math.abs(a.y-b.y)+8})
+  }
+  const layout=exportKeyLayout(page,obstacles,entries.length,fluids.length)
+  const {unit,columns,fluidColumns,symbolY,rowHeight}=layout,padding=12*unit,font=14*unit,columnWidth=(layout.width-padding*2)/columns
+  const keyX=layout.x,keyY=layout.y,totalHeight=drawingHeight
   const element=(tag:string,attrs:Record<string,string|number>,parent:Element=svg)=>{
    const el=document.createElementNS(ns,tag);for(const[k,v]of Object.entries(attrs))el.setAttribute(k,String(v));parent.append(el);return el
   }
   const text=(value:string,tx:number,ty:number,size=font,parent:Element=svg)=>{
    const el=element('text',{x:tx,y:ty,fill:'#1a2b3a','font-size':size},parent);el.textContent=value;return el
   }
-  element('rect',{x,y:keyY,width,height:keyHeight,fill:'#ffffff',stroke:'#d0d9e3'})
-  text(`P&ID KEY · ${detail.toUpperCase()} VIEW`,x+padding,keyY+32*unit,22*unit).setAttribute('font-weight','700')
+  // Group the existing drawing only when a dense page needs internal space.
+  if(!layout.inset){
+   const drawing=element('g',{}),availableHeight=Math.max(1,drawingHeight-layout.height-12*unit),scale=Math.min(1,availableHeight/drawingHeight)
+   for(const child of Array.from(svg.children))if(child!==drawing&&child!==style)drawing.append(child)
+   drawing.setAttribute('transform',`translate(${x+width*(1-scale)/2} ${y}) scale(${scale}) translate(${-x} ${-y})`)
+  }
+  element('rect',{x:keyX,y:keyY,width:layout.width,height:layout.height,fill:'#ffffff',stroke:'#d0d9e3'})
+  text(`KEY · ${detail.toUpperCase()}`,keyX+padding,keyY+22*unit,16*unit).setAttribute('font-weight','700')
   fluids.forEach(([label,color],i)=>{
-   const fx=x+padding+(i%fluidColumns)*(width-padding*2)/fluidColumns,fy=keyY+62*unit+Math.floor(i/fluidColumns)*32*unit
-   element('line',{x1:fx,x2:fx+28*unit,y1:fy,y2:fy,stroke:color,'stroke-width':4*unit})
-   text(label,fx+38*unit,fy+6*unit)
+   const fx=keyX+padding+(i%fluidColumns)*(layout.width-padding*2)/fluidColumns,fy=keyY+42*unit+Math.floor(i/fluidColumns)*22*unit
+   element('line',{x1:fx,x2:fx+18*unit,y1:fy,y2:fy,stroke:color,'stroke-width':4*unit})
+   text(label,fx+25*unit,fy+5*unit)
   })
   entries.forEach((entry,i)=>{
-   const ex=x+padding+(i%columns)*columnWidth,ey=keyY+symbolY+Math.floor(i/columns)*rowHeight
+   const ex=keyX+padding+(i%columns)*columnWidth,ey=keyY+symbolY+Math.floor(i/columns)*rowHeight
    const sample=Array.from(svg.querySelectorAll('.symbol')).find(el=>el.getAttribute('aria-label')===entry.ariaLabel)
    const drawing=sample&&Array.from(sample.children).find(el=>el.tagName.toLowerCase()==='g')
    if(drawing){
@@ -58,17 +78,17 @@ export function prepareDrawingExport(source:SVGSVGElement,entries:KeyEntry[],col
      if(mark.tagName.toLowerCase()==='image')(mark as SVGImageElement).style.filter='grayscale(1) brightness(0)'
     }
     wrapper.append(glyph)
-    const box=(wrapper as SVGGElement).getBBox(),scale=Math.min(unit,64*unit/Math.max(1,box.width),56*unit/Math.max(1,box.height))
-    wrapper.setAttribute('transform',`translate(${ex+34*unit} ${ey+rowHeight/2}) scale(${scale}) translate(${-box.x-box.width/2} ${-box.y-box.height/2})`)
+    const box=(wrapper as SVGGElement).getBBox(),scale=Math.min(unit,32*unit/Math.max(1,box.width),32*unit/Math.max(1,box.height))
+    wrapper.setAttribute('transform',`translate(${ex+17*unit} ${ey+rowHeight/2}) scale(${scale}) translate(${-box.x-box.width/2} ${-box.y-box.height/2})`)
    }
-   const label=text(entry.label,ex+80*unit,ey+rowHeight/2+6*unit)
+   const label=text(entry.label,ex+46*unit,ey+rowHeight/2+5*unit)
    // Long custom names wrap inside their own cell rather than colliding with the next entry.
    const words=entry.label.split(/\s+/);label.textContent='';let line='',lineIndex=0
-   let span=element('tspan',{x:ex+80*unit,dy:0},label)
+   let span=element('tspan',{x:ex+46*unit,dy:0},label)
    for(const word of words){span.textContent=line?`${line} ${word}`:word
-    if((span as SVGTSpanElement).getComputedTextLength()>columnWidth-90*unit&&line){span.textContent=line;lineIndex++;span=element('tspan',{x:ex+80*unit,dy:22*unit},label);line=word;span.textContent=word}else line=span.textContent??''
+    if((span as SVGTSpanElement).getComputedTextLength()>columnWidth-50*unit&&line){span.textContent=line;lineIndex++;span=element('tspan',{x:ex+46*unit,dy:16*unit},label);line=word;span.textContent=word}else line=span.textContent??''
    }
-   if(lineIndex)label.setAttribute('y',String(ey+rowHeight/2+6*unit-lineIndex*11*unit))
+   if(lineIndex)label.setAttribute('y',String(ey+rowHeight/2+5*unit-lineIndex*8*unit))
   })
   svg.setAttribute('viewBox',`${x} ${y} ${width} ${totalHeight}`)
   svg.setAttribute('width',String(width));svg.setAttribute('height',String(totalHeight))
