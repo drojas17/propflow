@@ -16,10 +16,9 @@ export function exportKeyLayout(page:ExportBox,obstacles:ExportBox[],entryCount:
   for(const columns of [...new Set([2,1,...Array.from({length:maxColumns},(_,i)=>i+1)])]){
    const size=dimensions(columns)
    if(size.width>page.width-padding*2||size.height>page.height-padding*2)continue
-   const xs=[...new Set([page.x+page.width-size.width-padding,page.x+padding,...obstacles.flatMap(b=>[b.x-size.width-gap,b.x+b.width+gap])])].sort((a,b)=>b-a)
-   const ys=[...new Set([page.y+padding,page.y+page.height-size.height-padding,...obstacles.flatMap(b=>[b.y-size.height-gap,b.y+b.height+gap])])].sort((a,b)=>a-b)
-   for(const y of ys)for(const x of xs){
-    if(x<page.x+padding||y<page.y+padding||x+size.width>page.x+page.width-padding||y+size.height>page.y+page.height-padding)continue
+   // Anchor to a true drawing corner, rather than a distant empty side gutter.
+   const left=page.x+padding,right=page.x+page.width-size.width-padding,top=page.y+padding,bottom=page.y+page.height-size.height-padding
+   for(const [x,y] of [[right,top],[right,bottom],[left,top],[left,bottom]]){
     if(obstacles.every(b=>x+size.width+gap<=b.x||x>=b.x+b.width+gap||y+size.height+gap<=b.y||y>=b.y+b.height+gap))return{x,y,...size,inset:true}
    }
   }

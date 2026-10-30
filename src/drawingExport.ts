@@ -16,6 +16,14 @@ export function prepareDrawingExport(source:SVGSVGElement,entries:KeyEntry[],col
  svg.style.position='fixed';svg.style.left='-100000px';svg.style.top='0'
  document.body.append(svg)
  try{
+  // Empty custom placeholders with blank/punctuation-only labels are editing
+  // residue, not printable diagram content. Their stray dots can widen a page.
+  for(const symbol of svg.querySelectorAll('.symbol')){
+   if(!symbol.getAttribute('aria-label')?.endsWith(' custom'))continue
+   const glyph=Array.from(symbol.children).find(child=>child.tagName.toLowerCase()==='g') as SVGGraphicsElement|undefined
+   const label=Array.from(symbol.children).filter(child=>child.tagName.toLowerCase()==='text').map(child=>child.textContent??'').join('')
+   if(glyph){const box=glyph.getBBox();if(box.width<=2&&box.height<=2&&!/[\p{L}\p{N}]/u.test(label))symbol.remove()}
+  }
   const bounds=svg.getBBox(),margin=30
   const x=bounds.width?bounds.x-margin:0,y=bounds.height?bounds.y-margin:0
   const width=Math.max(300,bounds.width+margin*2),drawingHeight=Math.max(100,bounds.height+margin*2)

@@ -16,6 +16,9 @@ try{
  const key=exportKeyLayout(page,obstacles,12,6)
  assert.ok(key.inset);inside(key,page)
  assert.ok(obstacles.every(box=>!overlaps(key,box)))
+ const margin=12*key.unit
+ assert.ok(Math.abs(key.x-page.x-margin)<.001||Math.abs(key.x+key.width-(page.x+page.width-margin))<.001,'Key must touch a left/right corner inset')
+ assert.ok(Math.abs(key.y-page.y-margin)<.001||Math.abs(key.y+key.height-(page.y+page.height-margin))<.001,'Key must touch a top/bottom corner inset')
  // A completely occupied page uses an internal footer, including tiny drawings.
  for(const page of [{x:0,y:0,width:800,height:600},{x:-100,y:-50,width:300,height:100}]){
   const key=exportKeyLayout(page,[page],12,6)
