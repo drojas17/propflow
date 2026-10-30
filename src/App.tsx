@@ -646,9 +646,10 @@ setSaved(false)};const up=()=>{setGuideY(null);setGuideX(null);const jUp=nodes.f
  const exportCanvas=async(format:'png'|'pdf')=>{const source=svgRef.current;if(!source)return;const light=theme==='light';
   const seen=new Set<string>();
   const entries=nodes.flatMap(n=>{
-   if(n.kind==='junction')return[];
+   if(n.kind==='junction'||n.kind==='tank'||['tank','asi','tca','tee','cross'].includes(n.symbolType??''))return[];
    const key=n.customId??n.symbolType??n.kind;if(seen.has(key))return[];seen.add(key);
    const label=(n.customId?customSymbols.find(s=>s.id===n.customId)?.name:librarySections.flatMap(s=>s.items).find(item=>item.symbolType===n.symbolType)?.label)??key.replaceAll('-',' ');
+   if(['storage tank','asi','spark plug','vent','tca','cross fitting','t fitting'].includes(label.toLowerCase().replace(/[^a-z0-9]+/g,' ').trim()))return[];
    return[{label,ariaLabel:`${n.tag} ${n.kind}`,tank:n.kind==='tank'}];
   });
   const {svg:clone,width:cropW,height:totalH}=prepareDrawingExport(source,entries,colors,light,detail);
