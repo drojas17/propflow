@@ -29,9 +29,9 @@ export function prepareDrawingExport(source:SVGSVGElement,entries:KeyEntry[],col
    const el=document.createElementNS(ns,tag);for(const[k,v]of Object.entries(attrs))el.setAttribute(k,String(v));parent.append(el);return el
   }
   const text=(value:string,tx:number,ty:number,size=font,parent:Element=svg)=>{
-   const el=element('text',{x:tx,y:ty,fill:ink,'font-size':size},parent);el.textContent=value;return el
+   const el=element('text',{x:tx,y:ty,fill:'#1a2b3a','font-size':size},parent);el.textContent=value;return el
   }
-  element('rect',{x,y:keyY,width,height:keyHeight,fill:background,stroke:light?'#d0d9e3':'#344b5a'})
+  element('rect',{x,y:keyY,width,height:keyHeight,fill:'#ffffff',stroke:'#d0d9e3'})
   text(`P&ID KEY · ${detail.toUpperCase()} VIEW`,x+padding,keyY+32*unit,22*unit).setAttribute('font-weight','700')
   fluids.forEach(([label,color],i)=>{
    const fx=x+padding+(i%fluidColumns)*(width-padding*2)/fluidColumns,fy=keyY+62*unit+Math.floor(i/fluidColumns)*32*unit
@@ -46,6 +46,17 @@ export function prepareDrawingExport(source:SVGSVGElement,entries:KeyEntry[],col
     const wrapper=element('g',{}),glyph=drawing.cloneNode(true) as SVGGElement
     // Tank inventory annotations belong in the diagram, not in the symbol sample.
     if(entry.tank)glyph.querySelectorAll('text').forEach(el=>el.remove())
+    // Recolor only the detached key sample; fluid colors in the drawing stay intact.
+    glyph.style.setProperty('--symbol-bg','#ffffff')
+    glyph.style.setProperty('--symbol-text','#000000')
+    glyph.style.setProperty('--symbol-text-dim','#000000')
+    for(const mark of [glyph,...Array.from(glyph.querySelectorAll('*'))]){
+     for(const attr of ['stroke','fill']){
+      const value=mark.getAttribute(attr)
+      if(value&&!['none','transparent'].includes(value))mark.setAttribute(attr,value==='var(--symbol-bg)'?'#ffffff':'#000000')
+     }
+     if(mark.tagName.toLowerCase()==='image')(mark as SVGImageElement).style.filter='grayscale(1) brightness(0)'
+    }
     wrapper.append(glyph)
     const box=(wrapper as SVGGElement).getBBox(),scale=Math.min(unit,64*unit/Math.max(1,box.width),56*unit/Math.max(1,box.height))
     wrapper.setAttribute('transform',`translate(${ex+34*unit} ${ey+rowHeight/2}) scale(${scale}) translate(${-box.x-box.width/2} ${-box.y-box.height/2})`)
