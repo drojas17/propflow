@@ -141,3 +141,16 @@ body.panel-open .app-sidebar-resizer[data-side="right"]{display:none}
   aside.left.component-sidebar{height:100dvh;min-height:0;overflow:hidden;padding-bottom:env(safe-area-inset-bottom)}
   aside.left .component-groups{min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 }
+@media (max-width:900px){
+  .app:has(.project-context)>.sop-workspace{display:flex;flex-direction:column}
+  .sop-workspace .sop-middle{order:0;flex:none}
+  .sop-workspace .sop-steps{order:1;flex:none}
+  .sop-workspace .sop-state{order:2;flex:none}
+  .sop-workspace .sop-playbar>b{flex-basis:100%}
+}
+@media (max-width:900px){
+  .app:has(.sop-workspace)>header{flex-wrap:nowrap;overflow-x:auto;max-height:62px}
+  .app:has(.sop-workspace)>.project-context{flex-wrap:nowrap;overflow-x:auto;align-items:center;white-space:nowrap}
+  .app:has(.sop-workspace)>.project-context>*{flex-shrink:0}
+  .sop-workspace .sop-playbar button[title^="Record the full sequence"]{display:none}
+}
