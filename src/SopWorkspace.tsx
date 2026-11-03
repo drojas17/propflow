@@ -31,8 +31,8 @@ export default function SopWorkspace<T extends SopNode>({nodes,document:storedDo
  const history=useRef<SopDocument[]>([]),scroll=useRef<HTMLDivElement>(null)
  const fittedMobile=useRef(false)
  const fitDiagram=()=>{const el=scroll.current,svg=el?.querySelector('svg');if(!el||!svg)return;const box=svg.getBBox();if(!box.width||!box.height)return;const z=Math.min(1,(el.clientWidth-24)/(box.width+40),(el.clientHeight-24)/(box.height+40));setZoom(z);requestAnimationFrame(()=>{el.scrollLeft=Math.max(0,(box.x-20)*z);el.scrollTop=Math.max(0,(box.y-20)*z)})}
- useEffect(()=>{if(playing&&window.matchMedia('(max-width:900px)').matches)requestAnimationFrame(fitDiagram)},[playing])
- useEffect(()=>{if(fittedMobile.current||!nodes.length||!window.matchMedia('(max-width:900px)').matches)return;fittedMobile.current=true;requestAnimationFrame(fitDiagram)},[nodes.length])
+ useEffect(()=>{if(playing&&window.matchMedia('(max-width:900px), (max-width:1100px) and (max-height:600px) and (pointer:coarse)').matches)requestAnimationFrame(fitDiagram)},[playing])
+ useEffect(()=>{if(fittedMobile.current||!nodes.length||!window.matchMedia('(max-width:900px), (max-width:1100px) and (max-height:600px) and (pointer:coarse)').matches)return;fittedMobile.current=true;requestAnimationFrame(fitDiagram)},[nodes.length])
  const [recording,setRecording]=useState<'video'|'gif'|null>(null)
  const recordRef=useRef<{timer:number;started:boolean;stop:(save:boolean)=>void}|null>(null)
  const stopRecording=(save:boolean)=>{const r=recordRef.current;if(!r)return;recordRef.current=null;clearInterval(r.timer);r.stop(save);setRecording(null)}

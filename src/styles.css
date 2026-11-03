@@ -22,7 +22,7 @@ body.panel-open aside.right{display:none}
 
 /* ---------- mobile: viewing-first layout ---------- */
 .menu-toggle{display:none}.panel-toggle{display:inline-flex;align-items:center;gap:6px}
-@media (max-width:900px){
+@media (max-width:900px), (max-width:1100px) and (max-height:600px) and (pointer:coarse){
   body{min-width:0}
   header{height:auto;min-height:62px;flex-wrap:wrap;padding:8px 10px;row-gap:6px}
   .brand{width:auto}
@@ -71,7 +71,7 @@ body.panel-open aside.right{display:none}
   color:#5a6c7d;
 }
 
-@media (max-width:900px){
+@media (max-width:900px), (max-width:1100px) and (max-height:600px) and (pointer:coarse){
   .mobile-panel-resizer{
     display:none !important;
     position:fixed;

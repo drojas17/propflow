@@ -70,7 +70,7 @@ body.panel-open .app-sidebar-resizer[data-side="right"]{display:none}
 .sop-speed select{margin:0}
 
 /* ---------- mobile: stacked SOP layout, pan-able visualizer ---------- */
-@media (max-width:900px){
+@media (max-width:900px), (max-width:1100px) and (max-height:600px) and (pointer:coarse){
   .sop-workspace{grid-template-columns:minmax(0,1fr);height:auto;min-height:calc(100dvh - 62px);overflow:visible}
   .sop-steps{border-right:0;border-bottom:1px solid #22313e;overflow:visible;max-height:none}
   .sop-middle{min-height:72dvh;min-width:0}
@@ -86,7 +86,7 @@ body.panel-open .app-sidebar-resizer[data-side="right"]{display:none}
 .sop-workspace button.sop-step-delete:hover{color:#ff5f5f;background:#ff5f5f22}
 
 /* Phones: the component library (left drawer) and inspector (bottom sheet) are fixed overlays below 900px, so the editor grid must not reserve columns for them. Without this, .app>main keeps its desktop 3-column template on mobile and the workspace is squeezed into the 250px first track next to a huge empty void. */
-@media (max-width:900px){
+@media (max-width:900px), (max-width:1100px) and (max-height:600px) and (pointer:coarse){
   .app>main{grid-template-columns:minmax(0,1fr)}
 }
 
@@ -123,7 +123,7 @@ body.panel-open .app-sidebar-resizer[data-side="right"]{display:none}
 [data-theme="light"] .sop-diagram .symbol[data-energized="false"]{--symbol-text:#000000;--symbol-text-dim:#000000}
 
 /* Phone layouts keep the procedure as the primary, vertically scrollable view. */
-@media (max-width:900px){
+@media (max-width:900px), (max-width:1100px) and (max-height:600px) and (pointer:coarse){
   .app:has(.project-context)>.sop-workspace{display:block;overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain;min-height:0;-webkit-overflow-scrolling:touch}
   .sop-workspace .sop-sidebar-resizer{display:none}
   .sop-workspace .sop-steps{overflow:visible;padding:16px;max-height:none}
@@ -141,21 +141,21 @@ body.panel-open .app-sidebar-resizer[data-side="right"]{display:none}
   aside.left.component-sidebar{height:100dvh;min-height:0;overflow:hidden;padding-bottom:env(safe-area-inset-bottom)}
   aside.left .component-groups{min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 }
-@media (max-width:900px){
+@media (max-width:900px), (max-width:1100px) and (max-height:600px) and (pointer:coarse){
   .app:has(.project-context)>.sop-workspace{display:flex;flex-direction:column}
   .sop-workspace .sop-middle{order:0;flex:none}
   .sop-workspace .sop-steps{order:1;flex:none}
   .sop-workspace .sop-state{order:2;flex:none}
   .sop-workspace .sop-playbar>b{flex-basis:100%}
 }
-@media (max-width:900px){
+@media (max-width:900px), (max-width:1100px) and (max-height:600px) and (pointer:coarse){
   .app:has(.sop-workspace)>header{flex-wrap:nowrap;overflow-x:auto;max-height:62px}
   .app:has(.sop-workspace)>.project-context{flex-wrap:nowrap;overflow-x:auto;align-items:center;white-space:nowrap}
   .app:has(.sop-workspace)>.project-context>*{flex-shrink:0}
   .sop-workspace .sop-playbar button[title^="Record the full sequence"]{display:none}
 }
 .mobile-export,.mobile-playing-step{display:none}
-@media(max-width:900px){
+@media(max-width:900px), (max-width:1100px) and (max-height:600px) and (pointer:coarse){
  .app>header{flex-wrap:nowrap!important;overflow-x:auto;min-height:54px!important;height:54px!important}
  .app>header .menu-toggle,.app>header .brand,.app>header .new-project{display:none!important}
  .app>header .project{flex:1;min-width:130px}
@@ -179,4 +179,13 @@ body.panel-open .app-sidebar-resizer[data-side="right"]{display:none}
  .sop-fullscreen-playing .mobile-playing-step{display:block;flex:none;max-height:30dvh;overflow:auto;padding:12px 14px;background:var(--panel,#0b151f);font-size:15px;line-height:1.45}
  .sop-fullscreen-playing .mobile-playing-step p{margin:5px 0 0}
  .sop-workspace:has(.sop-fullscreen-playing)>.sop-step-flash{display:none}
+}
+@media (max-width:1100px) and (max-height:600px) and (pointer:coarse){
+ .app>header{height:44px!important;min-height:44px!important;padding:3px 10px!important}
+ .project-context{padding:3px 10px!important}
+ .project-context label{font-size:10px}
+ .project-context select{height:30px;margin:0}
+ .app>main .toolbar,.sop-navigation{height:40px;min-height:40px}
+ .canvas{height:calc(100% - 40px);padding:4px}
+ .sop-workspace .sop-diagram{height:65dvh}
 }
