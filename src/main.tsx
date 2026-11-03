@@ -17,4 +17,5 @@ import './feedback.css'
 import './landing.css'
 import './tour.css'
 import './tour.css'
+import './editor-light.css'
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><App/></React.StrictMode>)

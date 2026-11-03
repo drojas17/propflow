@@ -1,0 +1,62 @@
+/* Load after the editor revisions so their fixed dark colors cannot win. */
+[data-theme="light"]{color-scheme:light}
+[data-theme="light"] .canvas-scroll{
+  background:var(--bg);
+  border-color:var(--line);
+}
+[data-theme="light"] .canvas-title,
+[data-theme="light"] .canvas-controls,
+[data-theme="light"] .canvas>.step-picker{
+  background:#fffffff2;
+  border-color:var(--line);
+  color:var(--symbol-text);
+}
+[data-theme="light"] .canvas-controls span,
+[data-theme="light"] .empty-panel b{color:var(--muted)}
+[data-theme="light"] .project select,
+[data-theme="light"] .project .new-project,
+[data-theme="light"] .component-card>.edit-symbol,
+[data-theme="light"] .export-panel button,
+[data-theme="light"] .canvas-controls button,
+[data-theme="light"] .step-picker button,
+[data-theme="light"] .draw-tools,
+[data-theme="light"] .symbol-workshop-button{
+  background:var(--panel2);
+  border-color:#c0cdd9;
+  color:var(--cyan);
+}
+[data-theme="light"] .project select{color:var(--symbol-text)}
+[data-theme="light"] .symbol-workshop-button b,
+[data-theme="light"] .component-list .component-add>span{
+  color:var(--symbol-text);
+}
+[data-theme="light"] .symbol-workshop-button small{color:var(--muted)}
+[data-theme="light"] .project .new-project:hover,
+[data-theme="light"] .component-card>.edit-symbol:hover,
+[data-theme="light"] .export-panel button:hover,
+[data-theme="light"] .canvas-controls button:hover,
+[data-theme="light"] .symbol-workshop-button:hover{
+  background:#dceef6;
+  border-color:var(--cyan);
+}
+[data-theme="light"] .component-sidebar>.library{
+  background:var(--panel);
+  border-color:var(--line);
+  color:var(--symbol-text);
+}
+[data-theme="light"] .export-panel,
+[data-theme="light"] .detail-toggle{border-color:var(--line)}
+[data-theme="light"] .detail-toggle button.on{
+  background:#d0e3ef!important;
+  color:var(--cyan)!important;
+}
+[data-theme="light"] .step-picker button b{background:#d0e3ef}
+[data-theme="light"] .step-picker button.on{
+  background:#d0e3ef;
+  border-color:var(--cyan);
+  color:var(--cyan);
+}
+[data-theme="light"] .component-add svg [stroke="#9edcf1"]{stroke:var(--cyan)}
+[data-theme="light"] .component-add svg [fill="#9edcf1"]{fill:var(--cyan)}
+[data-theme="light"] .component-groups{scrollbar-color:#a5b6c5 var(--panel)}
+[data-theme="light"] .component-groups::-webkit-scrollbar-thumb{background:#a5b6c5}
