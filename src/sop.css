@@ -121,3 +121,23 @@ body.panel-open .app-sidebar-resizer[data-side="right"]{display:none}
 /* Keep unfilled SOP hardware legible; commodity flow still supplies the color. */
 [data-theme="light"] .sop-diagram{--inactive-symbol:#000000;--inactive-symbol-opacity:1;--sop-inactive-pipe:#000000}
 [data-theme="light"] .sop-diagram .symbol[data-energized="false"]{--symbol-text:#000000;--symbol-text-dim:#000000}
+
+/* Phone layouts keep the procedure as the primary, vertically scrollable view. */
+@media (max-width:900px){
+  .app:has(.project-context)>.sop-workspace{display:block;overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain;min-height:0;-webkit-overflow-scrolling:touch}
+  .sop-workspace .sop-sidebar-resizer{display:none}
+  .sop-workspace .sop-steps{overflow:visible;padding:16px;max-height:none}
+  .sop-workspace .sop-step,.sop-workspace .sop-section div.sop-step{min-height:48px;font-size:14px;line-height:1.45}
+  .sop-workspace .sop-step small,.sop-workspace .sop-section small{font-size:13px;line-height:1.5}
+  .sop-workspace .sop-section-heading{font-size:14px;min-height:44px}
+  .sop-workspace .sop-middle,.sop-workspace .sop-middle.sop-playing{display:flex;flex-direction:column;min-height:0}
+  .sop-workspace .sop-navigation{flex:none;overflow-x:auto;white-space:nowrap}
+  .sop-workspace .sop-playbar{flex:none}
+  .sop-workspace .sop-diagram{height:55dvh;min-height:280px;flex:none}
+  .sop-workspace .sop-editor{max-height:none;overflow:visible}
+  .sop-workspace .sop-close-editor{position:static;align-self:flex-end;margin:8px 16px -36px 0}
+  .sop-workspace .sop-state{overflow:visible}
+  .sop-workspace .sop-step-flash,.sop-workspace .sop-actuation-error{position:fixed;left:12px;right:12px;top:15%;max-width:none;transform:none}
+  aside.left.component-sidebar{height:100dvh;min-height:0;overflow:hidden;padding-bottom:env(safe-area-inset-bottom)}
+  aside.left .component-groups{min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+}
