@@ -20,6 +20,8 @@ export interface Part {
   specs?: Record<string, string>;
   supplier?: string;
   unitCost?: number;
+  refillCost?: number;
+  fittings?: Partial<Record<'left' | 'right' | 'top' | 'bottom' | 'actuator', { standard: string; size: string; end: 'male' | 'female' | 'other' }>>;
   createdAt: string;
 }
 

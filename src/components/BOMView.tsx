@@ -21,7 +21,7 @@ const currency = new Intl.NumberFormat('en-US', { style: 'currency', currency: '
 const cell = { padding: '10px 12px', textAlign: 'left', borderBottom: '1px solid #374151', verticalAlign: 'top' } as const;
 
 export default function BOMView({ nodes, parts, onClose }: BOMViewProps) {
-  const { rows, unlinked, missing, counts, total } = useMemo(() => {
+  const { rows, unlinked, missing, counts, total, refillTotal, refillCount } = useMemo(() => {
     const byId = new Map(parts.map((p) => [p.id, p]));
     const grouped = new Map<string, { part: Part; nodes: Node[] }>();
     const unlinked: Node[] = [];
@@ -40,6 +40,8 @@ export default function BOMView({ nodes, parts, onClose }: BOMViewProps) {
     return {
       rows, unlinked, missing,
       counts: [...counts.entries()].sort(([a],[b]) => symbolLabel(a).localeCompare(symbolLabel(b))),
+      refillTotal: rows.reduce((s, r) => s + (r.part.refillCost ?? 0) * r.nodes.length, 0),
+      refillCount: rows.filter(r => r.part.refillCost !== undefined).reduce((s, r) => s + r.nodes.length, 0),
       total: rows.reduce((s, r) => s + (r.part.unitCost ?? 0) * r.nodes.length, 0),
     };
   }, [nodes, parts]);
@@ -47,13 +49,14 @@ export default function BOMView({ nodes, parts, onClose }: BOMViewProps) {
   function exportCSV() {
     const esc = (v: string | number) => '"' + String(v).replace(/"/g, '""') + '"';
     const lines: string[] = [];
-    lines.push(['Part Name','Part Number','Manufacturer / supplier','Qty','Unit Cost','Extended Cost','Used By'].map(esc).join(','));
+    lines.push(['Part Name','Part Number','Manufacturer / supplier','Qty','Purchase Cost','Extended Purchase Cost','Refill Cost','Extended Refill Cost','Used By'].map(esc).join(','));
     for (const { part, nodes: ns } of rows) {
       const uc = part.unitCost ?? '';
       const ec = typeof part.unitCost === 'number' ? (part.unitCost * ns.length).toFixed(2) : '';
-      lines.push([part.name, part.partNumber ?? '', partSource(part), ns.length, uc, ec, ns.map((n) => n.tag || n.id).join('; ')].map(esc).join(','));
+      lines.push([part.name, part.partNumber ?? '', partSource(part), ns.length, uc, ec, part.refillCost ?? '', part.refillCost === undefined ? '' : (part.refillCost * ns.length).toFixed(2), ns.map((n) => n.tag || n.id).join('; ')].map(esc).join(','));
     }
-    lines.push(['Total (USD)','','','','',total.toFixed(2),''].map(esc).join(','));
+    lines.push(['Known purchase subtotal (USD)','','','','',total.toFixed(2),'','',''].map(esc).join(','));
+    lines.push(['One refill subtotal (USD)','','','','','','',refillTotal.toFixed(2),''].map(esc).join(','));
     lines.push('');
     lines.push(['Unlinked Components'].map(esc).join(','));
     lines.push(['Tag','Type'].map(esc).join(','));
@@ -81,7 +84,7 @@ export default function BOMView({ nodes, parts, onClose }: BOMViewProps) {
         </div>
         <div style={{ overflowX: 'auto', marginTop: 20 }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
-            <thead><tr>{['Part Name','Part Number','Manufacturer / supplier','Qty','Unit Cost','Extended Cost','Used By'].map((h) => (<th key={h} style={cell}>{h}</th>))}</tr></thead>
+            <thead><tr>{['Part Name','Part Number','Manufacturer / supplier','Qty','Purchase Cost','Extended Purchase Cost','Refill Cost','Extended Refill Cost','Used By'].map((h) => (<th key={h} style={cell}>{h}</th>))}</tr></thead>
             <tbody>
               {rows.map(({ part, nodes: ns }) => (
                 <tr key={part.id}>
@@ -91,14 +94,18 @@ export default function BOMView({ nodes, parts, onClose }: BOMViewProps) {
                   <td style={cell}>{ns.length}</td>
                   <td style={cell}>{typeof part.unitCost === 'number' ? currency.format(part.unitCost) : '-'}</td>
                   <td style={cell}>{typeof part.unitCost === 'number' ? currency.format(part.unitCost * ns.length) : '-'}</td>
+                  <td style={cell}>{part.refillCost !== undefined ? currency.format(part.refillCost) : '-'}</td>
+                  <td style={cell}>{part.refillCost !== undefined ? currency.format(part.refillCost * ns.length) : '-'}</td>
                   <td style={cell}>{ns.map((n) => n.tag || n.id).join(', ')}</td>
                 </tr>
               ))}
-              {rows.length === 0 && (<tr><td colSpan={7} style={cell}>No components linked to parts yet.</td></tr>)}
+              {rows.length === 0 && (<tr><td colSpan={9} style={cell}>No components linked to parts yet.</td></tr>)}
             </tbody>
           </table>
         </div>
-        <p style={{ fontWeight: 700, marginTop: 12 }}>Total: {currency.format(total)}</p>
+        <p style={{ fontWeight: 700, marginTop: 12 }}>Known purchase subtotal: {currency.format(total)}</p>
+        {refillCount > 0 && <p>One refill for {refillCount} linked {refillCount === 1 ? 'unit' : 'units'} with a refill cost: {currency.format(refillTotal)}<br />Purchase plus one refill: {currency.format(total + refillTotal)} (only if the first fill is charged separately).</p>}
+        <p>Subtotals include only entered costs; missing costs are excluded.</p>
         {unlinked.length > 0 && (
           <section style={{ marginTop: 24 }}>
             <h3>Unlinked components ({unlinked.length})</h3>
