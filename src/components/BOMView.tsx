@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { Download, Package, X } from 'lucide-react';
 import type { Part } from '../lib/db';
+import { partSource } from '../lib/partSource';
 
 type Node = { id: string; tag: string; symbolType?: string; part?: string; kind: string; };
 type BOMViewProps = { nodes: Node[]; parts: Part[]; onClose: () => void; };
@@ -46,11 +47,11 @@ export default function BOMView({ nodes, parts, onClose }: BOMViewProps) {
   function exportCSV() {
     const esc = (v: string | number) => '"' + String(v).replace(/"/g, '""') + '"';
     const lines: string[] = [];
-    lines.push(['Part Name','Part Number','Manufacturer','Qty','Unit Cost','Extended Cost','Used By'].map(esc).join(','));
+    lines.push(['Part Name','Part Number','Manufacturer / supplier','Qty','Unit Cost','Extended Cost','Used By'].map(esc).join(','));
     for (const { part, nodes: ns } of rows) {
       const uc = part.unitCost ?? '';
       const ec = typeof part.unitCost === 'number' ? (part.unitCost * ns.length).toFixed(2) : '';
-      lines.push([part.name, part.partNumber ?? '', part.manufacturer ?? '', ns.length, uc, ec, ns.map((n) => n.tag || n.id).join('; ')].map(esc).join(','));
+      lines.push([part.name, part.partNumber ?? '', partSource(part), ns.length, uc, ec, ns.map((n) => n.tag || n.id).join('; ')].map(esc).join(','));
     }
     lines.push(['Total (USD)','','','','',total.toFixed(2),''].map(esc).join(','));
     lines.push('');
@@ -80,13 +81,13 @@ export default function BOMView({ nodes, parts, onClose }: BOMViewProps) {
         </div>
         <div style={{ overflowX: 'auto', marginTop: 20 }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
-            <thead><tr>{['Part Name','Part Number','Manufacturer','Qty','Unit Cost','Extended Cost','Used By'].map((h) => (<th key={h} style={cell}>{h}</th>))}</tr></thead>
+            <thead><tr>{['Part Name','Part Number','Manufacturer / supplier','Qty','Unit Cost','Extended Cost','Used By'].map((h) => (<th key={h} style={cell}>{h}</th>))}</tr></thead>
             <tbody>
               {rows.map(({ part, nodes: ns }) => (
                 <tr key={part.id}>
                   <td style={cell}>{part.name}</td>
                   <td style={cell}>{part.partNumber || '-'}</td>
-                  <td style={cell}>{part.manufacturer || '-'}</td>
+                  <td style={cell}>{partSource(part) || '-'}</td>
                   <td style={cell}>{ns.length}</td>
                   <td style={cell}>{typeof part.unitCost === 'number' ? currency.format(part.unitCost) : '-'}</td>
                   <td style={cell}>{typeof part.unitCost === 'number' ? currency.format(part.unitCost * ns.length) : '-'}</td>

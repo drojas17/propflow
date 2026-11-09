@@ -3,6 +3,7 @@ import type { FormEvent } from 'react';
 import { Plus, Trash2, X } from 'lucide-react';
 import type { Part } from '../lib/db';
 import './parts-dialog.css';
+import { partSource } from '../lib/partSource';
 
 type PartDialogProps = {
   part: Part | null;
@@ -15,10 +16,9 @@ const commonCategories = ['Valves','Regulators','Tanks','Sensors','Gauges','Fitt
 export default function PartDialog({ part, onSave, onClose }: PartDialogProps) {
   const [name, setName] = useState(part?.name ?? '');
   const [category, setCategory] = useState(part?.category ?? '');
-  const [manufacturer, setManufacturer] = useState(part?.manufacturer ?? '');
+  const [source, setSource] = useState(part ? partSource(part) : '');
   const [partNumber, setPartNumber] = useState(part?.partNumber ?? '');
   const [description, setDescription] = useState(part?.description ?? '');
-  const [supplier, setSupplier] = useState(part?.supplier ?? '');
   const [unitCost, setUnitCost] = useState(part?.unitCost?.toString() ?? '');
   const [specs, setSpecs] = useState<{id:string;key:string;value:string}[]>(() =>
     Object.entries(part?.specs ?? {}).map(([key, value]) => ({ id: crypto.randomUUID(), key, value }))
@@ -35,10 +35,10 @@ export default function PartDialog({ part, onSave, onClose }: PartDialogProps) {
       id: part?.id ?? crypto.randomUUID(),
       name: name.trim(),
       category: category.trim(),
-      manufacturer: manufacturer.trim() || undefined,
+      manufacturer: part && source.trim() === partSource(part) ? part.manufacturer : source.trim() || undefined,
       partNumber: partNumber.trim() || undefined,
       description: description.trim() || undefined,
-      supplier: supplier.trim() || undefined,
+      supplier: part && source.trim() === partSource(part) ? part.supplier : undefined,
       unitCost: cost,
       specs: activeSpecs.length ? Object.fromEntries(activeSpecs.map(r => [r.key.trim(), r.value.trim()])) : undefined,
       createdAt: part?.createdAt ?? new Date().toISOString(),
@@ -61,9 +61,8 @@ export default function PartDialog({ part, onSave, onClose }: PartDialogProps) {
             <label>Category *<input className="input" required list="part-cats" value={category} onChange={(e) => setCategory(e.target.value)} style={inputStyle} />
               <datalist id="part-cats">{commonCategories.map((v) => (<option key={v} value={v} />))}</datalist>
             </label>
-            <label>Manufacturer<input className="input" value={manufacturer} onChange={(e) => setManufacturer(e.target.value)} style={inputStyle} /></label>
+            <label>Manufacturer / supplier<input className="input" value={source} onChange={(e) => setSource(e.target.value)} style={inputStyle} /></label>
             <label>Part number<input className="input" value={partNumber} onChange={(e) => setPartNumber(e.target.value)} style={inputStyle} /></label>
-            <label>Supplier<input className="input" value={supplier} onChange={(e) => setSupplier(e.target.value)} style={inputStyle} /></label>
             <label>Unit cost (USD)<input className="input" type="number" min="0" step="any" value={unitCost} onChange={(e) => setUnitCost(e.target.value)} style={inputStyle} /></label>
           </div>
           <label>Description<textarea className="input" rows={3} value={description} onChange={(e) => setDescription(e.target.value)} style={{ ...inputStyle, resize: 'vertical' }} /></label>

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Package, Plus, Search, X } from 'lucide-react';
 import type { Part } from '../lib/db';
+import { partSource } from '../lib/partSource';
 import './parts-dialog.css';
 
 type PartSelectorProps = {
@@ -17,7 +18,7 @@ export default function PartSelector({ parts, onSelect, onClose, onCreateNew }: 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return parts.filter((p) =>
-      [p.name, p.partNumber, p.manufacturer, p.category].some((v) => v?.toLowerCase().includes(q))
+      [p.name, p.partNumber, partSource(p), p.category].some((v) => v?.toLowerCase().includes(q))
     );
   }, [parts, search]);
 
@@ -39,7 +40,7 @@ export default function PartSelector({ parts, onSelect, onClose, onCreateNew }: 
             <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 12, border: '1px solid #374151', borderRadius: 8, background: '#1f2937' }}>
               <div style={{ flex: 1 }}>
                 <strong>{p.name}</strong>
-                <div style={{ fontSize: 13, color: '#cbd5e1' }}>{[p.partNumber, p.manufacturer].filter(Boolean).join(' \u00b7 ') || 'No part number'}</div>
+                <div style={{ fontSize: 13, color: '#cbd5e1' }}>{[p.partNumber, partSource(p)].filter(Boolean).join(' \u00b7 ') || 'No part number'}</div>
                 <div style={{ fontSize: 12, color: '#94a3b8' }}>{p.category} \u00b7 {typeof p.unitCost === 'number' ? currency.format(p.unitCost) : 'Cost not set'}</div>
               </div>
               <button className="button" type="button" onClick={() => onSelect(p)}>Select</button>

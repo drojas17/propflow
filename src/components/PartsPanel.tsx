@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Box, Edit3, Plus, Search, Trash2 } from 'lucide-react';
 import type { Part } from '../lib/db';
+import { partSource } from '../lib/partSource';
 
 type PartsPanelProps = {
   parts: Part[];
@@ -38,7 +39,7 @@ export default function PartsPanel({
       const matchesSearch = [
         part.name,
         part.partNumber,
-        part.manufacturer,
+        partSource(part),
         part.category,
       ].some((value) => value?.toLowerCase().includes(query));
       return matchesSearch && (!category || part.category === category);
@@ -68,7 +69,7 @@ export default function PartsPanel({
             <strong style={{ overflowWrap: 'anywhere' }}>{part.name}</strong>
             <div style={{ marginTop: 6, fontSize: 13, color: '#cbd5e1' }}>
               <div>{part.partNumber || 'No part number'}</div>
-              <div>{part.manufacturer || 'No manufacturer'}</div>
+              <div>{partSource(part) || 'No manufacturer / supplier'}</div>
               <div>{typeof part.unitCost === 'number' && Number.isFinite(part.unitCost) ? currency.format(part.unitCost) : 'Cost not set'}</div>
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
