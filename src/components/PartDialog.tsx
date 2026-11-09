@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { Plus, Trash2, X } from 'lucide-react';
 import type { Part } from '../lib/db';
+import './parts-dialog.css';
 
 type PartDialogProps = {
   part: Part | null;
@@ -49,10 +50,10 @@ export default function PartDialog({ part, onSave, onClose }: PartDialogProps) {
   return (
     <div onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
       style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'grid', placeItems: 'center', padding: 16, background: 'rgba(0,0,0,0.75)' }}>
-      <div role="dialog" aria-modal="true" style={{ width: '100%', maxWidth: 640, maxHeight: '90vh', overflowY: 'auto', padding: 24, borderRadius: 12, border: '1px solid #374151', background: '#111827', color: '#e5e7eb' }}>
+      <div className="parts-dialog" role="dialog" aria-modal="true" style={{ width: '100%', maxWidth: 640, maxHeight: '90vh', overflowY: 'auto', padding: 24, borderRadius: 12, border: '1px solid #374151', background: '#111827', color: '#e5e7eb' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <h2 style={{ margin: 0, flex: 1 }}>{part ? 'Edit part' : 'New part'}</h2>
-          <button className="button" type="button" onClick={onClose}><X size={18} /></button>
+          <button className="parts-dialog-close" aria-label="Close" type="button" onClick={onClose}><X size={18} /></button>
         </div>
         <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 16, marginTop: 20 }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>

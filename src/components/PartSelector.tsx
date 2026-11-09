@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Package, Plus, Search, X } from 'lucide-react';
 import type { Part } from '../lib/db';
+import './parts-dialog.css';
 
 type PartSelectorProps = {
   parts: Part[];
@@ -23,11 +24,11 @@ export default function PartSelector({ parts, onSelect, onClose, onCreateNew }: 
   return (
     <div onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
       style={{ position: 'fixed', inset: 0, zIndex: 1001, display: 'grid', placeItems: 'center', padding: 16, background: 'rgba(0,0,0,0.75)' }}>
-      <div role="dialog" aria-modal="true" style={{ display: 'flex', flexDirection: 'column', gap: 16, width: '100%', maxWidth: 600, maxHeight: '90vh', padding: 24, borderRadius: 12, border: '1px solid #374151', background: '#111827', color: '#e5e7eb' }}>
+      <div className="parts-dialog" role="dialog" aria-modal="true" style={{ display: 'flex', flexDirection: 'column', gap: 16, width: '100%', maxWidth: 600, maxHeight: '90vh', padding: 24, borderRadius: 12, border: '1px solid #374151', background: '#111827', color: '#e5e7eb' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <Package size={22} />
           <h2 style={{ margin: 0, flex: 1 }}>Select a part</h2>
-          <button className="button" type="button" onClick={onClose}><X size={18} /></button>
+          <button className="parts-dialog-close" aria-label="Close" type="button" onClick={onClose}><X size={18} /></button>
         </div>
         <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <Search size={18} />

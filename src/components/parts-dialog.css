@@ -1,0 +1,7 @@
+ .parts-dialog .input { box-sizing: border-box; min-width: 0; background: #08121a; color: #e5e7eb; border: 1px solid #304454; border-radius: 6px; padding: 9px 10px; font: inherit; }
+.parts-dialog textarea.input { resize: vertical; }
+.parts-dialog .input:focus { outline: 2px solid #55d7ff; outline-offset: 1px; }
+.parts-dialog .button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 12px; border: 1px solid #385364; border-radius: 6px; background: #102432; color: #e5e7eb; font: inherit; cursor: pointer; }
+.parts-dialog .button:hover { background: #173244; }
+.parts-dialog .parts-dialog-close { display: grid; place-items: center; width: 32px; height: 32px; padding: 0; border: 0; background: transparent; color: #e5e7eb; cursor: pointer; }
+.parts-dialog button:focus-visible { outline: 2px solid #55d7ff; outline-offset: 2px; }
