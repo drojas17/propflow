@@ -3,17 +3,20 @@ import { Package, Plus, Search, X } from 'lucide-react';
 import type { Part } from '../lib/db';
 import { partSource } from '../lib/partSource';
 import './parts-dialog.css';
+import PartDetails from './PartDetails';
 
 type PartSelectorProps = {
   parts: Part[];
   onSelect: (part: Part) => void;
   onClose: () => void;
   onCreateNew: () => void;
+  onEdit: (part: Part) => void;
 };
 
 const currency = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
 
-export default function PartSelector({ parts, onSelect, onClose, onCreateNew }: PartSelectorProps) {
+export default function PartSelector({ parts, onSelect, onClose, onCreateNew, onEdit }: PartSelectorProps) {
+  const [expanded, setExpanded] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -37,14 +40,14 @@ export default function PartSelector({ parts, onSelect, onClose, onCreateNew }: 
         </label>
         <div style={{ display: 'grid', gap: 8, overflowY: 'auto' }}>
           {filtered.map((p) => (
-            <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 12, border: '1px solid #374151', borderRadius: 8, background: '#1f2937' }}>
+            <div key={p.id} style={{ padding: 12, border: '1px solid #374151', borderRadius: 8, background: '#1f2937' }}><div style={{display:'flex', alignItems:'center', gap:12}}>
               <div style={{ flex: 1 }}>
                 <strong>{p.name}</strong>
                 <div style={{ fontSize: 13, color: '#cbd5e1' }}>{[p.partNumber, partSource(p)].filter(Boolean).join(' \u00b7 ') || 'No part number'}</div>
                 <div style={{ fontSize: 12, color: '#94a3b8' }}>{p.category} \u00b7 {typeof p.unitCost === 'number' ? currency.format(p.unitCost) : 'Cost not set'}</div>
               </div>
               <button className="button" type="button" onClick={() => onSelect(p)}>Select</button>
-            </div>
+            </div><div style={{display:'flex',gap:8,marginTop:8}}><button className="button" type="button" onClick={() => setExpanded(expanded === p.id ? null : p.id)}>{expanded === p.id ? 'Hide details' : 'View details'}</button><button className="button" type="button" onClick={() => onEdit(p)}>Edit</button></div>{expanded === p.id && <PartDetails part={p} />}</div>
           ))}
           {filtered.length === 0 && <p style={{ textAlign: 'center', color: '#94a3b8' }}>{parts.length === 0 ? 'No parts yet.' : 'No matching parts.'}</p>}
         </div>

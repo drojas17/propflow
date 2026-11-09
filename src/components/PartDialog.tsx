@@ -9,11 +9,14 @@ type PartDialogProps = {
   part: Part | null;
   onSave: (part: Part) => void;
   onClose: () => void;
+  propertyOptions: string[];
 };
+
+const commonProperties: Record<string, string[]> = { tanks:['Volume','Maximum pressure','Gas','Material'], valves:['Maximum pressure','Flow coefficient (Cv)','Orifice size','Material'], regulators:['Inlet pressure','Outlet pressure range','Flow coefficient (Cv)','Material'], sensors:['Measurement range','Accuracy','Output signal'], fittings:['Maximum pressure','Material'], tubing:['Outer diameter','Wall thickness','Material','Maximum pressure'], hoses:['Length','Inner diameter','Maximum pressure','Material'] };
 
 const commonCategories = ['Valves','Regulators','Tanks','Sensors','Gauges','Fittings','Tubing','Hoses','Actuators','Other'];
 
-export default function PartDialog({ part, onSave, onClose }: PartDialogProps) {
+export default function PartDialog({ part, onSave, onClose, propertyOptions }: PartDialogProps) {
   const [name, setName] = useState(part?.name ?? '');
   const [category, setCategory] = useState(part?.category ?? '');
   const [source, setSource] = useState(part ? partSource(part) : '');
@@ -25,6 +28,7 @@ export default function PartDialog({ part, onSave, onClose }: PartDialogProps) {
   const [specs, setSpecs] = useState<{id:string;key:string;value:string}[]>(() =>
     Object.entries(part?.specs ?? {}).map(([key, value]) => ({ id: crypto.randomUUID(), key, value }))
   );
+  const [links, setLinks] = useState<{id:string;label:string;url:string}[]>(() => (part?.links ?? []).map(link => ({ ...link, id: crypto.randomUUID() })));
   const [error, setError] = useState('');
 
   function handleSubmit(e: FormEvent) {
@@ -34,8 +38,14 @@ export default function PartDialog({ part, onSave, onClose }: PartDialogProps) {
     if (cost !== undefined && (!Number.isFinite(cost) || cost < 0)) { setError('Unit cost must be a non-negative number.'); return; }
     const refill = refillCost.trim() === '' ? undefined : Number(refillCost);
     if (refill !== undefined && (!Number.isFinite(refill) || refill < 0)) { setError('Refill cost must be a non-negative number.'); return; }
+    const activeLinks = links.filter(link => link.label.trim() || link.url.trim());
+    for (const link of activeLinks) {
+      try { const url = new URL(link.url.trim()); if (!link.label.trim() || !['http:', 'https:'].includes(url.protocol)) throw new Error(); }
+      catch { setError('Each link needs a name and a valid http or https URL.'); return; }
+    }
     const activeSpecs = specs.filter(r => r.key.trim() || r.value.trim());
     onSave({
+      ...part,
       id: part?.id ?? crypto.randomUUID(),
       name: name.trim(),
       category: category.trim(),
@@ -45,6 +55,7 @@ export default function PartDialog({ part, onSave, onClose }: PartDialogProps) {
       supplier: part && source.trim() === partSource(part) ? part.supplier : undefined,
       unitCost: cost,
       refillCost: refill,
+      links: activeLinks.length ? activeLinks.map(({label, url}) => ({label: label.trim(), url: url.trim()})) : undefined,
       fittings: Object.keys(fittings).length ? fittings : undefined,
       specs: activeSpecs.length ? Object.fromEntries(activeSpecs.map(r => [r.key.trim(), r.value.trim()])) : undefined,
       createdAt: part?.createdAt ?? new Date().toISOString(),
@@ -86,15 +97,29 @@ export default function PartDialog({ part, onSave, onClose }: PartDialogProps) {
           <label>Description<textarea className="input" rows={3} value={description} onChange={(e) => setDescription(e.target.value)} style={{ ...inputStyle, resize: 'vertical' }} /></label>
           <fieldset style={{ border: '1px solid #374151', borderRadius: 8 }}>
             <legend>Specifications</legend>
+            <p>Optional properties, such as maximum pressure and material.</p>
+            <datalist id="part-properties">{[...new Set([...(commonProperties[category.trim().toLowerCase()] ?? []), ...propertyOptions, ...specs.map(row => row.key).filter(Boolean)])].map(name => <option key={name} value={name} />)}</datalist>
             <div style={{ display: 'grid', gap: 8, padding: 4 }}>
               {specs.map((row, i) => (
                 <div key={row.id} style={{ display: 'flex', gap: 8 }}>
-                  <input className="input" placeholder="Key" value={row.key} onChange={(e) => setSpecs(specs.map(s => s.id === row.id ? { ...s, key: e.target.value } : s))} style={{ flex: 1 }} />
-                  <input className="input" placeholder="Value" value={row.value} onChange={(e) => setSpecs(specs.map(s => s.id === row.id ? { ...s, value: e.target.value } : s))} style={{ flex: 1 }} />
+                  <input className="input" aria-label="Specification property" list="part-properties" placeholder="Property, e.g. Maximum pressure" value={row.key} onChange={(e) => setSpecs(specs.map(s => s.id === row.id ? { ...s, key: e.target.value } : s))} style={{ flex: 1 }} />
+                  <input className="input" aria-label="Specification value" placeholder="Value, e.g. 2,000 psi" value={row.value} onChange={(e) => setSpecs(specs.map(s => s.id === row.id ? { ...s, value: e.target.value } : s))} style={{ flex: 1 }} />
                   <button className="button" type="button" onClick={() => setSpecs(specs.filter(s => s.id !== row.id))}><Trash2 size={16} /></button>
                 </div>
               ))}
               <button className="button" type="button" onClick={() => setSpecs([...specs, { id: crypto.randomUUID(), key: '', value: '' }])}><Plus size={16} /> Add specification</button>
+            </div>
+          </fieldset>
+          <fieldset style={{ border: '1px solid #374151', borderRadius: 8 }}>
+            <legend>Links</legend>
+            <p>Add product pages, datasheets, or other references.</p>
+            <div style={{ display: 'grid', gap: 8, padding: 4 }}>
+              {links.map(link => <div key={link.id} style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <input className="input" aria-label="Link name" placeholder="Name, e.g. Datasheet" value={link.label} onChange={e => setLinks(prev => prev.map(item => item.id === link.id ? {...item, label:e.target.value} : item))} style={{flex:1}} />
+                <input className="input" aria-label="Link URL" placeholder="https://..." value={link.url} onChange={e => setLinks(prev => prev.map(item => item.id === link.id ? {...item, url:e.target.value} : item))} style={{flex:2}} />
+                <button className="button" type="button" aria-label="Remove link" onClick={() => setLinks(prev => prev.filter(item => item.id !== link.id))}><Trash2 size={16} /></button>
+              </div>)}
+              <button className="button" type="button" onClick={() => setLinks(prev => [...prev, {id:crypto.randomUUID(),label:'',url:''}])}><Plus size={16} /> Add link</button>
             </div>
           </fieldset>
           {error && <p style={{ margin: 0, color: '#fca5a5' }}>{error}</p>}

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Box, Edit3, Plus, Search, Trash2 } from 'lucide-react';
 import type { Part } from '../lib/db';
+import PartDetails from './PartDetails';
 import { partSource } from '../lib/partSource';
 
 type PartsPanelProps = {
@@ -25,6 +26,7 @@ export default function PartsPanel({
   onSelect,
   selectedId,
 }: PartsPanelProps) {
+  const [expanded, setExpanded] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
 
@@ -73,10 +75,12 @@ export default function PartsPanel({
               <div>{typeof part.unitCost === 'number' && Number.isFinite(part.unitCost) ? currency.format(part.unitCost) : 'Cost not set'}</div>
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+              <button className="button" type="button" onClick={() => setExpanded(expanded === part.id ? null : part.id)}>{expanded === part.id ? 'Hide details' : 'Details'}</button>
               <button className="button" type="button" onClick={() => onEdit(part)} aria-label={'Edit ' + part.name}><Edit3 size={14} /> Edit</button>
               <button className="button" type="button" onClick={() => onDelete(part.id)} aria-label={'Delete ' + part.name}><Trash2 size={14} /> Delete</button>
               {onSelect && <button className="button" type="button" onClick={() => onSelect(part)}>Select</button>}
             </div>
+            {expanded === part.id && <PartDetails part={part} />}
           </div>
         ))}
         {filteredParts.length === 0 && (

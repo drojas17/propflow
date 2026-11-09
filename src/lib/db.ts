@@ -21,6 +21,7 @@ export interface Part {
   supplier?: string;
   unitCost?: number;
   refillCost?: number;
+  links?: { label: string; url: string }[];
   fittings?: Partial<Record<'left' | 'right' | 'top' | 'bottom' | 'actuator', { standard: string; size: string; end: 'male' | 'female' | 'other' }>>;
   createdAt: string;
 }
