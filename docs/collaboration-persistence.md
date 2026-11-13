@@ -20,7 +20,8 @@ reload, merge and retry. Each editor has one save in flight; edits during a
 request remain dirty and drain before manual Save/project navigation completes.
 Read failures and timeouts cannot fall through to a replacement write.
 
-Browser IndexedDB journals incremental local edits. Reopening the project
+Browser IndexedDB journals incremental local and received peer edits, including
+the dependencies needed to replay subsequent local changes. Reopening the project
 replays pending updates onto the stored history. Only records included in an
 acknowledged save are cleared; one tab cannot clear another tab's new edits.
 Storage errors are logged and network retries continue. This is browser-local

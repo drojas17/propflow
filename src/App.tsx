@@ -686,6 +686,7 @@ setSaved(false)};const up=()=>{setGuideY(null);setGuideX(null);const jUp=nodes.f
     const durable = !isReadOnly && !publicOnly && projectId !== 'tour-local' && !projectId.startsWith('local-');
     readOnlyRef.current = isReadOnly;
     const sb = getSupabase();
+    let replayingRecovery = false;
     let lastServerRevision = '';
     let recovery: Awaited<ReturnType<typeof openProjectRecovery>> | null = null;
     const store = {
@@ -743,7 +744,7 @@ setSaved(false)};const up=()=>{setGuideY(null);setGuideX(null);const jUp=nodes.f
     const syncDocToReact=()=>{const state=readDocState(collab);lastPushedRef.current=state;pushGuard.current=true;setNodes(state.nodes as Node[]);setEdges(state.edges as Edge[]);setShapes(state.shapes as Shape[]);setParts((state.parts as Part[])??[]);setCustomSymbols((state.customSymbols as CustomSymbol[])??[]);setSymbolOverrides((state.symbolOverrides as Partial<Record<SymbolType,CustomSymbol>>)??{});applyPlanning(state as ProjectDoc);const context=selectionRef.current,current=selectedDiagram({...state,sop:state.sop as SopDocument,sequences:state.sequences??[]},state.testPlans??[],context.testId,context.sequenceId),visible=current.source,nodeIds=new Set((visible.nodes as Node[]).map(n=>n.id)),edgeIds=new Set((visible.edges as Edge[]).map(e=>e.id)),shapeIds=new Set((visible.shapes as Shape[]).map(s=>s.id));setSelected(id=>nodeIds.has(id)?id:'');setSelectedIds(ids=>ids.every(id=>nodeIds.has(id))?ids:ids.filter(id=>nodeIds.has(id)));setSelectedEdge(id=>id&&edgeIds.has(id)?id:null);setSelectedShape(id=>id&&shapeIds.has(id)?id:null)};
     const onDocUpdate = (update: Uint8Array, origin: unknown) => {
       if (origin === 'init' || cancelled || !hydratedRef.current) return;
-      if (origin !== 'remote') recovery?.append(update);
+      if (!replayingRecovery) recovery?.append(update);
       if (origin !== 'remote' && !suppressBroadcast.current) syncHandleRef.current?.broadcastUpdate(update);
       if (!suppressReactSync.current && !pendingLocalRef.current) syncDocToReact();
       setSaved(false);
@@ -819,7 +820,9 @@ setSaved(false)};const up=()=>{setGuideY(null);setGuideX(null);const jUp=nodes.f
         if (recovery?.updates.length) {
           // Suppress journaling the replay itself; original records remain until
           // the recovered history is safely on the server.
-          for (const update of recovery.updates) Y.applyUpdate(collab.doc, update, 'remote');
+          replayingRecovery = true;
+          try { for (const update of recovery.updates) Y.applyUpdate(collab.doc, update, 'remote'); }
+          finally { replayingRecovery = false; }
           syncDocToReact();
           setSaved(false);
         }
