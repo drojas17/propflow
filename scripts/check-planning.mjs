@@ -40,6 +40,20 @@ const doc={...diagram,testPlans:[plan],projectName:'Review project',failureAnaly
 const file=new File([JSON.stringify({format:'propflow-project',version:2,...doc})],'review.json')
 const parsed=await parseProjectFile(file)
 assert.deepEqual(parsed.doc.testPlans,[plan])
+// Physical tubing inputs are ordinary edge data in every configuration and portable copy.
+const hydraulics={lengthM:2.4,idIn:.430,material:'copper',roughnessMm:.0015}
+const physicalDoc=structuredClone(doc);physicalDoc.edges[0].hydraulics=hydraulics;physicalDoc.testPlans[0].edges[0].hydraulics=hydraulics
+const physicalParsed=await parseProjectFile(new File([JSON.stringify({format:'propflow-project',version:2,...physicalDoc})],'physical.json'))
+assert.deepEqual(physicalParsed.doc.edges[0].hydraulics,hydraulics)
+assert.deepEqual(prepareProjectAppend(physicalParsed.doc).plans[1].edges[0].hydraulics,hydraulics)
+const physicalCollab=createCollabDoc();projectToDoc(physicalCollab,physicalDoc)
+assert.deepEqual(docToProject(physicalCollab).edges[0].hydraulics,hydraulics)
+assert.deepEqual(docToProject(physicalCollab).testPlans[0].edges[0].hydraulics,hydraulics)
+physicalCollab.awareness.destroy();physicalCollab.doc.destroy()
+for(const invalid of [{idIn:0},{lengthM:-1},{roughnessMm:'bad'},{material:'wood'}]){
+ const bad=structuredClone(physicalDoc);bad.edges[0].hydraulics=invalid
+ await assert.rejects(()=>parseProjectFile(new File([JSON.stringify({format:'propflow-project',version:2,...bad})],'invalid.json')),/physical line/)
+}
 // User-defined types must survive file import, append, and collaboration reloads.
 const customPlan={...plan,type:'Leak-check / ambient'}
 const customDoc={...doc,testPlans:[customPlan]}

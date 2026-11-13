@@ -29,7 +29,7 @@ const cases=[
 ]
 let splits=0
 for(const extra of cases){
- const edge={id:'original',from:'a',to:'b',lineType:'flex',assembly:[{id:'part',type:'adapter',label:'Adapter'}],...extra}
+ const edge={id:'original',from:'a',to:'b',lineType:'flex',hydraulics:{lengthM:3,idIn:.43,material:'copper',roughnessMm:.0015},assembly:[{id:'part',type:'adapter',label:'Adapter'}],...extra}
  const original=plain(context.edgeRoute(edge,nodes))
  for(let i=0;i<original.length-1;i++){
   const a=original[i],b=original[i+1];if(Math.hypot(a.x-b.x,a.y-b.y)<1e-8)continue
@@ -39,7 +39,8 @@ for(const extra of cases){
    assert.deepEqual(simplify([...routes[0],...routes[1]]),simplify(original))
    assert.equal(halves[0].fromPort,extra.fromPort??halves[0].fromPort)
    assert.equal(halves[1].toPort,extra.toPort??halves[1].toPort)
-   for(const half of halves){assert.equal(half.lineType,'flex');assert.deepEqual(half.assembly,edge.assembly);assert.notEqual(half.id,edge.id)}
+   assert(Math.abs(halves[0].hydraulics.lengthM+halves[1].hydraulics.lengthM-3)<1e-10)
+   for(const half of halves){assert.equal(half.hydraulics.idIn,.43);assert.equal(half.hydraulics.material,'copper');assert.equal(half.lineType,'flex');assert.deepEqual(half.assembly,edge.assembly);assert.notEqual(half.id,edge.id)}
    assert.deepEqual(plain(context.edgeRoute(halves[0],[...nodes,j])),routes[0])
    // Repeated branches on an already split run must also preserve its geometry.
    const nextHit=context.projectToRoute(routes[0][1],routes[0]),j2={id:'j2',kind:'junction',...nextHit.p}
