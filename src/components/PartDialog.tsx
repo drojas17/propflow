@@ -85,8 +85,8 @@ export default function PartDialog({ part, onSave, onClose, propertyOptions }: P
           <label>Refill cost per unit (USD, optional)<input className="input" type="number" min="0" step="any" value={refillCost} onChange={(e) => setRefillCost(e.target.value)} style={inputStyle} /></label>
           <fieldset style={{ border: '1px solid #374151', borderRadius: 8 }}>
             <legend>Port fittings (optional)</legend>
-            <p>Use the symbol’s unrotated port positions. Enter matching standards and sizes consistently; warnings are preliminary.</p>
-            {(['left', 'right', 'top', 'bottom', 'actuator'] as const).map(port => {
+            <p>Use unrotated symbol positions. Pressure left/right are regulator gauge ports on each side. Enter matching standards and sizes consistently; warnings are preliminary.</p>
+            {(['left', 'right', 'top', 'bottom', 'actuator', 'pressureLeft', 'pressureRight'] as const).map(port => {
               const fitting = fittings[port];
               return <div key={port} style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginBottom: 8 }}>
                 <label style={{ minWidth: 70 }}><input type="checkbox" checked={!!fitting} onChange={e => setFittings(prev => { const next = { ...prev }; if (e.target.checked) next[port] = { standard: '', size: '', end: 'other' }; else delete next[port]; return next; })} /> {port}</label>

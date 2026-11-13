@@ -22,7 +22,7 @@ export interface Part {
   unitCost?: number;
   refillCost?: number;
   links?: { label: string; url: string }[];
-  fittings?: Partial<Record<'left' | 'right' | 'top' | 'bottom' | 'actuator', { standard: string; size: string; end: 'male' | 'female' | 'other' }>>;
+  fittings?: Partial<Record<'left' | 'right' | 'top' | 'bottom' | 'actuator' | 'pressureLeft' | 'pressureRight', { standard: string; size: string; end: 'male' | 'female' | 'other' }>>;
   createdAt: string;
 }
 
