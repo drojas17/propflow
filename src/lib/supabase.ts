@@ -1,6 +1,7 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
 let client: SupabaseClient | null = null;
+let shareResolver: SupabaseClient | null = null;
 let warned = false;
 
 /** Build-time flag for the local-only demo (downloads JSON instead of saving). */
@@ -35,4 +36,18 @@ export function requireSupabase(): SupabaseClient {
   const sb = getSupabase();
   if (!sb) throw new Error('Supabase is not configured (public mode or missing env vars)');
   return sb;
+}
+
+/** Share-token resolution is intentionally granted to anon only. A signed-in
+ * editor must use the same public resolver as a recipient, without inheriting
+ * the editor's authenticated-role session or changing database grants. */
+export function requireShareResolver(): SupabaseClient {
+  if (shareResolver) return shareResolver;
+  const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+  const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
+  if (!url || !anonKey || isPublicMode()) throw new Error('Supabase is not configured');
+  shareResolver = createClient(url, anonKey, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false, storageKey: 'propflow-share-resolver' },
+  });
+  return shareResolver;
 }

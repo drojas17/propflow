@@ -54,6 +54,14 @@ Portable version-2 project JSON intentionally excludes `_collab`. Imports create
 fresh history and preserve the source project. The existing JSON shape and
 read-only share-link format remain compatible.
 
+Signed-in viewers also hit a separate existing bug: `resolve_share_token` is
+granted to the anonymous role, but the editor called it with its authenticated
+session and received HTTP 403. Token resolution now uses an isolated anonymous
+client without session persistence, token refresh or URL-session detection.
+Database grants are unchanged. Read-only views show Read-only, hide Save and
+editing tools, and disable inspector/library editing instead of allowing
+temporary changes that could never be persisted.
+
 ## Validation
 
 - `node scripts/check-project-persistence.mjs`: simultaneous migration, late
@@ -61,6 +69,9 @@ read-only share-link format remain compatible.
   one request in flight, edits during saves, failed reads, hung requests, delete
   versus edit, legal pipe stubs, local undo and portable copies.
 - Existing collaboration, planning/import, custom-library and export-key checks.
+- `node scripts/check-share-links.mjs`: signed-in callers use anonymous-only
+  resolution without inheriting their editor session; invalid/expired tokens,
+  hashing and resolver errors retain their previous behavior.
 - Production TypeScript/Vite build.
 - Live Supabase: simultaneous migration plus five concurrent save/reload rounds
   on `zzz-sharing-20261112-race`; all edits retained, six conflicts safely retried.
@@ -68,6 +79,11 @@ read-only share-link format remain compatible.
   revision unchanged.
 - Browser checks use disposable ASTERIA copies. Two local-browser editors saved
   different components; a failed-save edit was restored after reload.
+- Deployed two-tab edits retained both component changes; deleting a tank with
+  four connected pipes survived reload with no dangling pipes. ASTERIA and
+  ASTERIA-RCS rendered. PNG and PDF exports contained the full diagram and key.
+  Landing-card JSON download/import opened an independent copy with fresh
+  history and left the original document unchanged.
 
 ## Remaining limits
 

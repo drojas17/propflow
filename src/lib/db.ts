@@ -1,4 +1,4 @@
-import { requireSupabase } from './supabase';
+import { requireSupabase, requireShareResolver } from './supabase';
 import { mergeCustomSymbols } from './customLibrary';
 import type {Sequence, TestPlan, FailureAnalysis} from '../testModel';
 
@@ -222,7 +222,7 @@ export async function createShareLink(projectId: string, daysValid = 30): Promis
  * clients get no direct SELECT on share_links, so token hashes cannot be
  * enumerated — only a valid, unexpired token reveals its project id. */
 export async function resolveShareToken(token: string): Promise<{ projectId: string } | null> {
-  const sb = requireSupabase();
+  const sb = requireShareResolver();
   if (!/^[A-Za-z0-9_-]{40,}$/.test(token)) return null;
   const tokenHash = await sha256Hex(token);
   const { data, error } = await sb.rpc('resolve_share_token', { p_hash: tokenHash });
