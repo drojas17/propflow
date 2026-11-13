@@ -296,6 +296,9 @@ export function mergeRemoteProject(c: CollabDoc, remote: ProjectDoc, base: DocSt
     for (const [id, rj] of remoteById) {
       const cur = ymap.get(id);
       if (cur === undefined) {
+        // An entity in base but missing locally was deleted here. A stale
+        // snapshot containing it is not a new remote addition.
+        if (baseById.has(id)) continue;
         ymap.set(id, JSON.parse(rj));
         changed = true;
       } else {
@@ -335,6 +338,8 @@ export function mergeRemoteProject(c: CollabDoc, remote: ProjectDoc, base: DocSt
     mergeMap(c.nodes, base?.nodes, (remote.nodes ?? []) as { id: string }[]);
     mergeMap(c.edges, base?.edges, (remote.edges ?? []) as { id: string }[]);
     mergeMap(c.shapes, base?.shapes, (remote.shapes ?? []) as { id: string }[]);
+    if (remote.parts !== undefined) mergeMap(c.parts, base?.parts, remote.parts);
+    if (remote.customSymbols !== undefined) mergeMap(c.customSymbols, base?.customSymbols as { id: string }[] | undefined, remote.customSymbols as { id: string }[]);
     mergeMeta('canvasSize', base?.canvasSize, remote.canvasSize);
     mergeMeta('sop', base?.sop ?? null, remote.sop ?? null);
     if(remote.projectName!==undefined)mergeMeta('projectName',base?.projectName??'',remote.projectName);
@@ -451,7 +456,9 @@ export function attachRealtimeSync(
   let hydrated = false;
   let left = false;
   const buffered: Uint8Array[] = [];
-  const topic = `propflow:project:${projectId}`;
+  // Pre-v2 clients manufacture unrelated seed histories. Never integrate
+  // those histories into the canonical persisted document.
+  const topic = `propflow:v2:project:${projectId}`;
   let channel: RealtimeChannel | null = null;
   let gen = 0;
   let joinPending = false;
@@ -476,12 +483,9 @@ export function attachRealtimeSync(
   };
 
   /**
-   * Full-state handshake. Every client builds its Y.Doc independently from the
-   * same DB snapshot, so incremental updates alone can never integrate: a
-   * `Y.Map.set` that replaces a key links the new struct to the old one via
-   * `origin`, and peers never received each other's independent init structs.
-   * Exchanging full states gives every peer the complete struct history, after
-   * which incremental updates integrate cleanly.
+   * Full-state handshake exchanges updates missed while disconnected. Every
+   * client starts from the canonical persisted history, so a stale joiner
+   * carries shared ancestors rather than competing initialization writes.
    */
   const broadcastSyncState = () => {
     if (!live || !hydrated || !channel) return;
@@ -547,8 +551,8 @@ export function attachRealtimeSync(
     added: number[];
     updated: number[];
     removed: number[];
-  }) => {
-    if (!live || !channel) return;
+  }, origin: unknown) => {
+    if (origin === 'remote' || !live || !channel) return;
     const update = encodeAwarenessUpdate(collab.awareness, [...added, ...updated, ...removed]);
     void channel.send({ type: 'broadcast', event: 'awareness', payload: { u: encodeUpdate(update) } });
   };
@@ -584,7 +588,7 @@ export function attachRealtimeSync(
         live = false;
         gen++; // supersede this channel so its own unsubscribe-close is ignored
         try {
-          void ch.unsubscribe();
+          void sb.removeChannel(ch);
         } catch {
           /* best effort */
         }
@@ -604,7 +608,7 @@ export function attachRealtimeSync(
       joinPending = true;
       gen++;
       try {
-        void channel?.unsubscribe();
+        if (channel) void sb.removeChannel(channel);
       } catch {
         /* best effort */
       }
@@ -634,7 +638,7 @@ export function attachRealtimeSync(
     collab.awareness.off('change', onAwarenessChange);
     const ch = channel;
     channel = null;
-    if (ch) void ch.unsubscribe();
+    if (ch) void sb.removeChannel(ch);
   };
 
   return { broadcastUpdate, setHydrated, leave };

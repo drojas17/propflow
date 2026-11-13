@@ -27,6 +27,8 @@ export interface Part {
 }
 
 export interface ProjectDoc {
+  /** Internal durable Yjs history. Never included in portable JSON exports. */
+  _collab?: { version: 1; state: string };
   nodes: unknown[];
   edges: unknown[];
   shapes: unknown[];
@@ -87,24 +89,52 @@ export async function ensureProject(id: string, name?: string): Promise<void> {
 // ---------------------------------------------------------------- documents
 
 export async function loadProjectDoc(id: string): Promise<ProjectDoc | null> {
+  return (await loadProjectSnapshot(id))?.doc ?? null;
+}
+
+export interface ProjectSnapshot {
+  doc: ProjectDoc;
+  updatedAt: string | null;
+}
+
+/** Read the content and its revision together; separate reads race with saves. */
+export async function loadProjectSnapshot(id: string): Promise<ProjectSnapshot | null> {
   const sb = requireSupabase();
   const { data, error } = await sb
     .from('project_documents')
-    .select('doc')
+    .select('doc,updated_at')
+    .abortSignal(AbortSignal.timeout(15000))
     .eq('project_id', id)
     .maybeSingle();
   if (error) throw error;
-  return (data?.doc as ProjectDoc | undefined) ?? null;
+  return data ? { doc: data.doc as ProjectDoc, updatedAt: data.updated_at } : null;
+}
+
+/** Atomic conditional write. A lost race must reload/merge, never upsert. */
+export async function compareAndSwapProjectDoc(id: string, doc: ProjectDoc, previous: ProjectSnapshot | null): Promise<ProjectSnapshot | null> {
+  const sb = requireSupabase();
+  const updatedAt = new Date(Math.max(Date.now(), (Date.parse(previous?.updatedAt ?? '') || 0) + 1)).toISOString();
+  const row = { project_id: id, doc, updated_at: updatedAt };
+  if (!previous) {
+    const { error } = await sb.from('project_documents').insert(row).abortSignal(AbortSignal.timeout(15000));
+    if (error?.code === '23505') return null;
+    if (error) throw error;
+  } else {
+    let query = sb.from('project_documents').update(row).eq('project_id', id);
+    query = previous.updatedAt == null ? query.is('updated_at', null) : query.eq('updated_at', previous.updatedAt);
+    const { data, error } = await query.select('project_id').abortSignal(AbortSignal.timeout(15000));
+    if (error) throw error;
+    if (!data?.length) return null;
+  }
+  return { doc, updatedAt };
 }
 
 export async function saveProjectDoc(id: string, doc: ProjectDoc): Promise<string> {
-  const sb = requireSupabase();
-  const updatedAt = new Date().toISOString();
-  const { error } = await sb
-    .from('project_documents')
-    .upsert({ project_id: id, doc, updated_at: updatedAt }, { onConflict: 'project_id' });
-  if (error) throw error;
-  return updatedAt;
+  // This path creates imports/new projects only. Existing collaborative
+  // documents must go through the merge + conditional persistence controller.
+  const saved = await compareAndSwapProjectDoc(id, doc, null);
+  if (!saved) throw new Error('A project with this name already exists. Open it or choose a different name.');
+  return saved.updatedAt!;
 }
 
 // ---------------------------------------------------------------- library

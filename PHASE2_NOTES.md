@@ -1,6 +1,6 @@
 # Phase 2 — Supabase persistence + Yjs realtime collaboration
 
-> Historical implementation notes. The current baseline uses whole-entity Yjs values; a test configuration is one whole entity. The old “no last-writer-wins” description below is inaccurate. See [the collaboration audit](docs/collaboration-audit.md) for reproduced join conflicts, snapshot-save races, deployed stale-state/selection fixes, and the recommended next pass.
+> Historical implementation notes. The current editor persists canonical Yjs history and uses conditional save/retry plus browser recovery; see [collaboration persistence](docs/collaboration-persistence.md). Baseline entities and test configurations still use whole-entity values. The old “no last-writer-wins” description below is inaccurate. The [earlier audit](docs/collaboration-audit.md) records the pre-fix join/save races.
 
 
 Branch: `phase-2-supabase-yjs` (do not push until reviewed)

@@ -1,5 +1,11 @@
 # Live collaboration audit — 2026-10-22
 
+> Update 2026-11-12: the late-join rollback, unconditional snapshot-save race,
+> premature saved indicator, missing retry/recovery and legacy-client downgrade
+> are addressed in [collaboration persistence](collaboration-persistence.md).
+> The historical findings below describe the pre-fix implementation. Baseline
+> entities and test configurations still use whole-entity conflict resolution.
+
 Scope: source review, deterministic Yjs interleavings, and two independent live browser tabs on a disposable OSIRIS clone. Real team diagrams were not edited. Same-machine tabs do not establish cross-computer latency or mobile/background-tab reliability.
 
 ## Confirmed and addressed in this pass
