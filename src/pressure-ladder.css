@@ -11,3 +11,6 @@ body:has(.ladder-workspace){min-width:0}.ladder-workspace{grid-template-columns:
 @media(max-width:700px){.ladder-workspace{grid-template-columns:160px minmax(0,1fr)}.pressure-analysis .pressure-controls{grid-template-columns:1fr}}
 
 .pressure-controls label{color:var(--symbol-text,#dce7ef)}.pressure-warning input[type=checkbox]{width:auto;margin-right:8px}
+.ladder-steps .sop-step,.ladder-steps .sop-buttons button,.ladder-steps .sop-section-heading button{background:var(--panel2,#101c27);color:var(--symbol-text,#dce7ef);border:1px solid var(--line,#22313e);border-radius:6px}
+.ladder-steps .sop-step.active{background:color-mix(in srgb,var(--cyan,#55d7ff) 16%,var(--panel2,#101c27));border-color:var(--cyan,#55d7ff)}
+.ladder-steps .sop-step:hover{border-color:var(--cyan,#55d7ff)}
