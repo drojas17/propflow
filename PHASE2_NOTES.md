@@ -1,111 +1,42 @@
-# Phase 2 — Supabase persistence + Yjs realtime collaboration
+# PropFlow: current architecture and handoff
 
-> Historical implementation notes. The current editor persists canonical Yjs history and uses conditional save/retry plus browser recovery; see [collaboration persistence](docs/collaboration-persistence.md). Baseline entities and test configurations still use whole-entity values. The old “no last-writer-wins” description below is inaccurate. The [earlier audit](docs/collaboration-audit.md) records the pre-fix join/save races.
+Updated 2026-11-14. This supersedes the September 2026 Phase 2 implementation notes; Git history retains the original. Treat this as a starting point and inspect current code and deployment before relying on a behavior. The operating rules in [AGENTS.md](AGENTS.md) and Daniel's current instructions control.
 
+## Project and workflow
 
-Branch: `phase-2-supabase-yjs` (do not push until reviewed)
-Date: 2026-09-28
+PropFlow (P&ID Studio) is MIT Rocket Team's collaborative P&ID editor. Daniel Rojas owns product scope. The site is https://propflow.drojas.me. Work on `phase-2-supabase-yjs`, never main. Check status and recent commits before editing; build with `npm run build` before every commit; push to both `personal` (deployment source) and `mit` unless instructed otherwise, and verify the actual deployed flow. Other sessions work in parallel; preserve their changes and untracked files. Never commit credentials. Chat feature requests do not require separate plan approval. Do not start subagents without renewed permission.
 
-## What changed
+## Architecture and persistence
 
-**Removed**
-- All Google OAuth / session / domain logic from `vite.config.ts` dev middleware.
-- Disk-backed `/api/projects`, `/api/project/:id`, `/api/library` middleware.
-- Snapshot-stack undo (`history.current`) — replaced by Yjs `UndoManager`.
-- 300 ms whole-document PUT autosave — replaced by Yjs sync + debounced snapshot persist.
+The React/TypeScript/Vite application uses Supabase and Yjs. `src/App.tsx` coordinates the editor, diagram state, inventory, import/export and synchronization. `src/lib/db.ts` owns Supabase access; `src/lib/collab.ts` owns Yjs maps, merges and realtime synchronization. The Supabase project has projects, project_documents, project_updates, global_library and share_links. A project document contains the baseline diagram, SOP, project parts and optional test plans, sequences and failure analysis. Shared symbol definitions live in global_library. Its symbol overrides take precedence over stale project copies; do not alter symbolOverrides behavior without Daniel's express authorization.
 
-**Added**
-- `src/lib/supabase.ts` — lazy Supabase client (`getSupabase()` / `requireSupabase()`),
-  safe to import when env vars are missing or in public-only mode.
-- `src/lib/db.ts` — data-access layer over Supabase tables:
-  - `listProjects`, `ensureProject`, `loadProjectDoc`, `saveProjectDoc`
-  - `loadLibrary`, `saveLibraryDoc` (`global_library`, single row)
-  - `createShareLink` / `resolveShareToken` (`share_links`; tokens are 32 random
-    bytes, only the SHA-256 hash is stored; links are read-only + expiring)
-- `src/lib/collab.ts` — Yjs v13 engine:
-  - one `Y.Doc` per open project; maps for nodes / edges / shapes / meta
-  - `UndoManager` scoped to local origin only (`trackedOrigins: new Set(['local'])`)
-  - `Awareness` presence: identity (random name + color), cursor, selection ids
-  - Supabase Realtime Broadcast channel `propflow:project:<id>`, events
-    `yjs-update` and `awareness`; updates are base64-encoded `Y.encodeStateAsUpdate`
-  - updates received before DB hydration are buffered and replayed after load
-- `src/App.tsx` — surgically rewired:
-  - projects + library load from Supabase; `?share=<token>` resolves before load
-  - read-only mode enforced for share links (`readOnlyRef` gates every mutation path)
-  - remote Yjs changes reflect into React state; local React changes push into Yjs
-  - canonical snapshot persisted to `project_documents` 1 s after last edit
-  - redo added (`Ctrl/Cmd+Shift+Z`, `Ctrl+Y`); toolbar undo/redo buttons live
-  - peer cursors + name flags + selection outlines rendered in the SVG
-  - JSON import/export preserved; Share button writes to `share_links`
+The durable document includes canonical Yjs history in `_collab` alongside the JSON projection. Initial migration and writes use conditional revision checks; concurrent saves merge and retry. Local and peer updates are journaled in browser IndexedDB for recovery, and pending changes are not marked saved until acknowledged. Realtime uses the v2 project channel, with a timestamp watchdog and retry paths for missed updates. Portable JSON omits the internal history and imports initialize fresh history. See [collaboration persistence](docs/collaboration-persistence.md) for the migration, SQL guard, recovery limits and prior validation.
 
-**Dependencies**: added `yjs@13`, `y-protocols`.
+Nodes, edges and other entries are whole-entity values; concurrent edits to one entity can conflict. Test configurations are whole-entity collaboration entries, not fine-grained collaborative diagrams. Explicitly mark every edge attached to a deleted node as deleted. Sync and hydration prune dangling edges, but renderers must still tolerate them. Free-floating line stubs are legal. See [test planning review](docs/test-planning-review.md).
 
-## Realtime model
+MIT sign-in uses Supabase custom provider `custom:petrock`. Read-only share links use an isolated anonymous resolver and enforce read-only UI. RLS is deliberately disabled on the listed tables in the current interim configuration; do not enable it or change grants without Daniel's authorization. Do not execute the old September setup SQL from Git history as a current deployment recipe. Check actual infrastructure before making access claims.
 
-Google Docs-like, per project: everyone with the same project open shares one live
-document. Local edits broadcast over Supabase Realtime and merge via Yjs CRDT —
-no locking, with conflicts resolved at the whole-entity level. A debounced JSON snapshot keeps
-`project_documents` durable for fresh loads. Presence (cursor + selection) rides
-the same channel via Yjs Awareness.
+## Product model
 
-## Interim anonymous mode (IMPORTANT)
+- The top-level diagram is the baseline. Test configurations contain independent diagram snapshots and multiple SOP sequences; active test and sequence are browser-local. The first baseline sequence is mirrored into legacy `sop`.
+- Failure events are project-shared; AND/OR trees refer to event IDs and can be scoped to tests, sequences and steps. The scenario preview is Boolean and local, not a quantitative reliability or hardware simulation.
+- SOP playback supports cumulative actions and qualitative pressure and fluid previews, plus WebM and GIF export. These are not a drain-time or full physical model.
+- The pressure ladder is a route-based exploratory analysis, not a simultaneous network solver. It uses persisted line dimensions, bounded nitrogen properties and ideal regulator setpoints; dome supply, regulator droop and two-phase flow are not solved. See [pressure ladder model](docs/pressure-ladder-model.md) for assumptions and bounds.
+- Inventory parts are stored per project and may be linked to diagram components and physical line assembly items. The BOM counts explicitly listed assembly items; a line with only an adapter listed implies one adapter, not an additional tube. The assembly row can create and link a new inventory part. The adapter currently suppresses direct end-to-end mismatch warnings; its own two interfaces are not independently validated.
+- A junction directly adjacent to a regulator can be designated a built-in pressure port without changing the schematic. The regulator's inventory part can record left/right gauge-port fittings separately from process-port fittings. Directly attached sensor fitting comparisons are preliminary; they do not prove a physical assembly is compatible.
+- Dome-loaded regulator simulation was previously left incomplete. A library symbol by itself does not demonstrate isolated dome-supply behavior; inspect current flow and SOP logic before extending it.
+- Custom symbols and behaviors are shared through the library. See [custom symbol behavior](docs/custom-symbol-behavior.md). Selecting a component reopens its inspector; renaming labels is inline. Do not create a vehicle quick-disconnect feature without Daniel's go-ahead.
 
-Until Touchstone/Petrock OIDC lands, the app runs in anonymous public mode:
+## Portable files and exports
 
-- Anonymous RLS policies allow public read/write on `projects`, `project_documents`,
-  `project_updates`, and read/update on `global_library`. **The database is publicly
-  writable right now.** This is accepted temporarily and understood by Daniel.
-- `share_links` anonymous access is intentionally narrow:
-  - inserts allowed (link creation needs no identity yet)
-  - reads go ONLY through the `resolve_share_token` RPC below — no direct anon
-    SELECT on the table, so token hashes cannot be enumerated.
-- `created_by` on imported rows is `null`; no owner memberships exist yet.
-  Assign ownership after real authentication exists.
+Project JSON format v2 validates IDs, coordinates, SOP structure and dangling edges. Landing import creates a copy. Editor import appends new test configurations and remaps references; it never replaces existing diagrams or imports symbol overrides over shared overrides. `local-` projects are session-only and Save downloads a backup. PNG/PDF export bounds include symbols, pipe routes and shape endpoints; the key is positioned relative to the crop. See `src/projectImport.ts` and the export code in `src/App.tsx`.
 
-**When Petrock credentials arrive:**
-1. Configure the Supabase custom OIDC provider (`custom:petrock`).
-2. Backfill `project_members` ownership for the four imported projects.
-3. Drop ALL anonymous policies (including the share-link insert policy).
-4. Restrict the RPC or move share resolution behind auth.
+## Main code locations
 
-## Dashboard SQL — run once in the Supabase SQL editor
+`src/Landing.tsx` handles the landing page; `src/SopWorkspace.tsx` the SOP editor; `src/PressureAnalysis.tsx` and `src/pressureModel.ts` the ladder; `src/ProjectControls.tsx`, `src/projectPlanning.ts` and `src/testModel.ts` planning; `src/FailureWorkspace.tsx` failure trees; `src/components/PartDialog.tsx` and `src/components/BOMView.tsx` inventory and BOM; `src/lib/fittingCompatibility.ts` preliminary fitting warnings; and `src/SymbolWorkshop.tsx` symbol editing.
 
-```sql
--- Narrow anonymous share-link resolution (no direct table SELECT for anon)
-create or replace function public.resolve_share_token(p_hash text)
-returns table (project_id text)
-language sql
-security definer
-set search_path = public
-as $$
-  select s.project_id
-  from public.share_links s
-  where s.token_hash = p_hash
-    and s.expires_at > now()
-$$;
-revoke all on function public.resolve_share_token(text) from public;
-grant execute on function public.resolve_share_token(text) to anon;
+## Verification and handoff
 
--- Interim: anonymous users may create share links (remove with Touchstone)
-create policy "anon create share links (interim)"
-  on public.share_links for insert to anon with check (true);
-```
+Run the applicable scripts in `scripts/` and the production build. For deployment verify ASTERIA and ASTERIA-RCS render; use disposable project copies for component deletion/reload, export PNG/PDF, and JSON download/reimport. Do not claim that a build or push is live verification. Recent commits `484705e` and `35deb0a` introduced regulator gauge-port metadata and line inventory creation; their full live export/import/deletion regression was not completed in those turns. Consult [AGENTS.md](AGENTS.md) for the complete current checklist and invariants.
 
-## Test checklist (manual, two tabs on `pnpm dev`)
-
-- [ ] All four projects load from Supabase; library loads
-- [ ] Create + rename + delete project persists across reload
-- [ ] Two tabs: drag a node in tab A, it moves in tab B in real time
-- [ ] Two tabs: cursors + selections visible with names
-- [ ] Undo in tab A only undoes tab A's edits (never a peer's)
-- [ ] Redo works (`Ctrl+Shift+Z`)
-- [ ] Reload mid-edit: state recovered from `project_documents` snapshot
-- [ ] Share link: `?share=<token>` opens read-only, mutations blocked, expires enforced
-- [ ] JSON export downloads the current project
-- [ ] Console shows no Supabase RLS 403s during normal use
-
-## Rollback
-
-- Pre-Phase 2 backups on the laptop: `src/App.pre-phase2.tsx`
-- Git tag `pre-collab` on `main`; branch `phase-2-supabase-yjs` holds this work
-- Committed Supabase schema: `~/workspace/goals/rocket-team-real-time-fluids-schematic-editor/schema.sql`
+To hand off to another account, provide this file, AGENTS.md and relevant docs, plus repository/service access separately. Do not include secrets in the handoff.

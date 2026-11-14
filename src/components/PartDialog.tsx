@@ -10,15 +10,16 @@ type PartDialogProps = {
   onSave: (part: Part) => void;
   onClose: () => void;
   propertyOptions: string[];
+  initialCategory?: string;
 };
 
 const commonProperties: Record<string, string[]> = { tanks:['Volume','Maximum pressure','Gas','Material'], valves:['Maximum pressure','Flow coefficient (Cv)','Orifice size','Material'], regulators:['Inlet pressure','Outlet pressure range','Flow coefficient (Cv)','Material'], sensors:['Measurement range','Accuracy','Output signal'], fittings:['Maximum pressure','Material'], tubing:['Outer diameter','Wall thickness','Material','Maximum pressure'], hoses:['Length','Inner diameter','Maximum pressure','Material'] };
 
 const commonCategories = ['Valves','Regulators','Tanks','Sensors','Gauges','Fittings','Tubing','Hoses','Actuators','Other'];
 
-export default function PartDialog({ part, onSave, onClose, propertyOptions }: PartDialogProps) {
+export default function PartDialog({ part, onSave, onClose, propertyOptions, initialCategory }: PartDialogProps) {
   const [name, setName] = useState(part?.name ?? '');
-  const [category, setCategory] = useState(part?.category ?? '');
+  const [category, setCategory] = useState(part?.category ?? initialCategory ?? '');
   const [source, setSource] = useState(part ? partSource(part) : '');
   const [partNumber, setPartNumber] = useState(part?.partNumber ?? '');
   const [description, setDescription] = useState(part?.description ?? '');
@@ -33,7 +34,7 @@ export default function PartDialog({ part, onSave, onClose, propertyOptions }: P
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!name.trim() || !category.trim()) { setError('Name and category are required.'); return; }
+    if (!name.trim() || !category.trim()) { setError(`Please enter ${!name.trim() && !category.trim() ? 'a name and category' : !name.trim() ? 'a name' : 'a category'} before saving.`); return; }
     const cost = unitCost.trim() === '' ? undefined : Number(unitCost);
     if (cost !== undefined && (!Number.isFinite(cost) || cost < 0)) { setError('Unit cost must be a non-negative number.'); return; }
     const refill = refillCost.trim() === '' ? undefined : Number(refillCost);
@@ -72,7 +73,7 @@ export default function PartDialog({ part, onSave, onClose, propertyOptions }: P
           <h2 style={{ margin: 0, flex: 1 }}>{part ? 'Edit part' : 'New part'}</h2>
           <button className="parts-dialog-close" aria-label="Close" type="button" onClick={onClose}><X size={18} /></button>
         </div>
-        <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 16, marginTop: 20 }}>
+        <form noValidate onSubmit={handleSubmit} style={{ display: 'grid', gap: 16, marginTop: 20 }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
             <label>Name *<input className="input" required value={name} onChange={(e) => setName(e.target.value)} style={inputStyle} /></label>
             <label>Category *<input className="input" required list="part-cats" value={category} onChange={(e) => setCategory(e.target.value)} style={inputStyle} />
@@ -122,7 +123,7 @@ export default function PartDialog({ part, onSave, onClose, propertyOptions }: P
               <button className="button" type="button" onClick={() => setLinks(prev => [...prev, {id:crypto.randomUUID(),label:'',url:''}])}><Plus size={16} /> Add link</button>
             </div>
           </fieldset>
-          {error && <p style={{ margin: 0, color: '#fca5a5' }}>{error}</p>}
+          {error && <p role="alert" style={{ margin: 0, color: '#fca5a5' }}>{error}</p>}
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
             <button className="button" type="button" onClick={onClose}>Cancel</button>
             <button className="button" type="submit">Save part</button>
