@@ -4,6 +4,7 @@ import { Plus, Trash2, X } from 'lucide-react';
 import type { Part } from '../lib/db';
 import './parts-dialog.css';
 import { partSource } from '../lib/partSource';
+import { uid } from '../lib/uid';
 
 type PartDialogProps = {
   part: Part | null;
@@ -27,9 +28,9 @@ export default function PartDialog({ part, onSave, onClose, propertyOptions, ini
   const [fittings, setFittings] = useState<NonNullable<Part['fittings']>>(part?.fittings ?? {});
   const [unitCost, setUnitCost] = useState(part?.unitCost?.toString() ?? '');
   const [specs, setSpecs] = useState<{id:string;key:string;value:string}[]>(() =>
-    Object.entries(part?.specs ?? {}).map(([key, value]) => ({ id: crypto.randomUUID(), key, value }))
+    Object.entries(part?.specs ?? {}).map(([key, value]) => ({ id: uid(), key, value }))
   );
-  const [links, setLinks] = useState<{id:string;label:string;url:string}[]>(() => (part?.links ?? []).map(link => ({ ...link, id: crypto.randomUUID() })));
+  const [links, setLinks] = useState<{id:string;label:string;url:string}[]>(() => (part?.links ?? []).map(link => ({ ...link, id: uid() })));
   const [error, setError] = useState('');
 
   function handleSubmit(e: FormEvent) {
@@ -47,7 +48,7 @@ export default function PartDialog({ part, onSave, onClose, propertyOptions, ini
     const activeSpecs = specs.filter(r => r.key.trim() || r.value.trim());
     onSave({
       ...part,
-      id: part?.id ?? crypto.randomUUID(),
+      id: part?.id ?? uid(),
       name: name.trim(),
       category: category.trim(),
       manufacturer: part && source.trim() === partSource(part) ? part.manufacturer : source.trim() || undefined,
@@ -108,7 +109,7 @@ export default function PartDialog({ part, onSave, onClose, propertyOptions, ini
                   <button className="button" type="button" onClick={() => setSpecs(specs.filter(s => s.id !== row.id))}><Trash2 size={16} /></button>
                 </div>
               ))}
-              <button className="button" type="button" onClick={() => setSpecs([...specs, { id: crypto.randomUUID(), key: '', value: '' }])}><Plus size={16} /> Add specification</button>
+              <button className="button" type="button" onClick={() => setSpecs(prev => [...prev, { id: uid(), key: '', value: '' }])}><Plus size={16} /> Add specification</button>
             </div>
           </fieldset>
           <fieldset style={{ border: '1px solid #374151', borderRadius: 8 }}>
@@ -120,7 +121,7 @@ export default function PartDialog({ part, onSave, onClose, propertyOptions, ini
                 <input className="input" aria-label="Link URL" placeholder="https://..." value={link.url} onChange={e => setLinks(prev => prev.map(item => item.id === link.id ? {...item, url:e.target.value} : item))} style={{flex:2}} />
                 <button className="button" type="button" aria-label="Remove link" onClick={() => setLinks(prev => prev.filter(item => item.id !== link.id))}><Trash2 size={16} /></button>
               </div>)}
-              <button className="button" type="button" onClick={() => setLinks(prev => [...prev, {id:crypto.randomUUID(),label:'',url:''}])}><Plus size={16} /> Add link</button>
+              <button className="button" type="button" onClick={() => setLinks(prev => [...prev, {id:uid(),label:'',url:''}])}><Plus size={16} /> Add link</button>
             </div>
           </fieldset>
           {error && <p role="alert" style={{ margin: 0, color: '#fca5a5' }}>{error}</p>}
