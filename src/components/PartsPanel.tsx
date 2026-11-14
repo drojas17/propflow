@@ -49,7 +49,7 @@ export default function PartsPanel({
   }, [parts, search, category]);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: 16, color: '#e5e7eb', background: '#111827', minWidth: 280, height: '100%', overflowY: 'auto' }}>
+    <div className="parts-panel" style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: 16, color: '#e5e7eb', background: '#111827', minWidth: 280, height: '100%', overflowY: 'auto' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <Box size={20} aria-hidden="true" />
         <h2 style={{ margin: 0, flex: 1, fontSize: 18 }}>Parts</h2>
