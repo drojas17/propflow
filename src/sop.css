@@ -167,7 +167,8 @@ body.panel-open .app-sidebar-resizer[data-side="right"]{display:none}
  .project-context label{flex-shrink:0;flex-direction:row!important;align-items:center!important}
  .app>main aside.left,.app>main aside.right,.app-sidebar-resizer,.panel-toggle{display:none!important}
  .app>main .viewbar>* ,.sop-navigation>*{display:none!important}
- .app>main .viewbar>.mobile-mode,.sop-navigation>.mobile-mode,.app>main .viewbar>.detail-toggle{display:inline-flex!important;align-items:center;gap:5px;white-space:nowrap}
+ .sop-navigation>.mobile-mode,.app>main .viewbar>.detail-toggle{display:inline-flex!important;align-items:center;gap:5px;white-space:nowrap}
+ .app>main .viewbar>.compact-view-select{display:block!important;width:135px;min-width:0;margin:0}
  .app>main .viewbar>.mobile-export{margin-left:auto}
  .app>main .viewbar>.mobile-export+.mobile-export{margin-left:0}
  .canvas-controls button:nth-last-child(-n+2){display:none}
